@@ -15,6 +15,10 @@ with open('static/custom.css') as f:
 # Session state initialization
 if 'current_page' not in st.session_state:
     st.session_state.current_page = 'welcome'
+if 'show_left_sidebar' not in st.session_state:
+    st.session_state.show_left_sidebar = False
+if 'show_right_sidebar' not in st.session_state:
+    st.session_state.show_right_sidebar = False
 if 'data' not in st.session_state:
     # Sample data for demonstration
     st.session_state.data = pd.DataFrame({
@@ -28,13 +32,23 @@ if 'data' not in st.session_state:
 left_arrow, main_content, right_arrow = st.columns([1, 10, 1])
 
 with left_arrow:
-    if st.button('←'):
-        st.session_state.show_left_sidebar = True
+    if st.button('←', key='left_arrow'):
+        st.session_state.show_left_sidebar = not st.session_state.show_left_sidebar
+        st.rerun()
 
 with right_arrow:
-    if st.button('→'):
-        st.session_state.show_right_sidebar = True
+    if st.button('→', key='right_arrow'):
+        st.session_state.show_right_sidebar = not st.session_state.show_right_sidebar
+        st.rerun()
 
+# Show sidebars if enabled
+if st.session_state.show_left_sidebar:
+    sidebar.show_left_sidebar()
+
+if st.session_state.show_right_sidebar:
+    data_info.show_right_sidebar()
+
+# Main content
 with main_content:
     if st.session_state.current_page == 'welcome':
         welcome.show()
@@ -42,7 +56,3 @@ with main_content:
         statistics.show()
     elif st.session_state.current_page == 'modeling':
         modeling.show()
-
-# Sidebars
-sidebar.show_left_sidebar()
-data_info.show_right_sidebar()

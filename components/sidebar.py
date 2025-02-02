@@ -3,14 +3,17 @@ import streamlit as st
 def show_left_sidebar():
     with st.sidebar:
         st.title("Statistical Tools")
-        
-        if st.button("Descriptive Statistics"):
+
+        if st.button("Descriptive Statistics", key='desc_stats_btn'):
             st.session_state.current_page = 'statistics'
             st.session_state.current_tool = 'descriptive'
-            
-        if st.button("Statistical Modeling"):
+            st.rerun()
+
+        if st.button("Statistical Modeling", key='stats_model_btn'):
             st.session_state.current_page = 'modeling'
             st.session_state.current_tool = 'modeling'
-            
-        if st.button("Home"):
+            st.rerun()
+
+        if st.button("Home", key='home_btn'):
             st.session_state.current_page = 'welcome'
+            st.rerun()
