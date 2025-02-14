@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sean's Holistic Workspace - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Raleway:wght@300;400;700&family=Alice:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/homepage.css"/>
+</head>
+<body>
+
+
+  <!-- 左侧侧边栏 -->
+  <nav id="leftSidebar" class="sidebar hidden">
+    <h2>Modules</h2>
+    <ul>
+      <li><a href="StatsTools.html">Statistic Tools</a></li>
+      <li><a href="statsmodel.html#visual">Visualization</a></li>
+    </ul>
+  </nav>
+
+  <!-- 右侧预览边栏 -->
+  <nav id="rightSidebar" class="sidebar hidden">
+    <h2>Data Preview</h2>
+    <table id="preview-table">
+      <thead>
+        <tr>
+          <th>Variables</th>
+          <th>DataType</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- JS 将在这里插入数据行 -->
+      </tbody>
+    </table>
+  </nav>
+
+  <!--箭头按钮 -->
+  <div id="leftToggle"></div>
+  <div id="rightToggle"></div>
+
+  <!-- 主体内容 -->
+  <main class="main-content">
+    <h1>Welcome to <br> <span>Sean's</span> <br>Holistic Workspace</h1>
+    <button id="uploadBtn" class="upload-button">WHY DONT WE START FROM HERE</button>
+    <input type="file" id="file-input" style="display: none;">
+  </main>
+
+  <script src="js/homepage.js"></script>
+</body>
+</html>

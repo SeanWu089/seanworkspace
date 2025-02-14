@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistic Tools</title>
+  <!-- 引入 Google Fonts，与主页面保持一致 -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Raleway:wght@300;400;700&family=Alice:wght@300;400;700&display=swap" rel="stylesheet">
+  <!-- 引入公共的样式文件 -->
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    /* 这里可以写针对 stats tools 页面的额外样式 */
+    body {
+      background-color: #f1f4fb;
+      font-family: 'Raleway', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #163874;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-family: 'Dancing Script', cursive;
+    }
+    main {
+      padding: 1rem 2rem;
+    }
+    .tool-section {
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background-color: #fff;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+    }
+    .tool-section h2 {
+      margin-top: 0;
+      font-family: 'Alice', serif;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #163874;
+      color: #fff;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Statistic Tools</h1>
+  </header>
+
+  <main>
+    <!-- 示例：第一个工具区域 -->
+    <section class="tool-section">
+      <h2>Descriptive Statistics</h2>
+      <p>在此区域中，你可以上传数据并获得基本的描述统计信息（如均值、中位数、标准差等）。</p>
+      <!-- 后续可以增加文件上传、按钮、数据显示区域等 -->
+    </section>
+
+    <!-- 示例：第二个工具区域 -->
+    <section class="tool-section">
+      <h2>Regression Analysis</h2>
+      <p>本区域支持回归分析、绘制散点图及回归曲线等功能。</p>
+      <!-- 这里可以增加相应的表单和输出区域 -->
+    </section>
+
+    <!-- 根据需求添加更多的统计工具模块 -->
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Sean's Holistic Workspace</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>StatsTools Page</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Tinos:wght@300;400;700&family=Asap:wght@300;400;700&family=Raleway:wght@300;400;700&family=Alice:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/statstools.css">
+</head>
+<body>
+
+  <!-- 第一个板块：Descriptive Statistics -->
+  <section class="block">
+    <h1 class="main-title">Descriptive Statistics</h1>
+
+    <!-- Discrepency -->
+    <div class="row">
+        <div class="label">Discrepency</div>
+        <div class="btn-container">
+          <button class="btn">Z-score</button>
+          <button class="btn">T-test</button>
+          <button class="btn">Chi-Square</button>
+          <button class="btn">ANOVA</button>
+        </div>
+      </div>
+      
+
+    <!-- Correlation -->
+    <div class="row">
+      <div class="label">Correlation</div>
+      <div class="btn-container">
+        <button class="btn">Pearson</button>
+        <button class="btn">Spearman</button>
+        <button class="btn">Kendall</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 第二个板块：Statistical Modeling -->
+  <section class="block">
+    <h1 class="main-title">Conventional Machine Learning</h1>
+
+    <div class="row">
+      <div class="label">Regression</div>
+      <div class="btn-container">
+        <button class="btn">OLS</button>
+        <button class="btn">ElasticNet</button>
+        <button class="btn">Logistic</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="label">Classification</div>
+      <div class="btn-container">
+        <button class="btn">LDA</button>
+      </div>
+    </div>
+
+    <!-- Unsupervised -->
+    <div class="row">
+      <div class="label">Unsupervised</div>
+      <div class="btn-container">
+        <button class="btn">K-means</button>
+        <button class="btn">PCA</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="label">TimeSeries</div>
+      <div class="btn-container">
+        <button class="btn">ARIMA</button>
+        <button class="btn">Risk</button>
+        <button class="btn">Spectrum</button>
+      </div>
+    </div>
+
+    <div class="row">
+        <div class="label">Advanced</div>
+        <div class="btn-container">
+          <button class="btn" onclick="window.location.href='Workspace.html?mode=SEM';">SEM</button>
+          <button class="btn">RandomForest</button>
+          <button class="btn">XGBoost</button>
+        </div>
+      </div>
+  </section>
+
+  <section class="block">
+    <h1 class="main-title">Neural Network</h1>
+
+    <div class="row">
+      <div class="label">Deeplearning</div>
+      <div class="btn-container">
+        <button class="btn">MLP</button>
+        <button class="btn">LSTM</button>
+        <button class="btn">RNN</button>
+        <button class="btn">CNN</button>
+        <button class="btn">Encoders</button>
+        <button class="btn">Decoders</button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Inherrit -->
+ <!-- 左侧侧边栏 -->
+ <nav id="leftSidebar" class="sidebar hidden">
+    <h2>Modules</h2>
+    <ul>
+      <li><a href="StatsTools.html">Statistic Tools</a></li>
+      <li><a href="statsmodel.html#visual">Visualization</a></li>
+    </ul>
+  </nav>
+
+  <!-- 右侧预览边栏 -->
+  <nav id="rightSidebar" class="sidebar hidden">
+    <h2>Data Preview</h2>
+    <table id="preview-table">
+      <thead>
+        <tr>
+          <th>Variables</th>
+          <th>DataType</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- JS 将在这里插入数据行 -->
+      </tbody>
+    </table>
+  </nav>
+
+  <!--箭头按钮 -->
+  <div id="leftToggle"></div>
+  <div id="rightToggle"></div>
+
+  <script src="js/statstools.js"></script>
+
+  <a href="HomePage.html" class="quarter-home"></a>
+</body>
+</html>
+
