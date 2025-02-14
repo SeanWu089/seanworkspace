@@ -4,10 +4,10 @@ Welcome to **Sean's Holistic Workspace**! <br> <br>
 Feeling dizzy and dunno what to do? <br>
 Been caged at home for the whole day because of a task you have to do but you do not even want to look?  <br>
 Got an idea in your mind but just cannot get it off your tone? <br>
-Wanna eat loaded fries with hot chicken but don't have teeth? (Sorry, can't help with this tho) <br>
+Wanna eat loaded fries with hot chicken but don't have teeth? (Sorry, can't help with this tho) <br><br>
 Check out all the tools you have here at Sean's Holistic Workspace. This place is where you find the perfect tool to handle your difficulty or task.
 
-欢迎来到 **Sean's Holistic Workspace**！这是一个超级全能的工作空间。在这里，你可以探索你脑袋中的精彩点子，你可以给这些想法塑形让他们来到现实，让他们有生命有灵魂。这里提供正好的工具让你无论是想要解决问题、完成工作或是进行研究都能够得心应手！
+欢迎来到 **Sean's Holistic Workspace**！<br>这是一个超级全能的工作空间。在这里，你可以探索你脑袋中的精彩点子，你可以给这些想法塑形让他们来到现实，让他们有生命有灵魂。这里提供正好的工具让你无论是想要解决问题、完成工作或是进行研究都能够得心应手！
 
 > **愿景：** 通过简洁直观的方式，自动化地完成复杂的任务。
 
