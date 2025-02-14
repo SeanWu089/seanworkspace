@@ -1,6 +1,6 @@
 # 🤖 Sean's Holistic Workspace 👩🏻
 
-Welcome to **Sean's Holistic Workspace**! 
+Welcome to **Sean's Holistic Workspace**! <br>
 Feeling dizzy and dunno what to do? <br>
 Been caged at home for the whole day because of a task you have to do but you do not even want to look?  <br>
 Got an idea in your mind but just cannot get it off your tone? <br>
