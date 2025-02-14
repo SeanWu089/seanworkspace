@@ -1,7 +1,7 @@
 # 🤖 Sean's Holistic Workspace 👩🏻
 
 Welcome to **Sean's Holistic Workspace**! 
-Feeling dizzy and dunno what to do? 
+Feeling dizzy and dunno what to do? <\n>
 Been caged at home for the whole day because of a task you have to do but you do not even want to look?  
 Got an idea in your mind but just cannot get it off your tone? 
 Wanna eat loaded fries with hot chicken but don't have teeth? (Sorry, can't help with this tho)
