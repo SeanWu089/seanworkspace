@@ -104,6 +104,26 @@
   
     </div>
   </section>
+
+  <!-- 反馈组件容器 -->
+<div class="feedback-container">
+  <!-- 初始状态下触发器在面板左侧 -->
+  <div class="feedback-trigger" id="feedbackTrigger">
+    <div class="new-arrow"></div>
+  </div>
+  
+  <!-- 反馈面板（默认隐藏） -->
+  <div class="feedback-panel" id="feedbackPanel">
+    <textarea 
+      id="feedbackInput"
+      placeholder="You type, we listen..."
+      rows="4"
+    ></textarea>
+    <button id="submitBtn">SUBMIT</button>
+    <!-- 当面板滑出时，触发器会移动到这里并转变为右侧线段 -->
+  </div>
+</div>
+
   
   
 </body>

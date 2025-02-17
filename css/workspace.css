@@ -618,3 +618,182 @@
     transform: rotate(180deg);
     /* z-index: 1000; */
 }
+
+
+
+
+/* >>>>>> FEEDBACK is all what we care about */
+.feedback-container {
+    position: fixed;
+    left: 0;
+    bottom: 200px;
+    z-index: 1100;
+  }
+  
+  /* 梯形触发器 */
+  .feedback-trigger {
+    position: relative;
+    left: -20px;
+    width: 46px;
+    height: 80px;
+    background: #f0f0f0;
+    cursor: pointer;
+    clip-path: polygon(100% 5%, 0 0, 0 100%, 100% 95%);
+    /* transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); */
+    border-radius: 15px;
+    transition: all 0.8s ease;
+  }
+  
+  .feedback-trigger:hover {
+    transform: translateX(3px);
+    background-color: #333;
+    transition: all 0.7s ease;
+
+  }
+
+  .feedback-panel {
+    position: fixed;
+    left: 0;
+    bottom: 160px;
+    transform: translateX(-110%);
+    transition: transform 0.5s ease;
+    display: flex;
+    align-items: flex-start;
+    background: #333;
+    padding: 10px;
+    border-radius: 8px;
+    z-index: 1099;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    color: #fff;
+    transition: all 1s ease;
+    height: 150px;
+    font-size: 20px;
+    font-weight: 400;
+  }
+
+  .feedback-panel textarea {
+    padding-left: 10px;
+    padding-top: 4px;
+    font-size: 20px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    border-radius: 5px;
+    outline: none;
+    resize: none;
+    color: #fff !important;
+  }
+  
+  .feedback-panel textarea::placeholder {
+    padding: 5px;
+    color: #ffffff;
+    font-style: italic;
+    font-size: 14px;
+  }
+  
+
+  .feedback-panel button {
+    width: 20px;
+    height: 80px;
+    /* 旋转按钮 */
+    /* transform: rotate(-90deg); */
+    transform-origin: center;
+    writing-mode: vertical-rl;
+    text-align: center;
+    margin-right: 10px;
+    transition: all 0.8s ease;
+    border-radius: 8px;
+    color: #fff;
+    background-color: #007AFF;
+    border-color: transparent;
+    cursor: pointer;
+    /* align-items: center; */
+    margin-top: auto;
+    margin-bottom: auto;
+    z-index: 1020;
+  }
+
+  .feedback-panel button:hover {
+    background-color: #0c55a4;
+    color: #0c55a4;
+    border-color: transparent;
+  }
+  
+  
+  .feedback-panel.active {
+    transform: translateX(0);
+  }
+
+  .feedback-panel textarea {
+    flex: 1;
+    margin-right: 5px;
+    resize: none;
+  }
+
+  .feedback-panel .feedback-trigger.active {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 100%;
+    background: #ccc;
+    clip-path: none;
+    border-radius: 0;
+    transition: all 0.5s ease;
+  }
+
+  
+
+.new-arrow {
+    position: absolute;
+    left: 8px;
+    top: 65%;
+    width: 32px;
+    height: 32px;
+    transform: translateY(-50%);
+    z-index: 1101;
+  }
+  
+  .new-arrow::before,
+  .new-arrow::after {
+    content: '';
+    position: absolute;
+    background: #666;
+    width: 18px;
+    height: 7px;
+    border-radius: 3px;
+    transition: all 0.2s;
+    right: 0; 
+    transform-origin: right center; /* 关键：以右端为旋转基点 */
+  }
+  
+  .new-arrow::before {
+    transform: 
+      rotate(45deg) 
+      translateY(2px);
+  }
+  
+  .new-arrow::after {
+    transform: 
+      rotate(-45deg)
+      translateY(-3px);
+  }
+  
+  .feedback-panel.active .feedback-trigger {
+    display: none;  /* 或者 visibility: hidden; 也行 */
+  }
+  .feedback-panel.active .new-arrow {
+    display: none;
+  }
+  
+  /* 2. 在面板左侧用伪元素画一根竖线 */
+  .feedback-panel.active::before {
+    content: "";
+    position: absolute;
+    left: 0;      /* 面板内部左边 */
+    top: 0;
+    width: 6px;   /* 线条的粗细，可自行调整 */
+    height: 100%;
+    background-color: #007AFF; /* 线条颜色，可自行调整 */
+    border-radius: 3px;        /* 如果需要圆角，可保留 */
+  }

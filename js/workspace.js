@@ -1026,5 +1026,91 @@ function extractVariablesFromCanvas() {
   } else {
     console.error("找不到 id 为 'shazamBtn' 的按钮，请检查 HTML 中的按钮 id。");
   }
+
+
+//  >>>> ================================================ User Feedback <<<<<<<
+const feedbackTrigger = document.getElementById('feedbackTrigger');
+const feedbackPanel = document.getElementById('feedbackPanel');
+const feedbackContainer = document.querySelector('.feedback-container');
+
+// 点击触发器时执行
+feedbackTrigger.addEventListener('click', function (event) {
+  event.stopPropagation(); // 阻止事件冒泡，防止触发 document 点击事件
+  // 切换面板激活状态（滑出/收回）
+  feedbackPanel.classList.toggle('active');
+
+  if (feedbackPanel.classList.contains('active')) {
+    // 面板滑出时，将触发器移入面板末尾，并转变样式
+    feedbackPanel.appendChild(feedbackTrigger);
+    feedbackTrigger.classList.add('active');
+  } else {
+    // 面板收回时，将触发器放回原位置（插入到反馈容器最前面）
+    feedbackContainer.insertBefore(feedbackTrigger, feedbackPanel);
+    feedbackTrigger.classList.remove('active');
+  }
+});
+
+// 点击空白处时，面板收回，触发器恢复到左侧
+document.addEventListener('click', function (event) {
+  // 如果点击的目标不在反馈容器内
+  if (!feedbackContainer.contains(event.target)) {
+    if (feedbackPanel.classList.contains('active')) {
+      feedbackPanel.classList.remove('active');
+      // 等待面板动画结束后再把触发器恢复到原位（这里使用 800ms，与 CSS 过渡时间保持一致）
+      setTimeout(() => {
+        feedbackContainer.insertBefore(feedbackTrigger, feedbackPanel);
+        feedbackTrigger.classList.remove('active');
+      }, 800);
+    }
+  }
+});
+
+// 处理点击 submit 按钮后的反馈提交操作
+document.getElementById('submitBtn').addEventListener('click', function(event) {
+  // 阻止事件冒泡，避免触发 document 点击空白处的逻辑
+  event.stopPropagation();
+
+  const feedbackInput = document.getElementById('feedbackInput');
+  const statusMessage = document.getElementById('statusMessage');
+  const feedback = feedbackInput.value.trim();
+
+  if (!feedback) {
+    statusMessage.innerText = "请输入反馈内容";
+    return;
+  }
+
+
+  fetch('/feedback', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ feedback: feedback })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      statusMessage.innerText = "提交失败: " + data.error;
+    } else {
+      statusMessage.innerText = "感谢反馈! 反馈编号：" + data.feedbackNumber;
+      // 清空输入框
+      feedbackInput.value = "";
+      // 反馈成功后自动收回面板
+      if (feedbackPanel.classList.contains('active')) {
+        feedbackPanel.classList.remove('active');
+        // 等待动画结束后再将触发器恢复到原位
+        setTimeout(() => {
+          feedbackContainer.insertBefore(feedbackTrigger, feedbackPanel);
+          feedbackTrigger.classList.remove('active');
+        }, 800);
+      }
+    }
+  })
+  .catch(error => {
+    statusMessage.innerText = "提交异常: " + error;
+  });
+});
+
+
   
 });
