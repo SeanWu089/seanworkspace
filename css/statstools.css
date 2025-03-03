@@ -301,7 +301,7 @@ body {
   
   /* 小圆圈样式（默认状态） */
   .assistant-icon {
-    background-image: url('media/images/sean.PNG');
+    background-image: url('media/images/sean.webp');
     background-size: cover; /* 或者设置具体尺寸 */
     background-repeat: no-repeat;
     background-position: center;
