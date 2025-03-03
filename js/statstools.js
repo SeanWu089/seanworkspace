@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 显示加载指示器
     const loadingMessage = document.createElement('div');
     loadingMessage.classList.add('message', 'assistant', 'loading');
-    loadingMessage.textContent = '正在思考...';
+    loadingMessage.textContent = 'Im thinking...';
     chatHistory.appendChild(loadingMessage);
     chatHistory.scrollTop = chatHistory.scrollHeight;
     
