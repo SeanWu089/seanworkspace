@@ -299,10 +299,9 @@ body {
     transform: translate(0, 0);
   }
   
-  /* 小圆圈样式（默认状态） */
   .assistant-icon {
-    background-image: url('./media/images/sean.webp');
-    background-size: cover; /* 或者设置具体尺寸 */
+    /* background-image: url('./media/images/sean.png'); */
+    background-size: cover; 
     background-repeat: no-repeat;
     background-position: center;
     width: 100px;
