@@ -130,6 +130,34 @@
   <div id="leftToggle"></div>
   <div id="rightToggle"></div>
 
+  <!-- >>>> Assistant <<<<< -->
+  <div id="assistant-container" class="assistant-container">
+    <!-- 聊天小圆圈（收起状态） -->
+    <div class="assistant-icon">
+      <!-- <svg viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+      </svg> -->
+    </div>
+    
+    <!-- 聊天窗口（展开状态） -->
+    <div class="chat-window">
+      <div class="chat-header">
+        <h3>Your Helpful Assistant</h3>
+        <button type="button" class="close-btn">&times;</button>
+      </div>
+      
+      <div id="chat-history" class="chat-history">
+        <!-- 聊天历史记录将在这里动态添加 -->
+        <div class="message assistant">Hola! I'm Sean, your helpful statistics assistant. Can't wait to fill in some models!</div>
+      </div>
+      
+      <form id="chat-form" class="chat-form">
+        <input type="text" id="user-input" placeholder="Input here..." autocomplete="off">
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+
   <script src="js/statstools.js"></script>
 
   <a href="HomePage.html" class="quarter-home"></a>
