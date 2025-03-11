@@ -1,0 +1,391 @@
+/* Account Page Styles */
+.account-content {
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 100vh;
+    /* background-color: #f1f4fb; */
+}
+
+/* Header Section */
+.account-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 20px 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    /* border: 3px solid #002fa7; */
+}
+
+.profile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-info h1 {
+    font-family: 'Raleway', sans-serif;
+    font-size: 24px;
+    color: #333;
+    margin: 0;
+}
+
+.join-date {
+    font-family: 'Alice', serif;
+    color: #666;
+    margin: 5px 0 0;
+    font-size: 14px;
+}
+
+.logout-btn {
+    background: transparent;
+    color: #002fa7;
+    border: 2px solid #002fa7;
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logout-btn:hover {
+    background: #f5f5f5;
+    color: #002fa7;
+    transform: scale(1.05);
+}
+
+/* Account Sections */
+.account-sections {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;  /* 左右比例为 1:1.5 */
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.account-section {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 确保 Saved Projects 在左边 */
+.account-section.projects {
+    grid-column: 1;
+    background-color: hsla(0, 0%, 100%, 0.8);
+}
+
+/* 确保 Uploaded Files 在右边 */
+.account-section.files {
+    grid-column: 2;
+    background-color: hsla(0, 0%, 100%, 0.8);
+}
+
+.account-section h2 {
+    font-family: 'Raleway', sans-serif;
+    color: #002fa7;
+    margin: 0 0 20px;
+    font-size: 22px;
+    padding-bottom: 5px;
+}
+
+/* Activity List */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.activity-item:hover {
+    transform: translateX(10px);
+}
+
+/* Projects Grid */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.project-card {
+    background: #2f4c90;
+    border-radius: 15px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+}
+
+.project-card h3 {
+    margin: 0 0 10px 0;  /* 减少顶部间距 */
+    font-family: 'Raleway', sans-serif;
+    font-size: 18px;
+    color: #333;
+}
+
+.project-card p {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+/* 项目卡片颜色主题 */
+.project-card.blue {
+    background: #d0ddfccf;  /* 灰蓝色 */
+}
+
+.project-card.orange {
+    background: #d39858c9;  /* 浅橙色 */
+}
+
+.project-card.pink {
+    background: #ffb4dbe9;  /* 淡粉色 */
+}
+
+.project-card.purple {
+    background: #b492d3;  /* 中紫色 */
+}
+
+.project-card.green {
+    
+    background: #93dc61;  /* 新绿色 */
+}
+
+.project-card.red {
+    background: #ae2020;  /* 深红色 */
+}
+
+/* 修改 header 按钮组样式 */
+.header-buttons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+/* Upgrade 按钮样式 */
+.upgrade-btn {
+    background: linear-gradient(135deg, #1e90ff, #002fa7, #4169e1);
+    background-size: 200% 200%;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease, background-position 0.5s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    animation: gradientMove 3s ease infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 修改会员状态样式 */
+.membership-status {
+    font-family: 'Raleway', sans-serif;
+    font-size: 18px;
+    color: #666;
+    margin: 5px 0 0;
+    font-weight: 500;
+}
+
+.membership-status.free {
+    color: #666;
+}
+
+.membership-status.pro {
+    color: #002fa7;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .account-content {
+        padding: 20px;
+    }
+
+    .account-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .user-profile {
+        flex-direction: column;
+    }
+
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .account-sections {
+        grid-template-columns: 1fr;  /* 在移动端变为单列 */
+    }
+
+    .account-section.projects,
+    .account-section.files {
+        grid-column: auto;  /* 重置网格列位置 */
+    }
+}
+
+/* 页面整体背景色在这里设置 */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%; 
+    background-color: #6475a13e;  /* 这里是整体背景色 */
+}
+
+/* 主页按钮样式 */
+.home-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.home-button i {
+    color: #1677FF;
+    font-size: 24px;
+    transition: all 0.3s ease;
+}
+
+.home-button:hover i {
+    color: #0056D6;
+    transform: scale(1.1);
+}
+
+.files-list {
+    max-width: 800px;
+    margin: 20px 0;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    margin: 8px 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.file-item:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-icon {
+    font-size: 20px;
+    width: 24px;
+    color: #4a5568;
+}
+
+.file-icon.fa-file-csv { color: #1da750; }
+.file-icon.fa-file-excel { color: #217346; }
+.file-icon.fa-file-pdf { color: #ff0000; }
+.file-icon.fa-file-word { color: #2b579a; }
+.file-icon.fa-file-powerpoint { color: #d24726; }
+
+.file-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.file-name {
+    font-size: 14px;
+    color: #2d3748;
+    margin-bottom: 2px;
+}
+
+.file-meta {
+    font-size: 12px;
+    color: #718096;
+}
+
+.file-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.file-action-btn {
+    padding: 6px;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #718096;
+    transition: all 0.2s ease;
+}
+
+.file-action-btn:hover {
+    background: #f7fafc;
+    color: #4a5568;
+}
+
+.file-action-btn.download:hover {
+    color: #4299e1;
+}
+
+.file-action-btn.delete:hover {
+    color: #e53e3e;
+} 

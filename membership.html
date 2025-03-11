@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership Plans - Sean's Holistic Workspace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Raleway:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Bubblegum+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Alice:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/membership.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <a href="index.html" class="home-button">
+        <i class="fas fa-home"></i>
+    </a>
+    <div class="membership-container">
+        <h1>Choose Your Plan</h1>
+        <div class="currency-toggle">
+            <span class="currency-symbol">¥</span>
+            <label class="switch">
+                <input type="checkbox" id="currencyToggle">
+                <span class="slider"></span>
+            </label>
+            <span class="currency-symbol">$</span>
+        </div>
+        <div class="plans-container">
+            <!-- Free Plan -->
+            <div class="plan-card free">
+                <div class="card-content">
+                    <div class="plan-header">
+                        <h2>Free</h2>
+                        <div class="price">$0<span>/month</span></div>
+                    </div>
+                    <ul class="features">
+                        <li>Up to 5000 rows per dataset</li>
+                        <!-- <li>3 saved analysis templates</li> -->
+                        <li>Basic statistical models</li>
+                        <li>Standard visualizations</li>
+                    </ul>
+                    <div class="button-container">
+                        <button class="plan-button" disabled>Current Plan</button>
+                    </div>
+                </div>
+                <div class="card-shine"></div>
+            </div>
+
+            <!-- Pro Plan -->
+            <div class="plan-card pro">
+                <div class="popular-tag">Most Popular</div>
+                <div class="card-content">
+                    <div class="plan-header">
+                        <h2>Pro</h2>
+                        <div class="price">$4.99<span>/month</span></div>
+                    </div>
+                    <ul class="features">
+                        <li>Up to 50,000 rows per dataset</li>
+                        <!-- <li>Unlimited analysis templates</li> -->
+                        <li>Limited RAG search</li>
+                        <li>Advanced statistical models</li>
+                        <li>Interactive visualizations</li>
+                        
+                        <li>Priority email support</li>
+                        <li>Data export in multiple formats</li>
+                    </ul>
+                    <div class="button-container">
+                        <button class="plan-button">Upgrade to Pro</button>
+                    </div>
+                </div>
+                <div class="card-shine"></div>
+            </div>
+
+            <!-- Ultimate Plan -->
+            <div class="plan-card ultimate">
+                <div class="card-content">
+                    <div class="plan-header">
+                        <h2>Ultimate</h2>
+                        <div class="price">$9.99<span>/month</span></div>
+                    </div>
+                    <ul class="features">
+                        <li>Unlimited all features</li>
+                        <li>More advanced models</li>
+                        <li>Customized configuration options</li>
+                        <li>Tailored visualization tools</li>
+
+                        <!-- >>>>卧槽这个想法很牛逼 可以共享 但是如何实现呢？ -->
+                        <li>Real-time collaboration</li> 
+                        <!-- <li>API integration</li> -->
+
+                        <!-- 这个可以有 大不了我不睡觉 肝爆 -->
+                        <li>Cloud storage & sync</li>
+                        <!-- <li>Team management tools</li> -->
+                    </ul>
+                    <div class="button-container">
+                        <button class="plan-button">Upgrade to Ultimate</button>
+                    </div>
+                </div>
+                <div class="card-shine"></div>
+            </div>
+        </div>
+    </div>
+    <script src="js/membership.js"></script>
+</body>
+</html> 
