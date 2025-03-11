@@ -1,7 +1,18 @@
 // 统一的数据读取和解析函数
-async function processDataFile(file, isUpload = false) {
+async function processDataFile(fileData, isUpload = false) {
     return new Promise((resolve, reject) => {
         try {
+            // 检查文件是否为Blob或File对象
+            if (!fileData || !(fileData instanceof Blob)) {
+                console.error('Invalid file object:', fileData);
+                reject(new Error('Invalid file object'));
+                return;
+            }
+            
+            // 获取文件名（如果是Blob，可能需要从上下文中获取）
+            const fileName = fileData.name || 'downloaded-file';
+            console.log('Processing file data, type:', fileData.type, 'size:', fileData.size);
+            
             const reader = new FileReader();
             
             reader.onload = async function(e) {
@@ -11,7 +22,8 @@ async function processDataFile(file, isUpload = false) {
                     let rawData = null;
                     
                     // 根据文件类型处理数据
-                    if (file.name.endsWith('.csv')) {
+                    if (fileData.type === 'text/csv' || fileName.endsWith('.csv')) {
+                        console.log('Processing CSV file');
                         const csvContent = e.target.result;
                         const lines = csvContent.split('\n');
                         if (lines.length > 0) {
@@ -19,7 +31,15 @@ async function processDataFile(file, isUpload = false) {
                             types = analyzeDataTypes(lines.slice(1), headers);
                             rawData = lines.slice(1).map(line => line.split(',').map(cell => cell.trim()));
                         }
-                    } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    } else if (fileData.type.includes('excel') || 
+                              fileName.endsWith('.xlsx') || 
+                              fileName.endsWith('.xls')) {
+                        console.log('Processing Excel file');
+                        // 确保XLSX对象存在
+                        if (typeof XLSX === 'undefined') {
+                            throw new Error('XLSX library not loaded');
+                        }
+                        
                         const workbook = XLSX.read(e.target.result, {type: 'binary'});
                         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                         const data = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
@@ -28,21 +48,26 @@ async function processDataFile(file, isUpload = false) {
                             types = analyzeDataTypes(data.slice(1), headers);
                             rawData = data.slice(1);
                         }
+                    } else {
+                        throw new Error('Unsupported file format: ' + fileData.type);
                     }
                     
                     // 如果是上传的文件，保存到Supabase
                     if (isUpload) {
+                        console.log('Uploading file to Supabase');
                         const session = await checkUserAuth();
                         if (session) {
-                            const fileName = `${Date.now()}_${file.name}`;
+                            const fileName = `${Date.now()}_${fileData.name}`;
                             const filePath = `${session.user.id}/${fileName}`;
                             
                             const { error: uploadError } = await window.supabaseClient
                                 .storage
                                 .from('user_files')
-                                .upload(filePath, file);
+                                .upload(filePath, fileData);
 
                             if (uploadError) throw uploadError;
+                        } else {
+                            throw new Error('User not authenticated');
                         }
                     }
                     
@@ -55,12 +80,15 @@ async function processDataFile(file, isUpload = false) {
                 }
             };
             
-            reader.onerror = () => reject(reader.error);
+            reader.onerror = (event) => {
+                console.error('FileReader error:', event);
+                reject(reader.error || new Error('File reading failed'));
+            };
             
-            if (file.name.endsWith('.csv')) {
-                reader.readAsText(file);
+            if (fileData.type === 'text/csv' || fileName.endsWith('.csv')) {
+                reader.readAsText(fileData);
             } else {
-                reader.readAsBinaryString(file);
+                reader.readAsBinaryString(fileData);
             }
         } catch (error) {
             console.error('Error in processDataFile:', error);
@@ -543,21 +571,34 @@ async function createFileSelector(userId) {
                         fileListContainer.innerHTML = '<p>加载文件数据中...</p>';
                         
                         // 从Supabase下载文件
+                        console.log('Downloading file:', file.name);
                         const { data: fileData, error: downloadError } = await window.supabaseClient
-            .storage
-            .from('user_files')
+                            .storage
+                            .from('user_files')
                             .download(`${userId}/${file.name}`);
-            
-                        if (downloadError) throw downloadError;
-        
+                        
+                        if (downloadError) {
+                            console.error('Download error:', downloadError);
+                            throw downloadError;
+                        }
+                        
+                        if (!fileData) {
+                            throw new Error('No file data received');
+                        }
+                        
+                        console.log('File downloaded successfully, size:', fileData.size, 'type:', fileData.type);
+                        
+                        // 为Blob添加name属性
+                        fileData.name = file.name;
+                        
                         // 处理文件数据
                         await processDataFile(fileData);
-        
+                        
                         // 关闭对话框
                         document.body.removeChild(dialog);
                     } catch (error) {
                         console.error('Error loading file:', error);
-                        alert('无法加载文件，请稍后再试');
+                        fileListContainer.innerHTML = '<p class="error-message">无法加载文件: ' + error.message + '</p>';
                     }
                 });
                 
