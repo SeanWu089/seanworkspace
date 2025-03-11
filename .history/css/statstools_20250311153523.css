@@ -1,3 +1,4 @@
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -10,6 +11,30 @@ body {
   background-color: #fff;
   padding: 20px;
 }
+
+.quarter-home {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100px;
+    height: 100px;     
+    background-color: #002FA7; 
+    
+    /* 制作四分之一圆：只保留左上角的圆弧 */
+    border-bottom-right-radius: 100%;
+    opacity: 0;
+    
+    pointer-events: auto;
+    /* 渐变效果 */
+    transition: opacity 0.5s ease;
+    z-index: 1000;
+  }
+  
+  /* 当鼠标悬停在这个区域时显示 */
+  .quarter-home:hover {
+    opacity: 1;
+  }
+  
 
 /* ========== 主要结构 ========== */
 .block {
@@ -86,6 +111,180 @@ body {
 /* 假设 Neural Network 是第三个 .block */
 .block:nth-of-type(3) .btn-container {
   max-width: calc(4 * 200px + 3 * 20px); /* 3个按钮宽度+2个间隙 */
+}
+
+
+/* Inherrit */
+/* >>>>                            LeftSideBar */
+#leftSidebar {
+    position: fixed;
+    top: 0;
+    left: -295px; /* 完全隐藏在屏幕外 */
+    width: 260px;
+    height: 100vh;
+    background-color: #fff;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: left 1s ease;
+    z-index: 999;
+    padding: 1rem;
+    overflow-y: auto;
+  }
+  
+  #leftSidebar ul {
+    list-style: none; /* 移除默认的列表点 */
+    padding: 0;
+    margin: 0;
+    text-align: left; /* 让菜单靠左，或者改成 center 让它居中 */
+  }
+  
+  #leftSidebar li {
+    margin: 0.5rem 0; /* 增加菜单项之间的间距 */
+  }
+  
+  #leftSidebar a {
+    text-decoration: none; /* 去掉默认的下划线 */
+    color: #010b1d; /* 设置颜色 */
+    font-size: 1.2rem;
+    font-weight: 500;
+    display: block; /* 让超链接占满整个行，增加可点击范围 */
+    padding: 0rem 0;
+    margin-bottom: 0px;
+    margin-left: 10px;
+    transition: color 0.3s ease;
+  }
+  
+  #leftSidebar a:hover {
+    color: #1e4a7b; /* 鼠标悬停时变深 */
+  }
+  
+  #leftSidebar h2 {
+    font-size: 2.5rem;
+    color: #061631;
+    text-align: center;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #020d1e; /* 添加一个下划线 */
+    padding-bottom: 0.5rem;
+    width: 100%;
+  }
+  
+  #leftSidebar.show {
+    left: 0;
+    opacity: 0.7;
+  }
+  
+  #leftToggle {
+    position: fixed;
+    top: 50%;
+    left: 5px; /* 让它贴边 */
+    transform: translate(0, -50%);
+    width: 25px;
+    height: 25px;
+    background-color: #163874; /* 蓝色背景 */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    transition: left 1s ease;
+  }
+  
+  #leftToggle::before {
+    content: "\279C"; /* Unicode箭头 */
+    font-size: 16px; /* 调整大小 */
+    color: white; /* 让箭头变白 */
+    display: inline-block; 
+    transform: rotate(180deg);
+  }
+  
+  
+  #leftSidebar.show + #leftToggle {
+    left: 280px; /* 让它和侧边栏对齐 */
+    transition: left 1s ease;
+  }
+  
+  
+  /*  >>>>                                    dataSidebar <<<< */
+  #rightSidebar {
+    position: fixed;
+    top: 0;
+    right: -230px; 
+    width: 180px;
+    height: 100vh;
+    background-color: #f7f2ff;
+    /* border-left: #24478e 1px solid; */
+    box-shadow: 5px 0 5px -5px rgba(0, 0, 0, 0.1);
+    transition: right 1.4s ease;
+    z-index: 1000;
+    /* padding: 1rem; */
+    overflow-y: auto;
+    padding-bottom: 3rem;
+    padding-left: 1rem;
+  }
+  
+  #rightSidebar h2 {
+    font-size: 1.5rem;
+    font-family: 'Raleway', sans-serif !important;
+    color: #061631;
+    text-align: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    width: 100%;
+    font-weight: 300;
+  }
+  
+  #rightSidebar.show {
+    right: 0; /* 让它贴边 */
+    opacity: 1;
+  }
+  
+  #preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  
+  #preview-table th,
+  #preview-table td {
+    /* border: 1px solid #ddd; */
+    padding: 4px;
+    /* padding-bottom: ; */
+    text-align: left;
+  }
+  
+  #preview-table {
+    font-family: 'alice', sans-serif !important;
+    align-items: center;
+    font-size: 14px;            
+    font-weight: 400;         
+    color: #333;                       
+    width: 100%;
+    border-collapse: collapse;        
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 1rem;                   
+  }
+  
+  #rightToggle {
+    position: fixed;
+    top: 50%;
+    right: 5px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    transition: right 1s ease, transform 1s ease;
+  }
+  
+  #rightToggle::before {
+    content: "\279C";
+    color: #fd86c8;
+    font-size: 2.5rem;
+    transition: inherit;
+    transform: rotate(180deg);
+    /* z-index: 1000; */
   }
   
   /* >>>> assistant <<<< */

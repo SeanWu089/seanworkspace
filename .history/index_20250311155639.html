@@ -6,14 +6,13 @@
   <title>Sean's Holistic Workspace - Home</title>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Raleway:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Bubblegum+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Alice:wght@300;400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/homepage.css"/>
-  <link rel="stylesheet" href="css/sidebars.css"/>
+  <!-- 添加 sidebars.js 引用 -->
+  <script src="js/sidebars.js" defer></script>
   <!-- Supabase 库 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-config.js"></script>
-  <script src="js/sidebars.js" defer></script>
-  <script src="js/homepage.js" defer></script>
 </head>
 <body>
+  <!-- 在登录按钮旁边添加 My Account 按钮，初始时隐藏 -->
   <div class="auth-buttons">
     <button id="open-login-button" class="login-btn">Login</button>
     <button id="my-account-button" class="login-btn" style="display: none;">My Account</button>
@@ -184,5 +183,11 @@
         </div>
     </div>
   </div>
+  <!-- 2. 然后是配置文件 -->
+  <script src="js/supabase-config.js"></script>
+
+  <!-- 3. 其他脚本 -->
+  <script src="js/sidebars.js"></script>
+  <script src="js/homepage.js"></script>
 </body>
 </html>

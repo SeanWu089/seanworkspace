@@ -1,4 +1,64 @@
 document.addEventListener('DOMContentLoaded', function () {
+  // ===================== 原有数据预览和侧边栏逻辑 =====================
+  const previewData = localStorage.getItem('previewData');
+  if (previewData) {
+    const columns = JSON.parse(previewData);
+    const tbody = document.querySelector('#preview-table tbody');
+    if (tbody) {
+      tbody.innerHTML = columns.map(col =>
+        `<tr><td>${col.name}</td><td>${col.type}</td></tr>`
+      ).join('');
+    }
+  }
+
+  // 左侧侧边栏
+  const leftSidebar = document.getElementById('leftSidebar');
+  const leftToggle = document.getElementById('leftToggle');
+  if (leftToggle && leftSidebar) {
+    leftToggle.addEventListener('click', () => {
+      leftSidebar.classList.toggle('show');
+      leftToggle.style.transform = leftSidebar.classList.contains('show') 
+        ? 'rotate(180deg)' 
+        : 'rotate(0deg)';
+      leftToggle.style.left = leftSidebar.classList.contains('show')
+        ? '280px'
+        : '5px';
+    });
+  }
+
+  // 右侧侧边栏
+  const rightSidebar = document.getElementById('rightSidebar');
+  const rightToggle = document.getElementById('rightToggle');
+  if (rightToggle && rightSidebar) {
+    rightToggle.addEventListener('click', () => {
+      rightSidebar.classList.toggle('show');
+      rightToggle.style.transform = rightSidebar.classList.contains('show')
+        ? 'rotate(180deg)'
+        : 'rotate(0deg)';
+      rightToggle.style.right = rightSidebar.classList.contains('show')
+        ? '180px'
+        : '5px';
+    });
+  }
+
+  // 文件上传
+  const uploadBtn = document.getElementById('uploadBtn');
+  if (uploadBtn) {
+    uploadBtn.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.csv, .xlsx, .txt';
+      input.style.display = 'none';
+      document.body.appendChild(input);
+      input.click();
+
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) uploadFileToBackend(file);
+        document.body.removeChild(input);
+      };
+    });
+  }
 
   // ===================== 悬浮助手 =====================
   const assistantContainer = document.getElementById('assistant-container');

@@ -5,7 +5,6 @@
   <title>StatsTools Page</title>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Tinos:wght@300;400;700&family=Asap:wght@300;400;700&family=Raleway:wght@300;400;700&family=Alice:wght@300;400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/statstools.css">
-  <link rel="stylesheet" href="css/sidebars.css">
 </head>
 <body>
 
@@ -100,27 +99,20 @@
     </div>
   </section>
 
-  <!-- 左侧边栏 -->
-  <nav id="leftSidebar" class="sidebar">
+
+  <!-- Inherrit -->
+ <!-- 左侧侧边栏 -->
+ <nav id="leftSidebar" class="sidebar hidden">
     <h2>Modules</h2>
     <ul>
       <li><a href="StatsTools.html">Statistic Tools</a></li>
       <li><a href="statsmodel.html#visual">Visualization</a></li>
     </ul>
   </nav>
-  <div id="leftToggle" class="sidebar-toggle" aria-label="Toggle left sidebar"></div>
 
-  <!-- 右侧边栏 -->
-  <nav id="rightSidebar" class="sidebar">
-    <div class="sidebar-header">
+  <!-- 右侧预览边栏 -->
+  <nav id="rightSidebar" class="sidebar hidden">
     <h2>Data Preview</h2>
-        <button id="clearPreviewBtn" class="preview-close" aria-label="Clear preview"></button>
-    </div>
-    <div id="preview-empty-state" class="empty-state">
-        <p>No data selected for preview</p>
-        <button id="selectFileBtn" class="sidebar-btn">Select File</button>
-    </div>
-    <div id="preview-content" style="display: none;">
     <table id="preview-table">
       <thead>
         <tr>
@@ -128,13 +120,17 @@
           <th>DataType</th>
         </tr>
       </thead>
-            <tbody></tbody>
+      <tbody>
+        <!-- JS 将在这里插入数据行 -->
+      </tbody>
     </table>
-    </div>
   </nav>
-  <div id="rightToggle" class="sidebar-toggle" aria-label="Toggle right sidebar"></div>
 
-  <!-- Assistant部分保持不变 -->
+  <!--箭头按钮 -->
+  <div id="leftToggle"></div>
+  <div id="rightToggle"></div>
+
+  <!-- >>>> Assistant <<<<< -->
   <div id="assistant-container" class="assistant-container">
     <!-- 聊天小圆圈（收起状态） -->
     <div class="assistant-icon">
@@ -161,13 +157,9 @@
     </div>
   </div>
 
-  <a href="index.html" class="quarter-home"></a>
+  <a href="HomePage.html" class="quarter-home"></a>
 
-  <!-- 修改脚本加载顺序 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/sidebars.js"></script>  <!-- 先加载 sidebars.js -->
   <script src="js/statstools.js"></script>
-
 
 </body>
 </html>
