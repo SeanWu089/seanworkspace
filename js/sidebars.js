@@ -173,8 +173,16 @@ function updatePreviewTable(data, rawData = null) {
             localStorage.setItem('rawData', JSON.stringify(rawData));
         }
         
-        // 显示右侧边栏
-        toggleSidebar('right', true);
+        // 显示右侧边栏，但确保不是展开状态
+        const rightSidebar = document.getElementById('rightSidebar');
+        const rightToggle = document.getElementById('rightToggle');
+        
+        if (rightSidebar && rightToggle) {
+            rightSidebar.classList.add('show');
+            rightSidebar.classList.remove('expanded');
+            rightToggle.classList.add('rotated');
+            showCompactPreview(); // 确保显示简洁预览
+        }
     }
 }
 
@@ -186,56 +194,82 @@ function toggleSidebar(side, forceShow = null) {
     if (!sidebar || !toggle) return;
     
     // 检查是否是右侧边栏且有数据预览
-    const isRightSidebarWithData = side === 'right' && 
-                                  document.getElementById('preview-content') && 
-                                  document.getElementById('preview-content').style.display !== 'none';
+    const hasDataPreview = document.getElementById('preview-content') && 
+                          document.getElementById('preview-content').style.display !== 'none';
     
-    // 如果是右侧边栏且已经显示，且有数据预览，则展开为大视图
-    if (isRightSidebarWithData && sidebar.classList.contains('show') && forceShow !== false) {
-        if (sidebar.classList.contains('expanded')) {
-            // 如果已经是展开状态，则收缩回正常大小
+    // 右侧边栏的特殊处理
+    if (side === 'right') {
+        // 如果是强制显示或隐藏，直接执行
+        if (forceShow === true) {
+            sidebar.classList.add('show');
+            toggle.classList.add('rotated');
+            return;
+        } else if (forceShow === false) {
+            sidebar.classList.remove('show');
+            toggle.classList.remove('rotated');
             sidebar.classList.remove('expanded');
-            // 恢复预览表格为简洁模式
-            showCompactPreview();
-        } else {
-            // 展开为大视图
-            sidebar.classList.add('expanded');
-            // 显示完整数据表格
-            showFullDataTable();
+            return;
         }
+        
+        // 如果右侧边栏已经显示
+        if (sidebar.classList.contains('show')) {
+            // 如果有数据预览且已经是展开状态，则隐藏整个侧边栏
+            if (hasDataPreview && sidebar.classList.contains('expanded')) {
+                sidebar.classList.remove('expanded');
+                sidebar.classList.remove('show');
+                toggle.classList.remove('rotated');
+                // 恢复简洁预览
+                showCompactPreview();
+            } else if (hasDataPreview) {
+                // 如果有数据预览但不是展开状态，则展开为大视图
+                sidebar.classList.add('expanded');
+                // 显示完整数据表格
+                showFullDataTable();
+            } else {
+                // 如果没有数据预览，则直接隐藏侧边栏
+                sidebar.classList.remove('show');
+                toggle.classList.remove('rotated');
+            }
+        } else {
+            // 如果右侧边栏隐藏，则显示它（小窗状态）
+            sidebar.classList.add('show');
+            toggle.classList.add('rotated');
+            sidebar.classList.remove('expanded'); // 确保不是展开状态
+            showCompactPreview(); // 确保显示简洁预览
+        }
+        
+        // 如果左侧边栏是打开的，关闭它
+        const leftSidebar = document.getElementById('leftSidebar');
+        const leftToggle = document.getElementById('leftToggle');
+        if (leftSidebar && leftSidebar.classList.contains('show')) {
+            leftSidebar.classList.remove('show');
+            if (leftToggle) leftToggle.classList.remove('rotated');
+        }
+        
         return;
     }
     
+    // 左侧边栏的处理保持不变
     if (forceShow === true) {
         sidebar.classList.add('show');
         toggle.classList.add('rotated');
     } else if (forceShow === false) {
         sidebar.classList.remove('show');
         toggle.classList.remove('rotated');
-        // 如果关闭右侧边栏，确保它不是展开状态
-        if (side === 'right') {
-            sidebar.classList.remove('expanded');
-        }
     } else {
         sidebar.classList.toggle('show');
         toggle.classList.toggle('rotated');
-        // 如果关闭右侧边栏，确保它不是展开状态
-        if (side === 'right' && !sidebar.classList.contains('show')) {
-            sidebar.classList.remove('expanded');
-        }
     }
     
-    // 关闭另一侧边栏
-    const otherSide = side === 'left' ? 'right' : 'left';
-    const otherSidebar = document.getElementById(`${otherSide}Sidebar`);
-    const otherToggle = document.getElementById(`${otherSide}Toggle`);
-    
-    if (otherSidebar && otherSidebar.classList.contains('show')) {
-        otherSidebar.classList.remove('show');
-        if (otherToggle) otherToggle.classList.remove('rotated');
-        // 如果关闭右侧边栏，确保它不是展开状态
-        if (otherSide === 'right') {
-            otherSidebar.classList.remove('expanded');
+    // 如果左侧边栏打开，关闭右侧边栏
+    if (side === 'left' && sidebar.classList.contains('show')) {
+        const rightSidebar = document.getElementById('rightSidebar');
+        const rightToggle = document.getElementById('rightToggle');
+        if (rightSidebar && rightSidebar.classList.contains('show')) {
+            rightSidebar.classList.remove('show');
+            if (rightToggle) rightToggle.classList.remove('rotated');
+            rightSidebar.classList.remove('expanded');
+            showCompactPreview();
         }
     }
 }
@@ -351,6 +385,12 @@ function initSidebars() {
         clearPreviewBtn: !!clearPreviewBtn
     });
 
+    // 确保右侧边栏默认隐藏
+    if (rightSidebar) {
+        rightSidebar.classList.remove('show');
+        if (rightToggle) rightToggle.classList.remove('rotated');
+    }
+
     // 初始化各个组件
     if (leftToggle && leftSidebar) {
         initLeftSidebar(leftToggle, leftSidebar);
@@ -368,8 +408,64 @@ function initSidebars() {
         initClearPreviewButton(clearPreviewBtn);
     }
 
-    // 检查是否有保存的预览数据
-    checkSavedPreview();
+    // 检查是否有保存的预览数据，但不自动显示右侧边栏
+    checkSavedPreviewWithoutShowing();
+}
+
+// 检查保存的预览数据但不显示右侧边栏
+function checkSavedPreviewWithoutShowing() {
+    const savedPreview = localStorage.getItem('previewData');
+    if (savedPreview) {
+        try {
+            const previewData = JSON.parse(savedPreview);
+            // 更新预览表格但不显示右侧边栏
+            updatePreviewTableWithoutShowing(previewData);
+        } catch (error) {
+            console.error('Error loading saved preview:', error);
+            localStorage.removeItem('previewData');
+        }
+    }
+}
+
+// 更新预览表格但不显示右侧边栏
+function updatePreviewTableWithoutShowing(data, rawData = null) {
+    console.log('Updating preview table with data:', data);
+
+    const previewEmptyState = document.getElementById('preview-empty-state');
+    const previewContent = document.getElementById('preview-content');
+    
+    if (!data || data.length === 0) {
+        // 从 localStorage 获取之前保存的预览数据
+        const savedPreview = localStorage.getItem('previewData');
+        if (savedPreview) {
+            data = JSON.parse(savedPreview);
+        } else {
+            if (previewEmptyState) previewEmptyState.style.display = 'block';
+            if (previewContent) previewContent.style.display = 'none';
+            return;
+        }
+    }
+
+    if (previewEmptyState) previewEmptyState.style.display = 'none';
+    if (previewContent) previewContent.style.display = 'block';
+    
+    const tbody = document.querySelector('#preview-table tbody');
+    if (tbody) {
+        tbody.innerHTML = data.map(col =>
+            `<tr><td>${col.name}</td><td>${col.type}</td></tr>`
+        ).join('');
+        
+        // 保存预览数据到 localStorage
+        localStorage.setItem('previewData', JSON.stringify(data));
+        
+        // 如果有原始数据，也保存到 localStorage
+        if (rawData) {
+            localStorage.setItem('rawData', JSON.stringify(rawData));
+        }
+        
+        // 不自动显示右侧边栏
+        // toggleSidebar('right', true); - 移除这一行
+    }
 }
 
 // 初始化左侧边栏
@@ -398,29 +494,7 @@ function initRightSidebar(toggle, sidebar) {
     toggle.onclick = function() {
         console.log('Right toggle clicked');
         toggleSidebar('right');
-            
-            // 如果左侧边栏是打开的，关闭它
-            const leftSidebar = document.getElementById('leftSidebar');
-            const leftToggle = document.getElementById('leftToggle');
-            if (leftSidebar && leftSidebar.classList.contains('show')) {
-                leftSidebar.classList.remove('show');
-                leftToggle.classList.remove('rotated');
-        }
     };
-}
-
-// 检查保存的预览数据
-function checkSavedPreview() {
-    const savedPreview = localStorage.getItem('previewData');
-    if (savedPreview) {
-        try {
-            const previewData = JSON.parse(savedPreview);
-            updatePreviewTable(previewData);
-        } catch (error) {
-            console.error('Error loading saved preview:', error);
-            localStorage.removeItem('previewData');
-        }
-    }
 }
 
 // 初始化文件选择器
@@ -470,9 +544,6 @@ function initClearPreviewButton(button) {
                 compactPreview.style.display = 'table';
             }
         }
-        
-        // 关闭右侧边栏
-        toggleSidebar('right', false);
         
         // 确保右侧边栏不是展开状态
         const rightSidebar = document.getElementById('rightSidebar');
