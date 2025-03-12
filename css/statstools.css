@@ -265,3 +265,29 @@ body {
       height: 380px;
     }
   }
+
+/* 添加主页按钮样式 - 与 account.css 相同 */
+.home-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.home-button i {
+    color: #1677FF;
+    font-size: 24px;
+    transition: all 0.3s ease;
+}
+
+.home-button:hover i {
+    color: #0056D6;
+    transform: scale(1.1);
+}
