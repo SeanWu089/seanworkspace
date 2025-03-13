@@ -3,6 +3,10 @@ const loginButton = document.getElementById('open-login-button');
 const myAccountButton = document.getElementById('my-account-button');
 const authModal = document.getElementById('auth-modal'); // 修改为正确的ID
 
+// 添加上传相关的 DOM 元素
+const uploadBtn = document.getElementById('uploadBtn');
+const fileInput = document.getElementById('file-input');
+
 // 将checkLoginStatus定义在全局作用域
 async function checkLoginStatus() {
     try {
@@ -202,4 +206,126 @@ document.addEventListener('DOMContentLoaded', async () => {
             await checkLoginStatus();
         }
     });
+
+    // 添加上传按钮的点击事件
+    if (uploadBtn && fileInput) {
+        uploadBtn.addEventListener('click', () => {
+            // 检查用户是否已登录
+            window.supabaseClient.auth.getUser().then(({ data: { user } }) => {
+                if (!user) {
+                    // 如果未登录，显示登录模态框
+                    showLoginModal();
+                    return;
+                }
+                // 触发文件选择
+                fileInput.click();
+            });
+        });
+
+        // 添加文件选择的change事件
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                const { data: { user } } = await window.supabaseClient.auth.getUser();
+                if (!user) {
+                    throw new Error('User not authenticated');
+                }
+
+                uploadBtn.disabled = true;
+                uploadBtn.textContent = 'Uploading...';
+
+                const result = await handleFileUpload(file, user);
+
+                if (result.success) {
+                    alert(result.message);
+                } else {
+                    alert(result.message);
+                }
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Upload failed: ' + error.message);
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'WHY DONT WE START FROM HERE';
+                fileInput.value = '';
+            }
+        });
+    }
 });
+
+async function handleFileUpload(file, user) {
+    try {
+        // 计算当前文件的哈希值
+        const fileHash = await calculateFileHash(file);
+        const baseFileName = file.name;
+        const filePath = `${user.id}/${baseFileName}`;
+
+        console.log('Uploading file with name:', file.name);
+        console.log('Using file path:', filePath);
+
+        // 检查是否存在同名文件
+        const { data: existingFiles } = await window.supabaseClient
+            .storage
+            .from('user_files')
+            .list(`${user.id}/`);
+
+        const existingFile = existingFiles?.find(f => f.name === baseFileName);
+
+        if (existingFile) {
+            // 如果存在同名文件，检查内容是否相同
+            const existingFileUrl = window.supabaseClient
+                .storage
+                .from('user_files')
+                .getPublicUrl(`${user.id}/${existingFile.name}`).data.publicUrl;
+
+            const existingFileResponse = await fetch(existingFileUrl);
+            const existingFileBlob = await existingFileResponse.blob();
+            const existingFileHash = await calculateFileHash(existingFileBlob);
+
+            if (fileHash === existingFileHash) {
+                // 文件完全相同，提示用户
+                return {
+                    success: false,
+                    message: 'This exact file already exists in your storage.'
+                };
+            }
+        }
+
+        // 上传文件，使用 upsert: true 来覆盖同名文件
+        const { data, error } = await window.supabaseClient
+            .storage
+            .from('user_files')
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: true  // 设置为 true 以覆盖同名文件
+            });
+
+        if (error) throw error;
+
+        return {
+            success: true,
+            data: data,
+            message: existingFile 
+                ? 'File updated successfully!' 
+                : 'File uploaded successfully!'
+        };
+
+    } catch (error) {
+        console.error('Upload error:', error);
+        return {
+            success: false,
+            message: error.message
+        };
+    }
+}
+
+// 计算文件哈希值的辅助函数
+async function calculateFileHash(file) {
+    const buffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}

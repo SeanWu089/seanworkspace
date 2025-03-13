@@ -144,14 +144,8 @@ function displayUserFiles(files, userId) {
         // 格式化上传日期
         const uploadDate = new Date(file.created_at).toLocaleDateString();
         
-        // 提取原始文件名（移除时间戳前缀）
-        let originalFileName = file.name;
-        if (originalFileName.includes('_')) {
-            // 查找第一个下划线的位置
-            const firstUnderscoreIndex = originalFileName.indexOf('_');
-            // 提取下划线后的部分作为原始文件名
-            originalFileName = originalFileName.substring(firstUnderscoreIndex + 1);
-        }
+        // 直接使用原始文件名
+        const originalFileName = file.name;
         
         // 生成文件URL
         const fileUrl = window.supabaseClient.storage
