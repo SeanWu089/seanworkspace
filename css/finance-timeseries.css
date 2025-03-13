@@ -266,10 +266,6 @@ h2 {
     margin-top: 30px;
 }
 
-/* 移除之前的模型选择相关样式 */
-.model-selection {
-    /* 删除或注释掉 */
-}
 
 /* 文件选择器容器 */
 #fileSelector {
@@ -322,26 +318,27 @@ h2 {
 
 /* 变量展示框样式 */
 .variables-container {
-    margin-top: 20px;
-    border: 2px solid #e2e8f0;  /* 添加边框 */
-    border-radius: 10px;        /* 圆角与文件选择框保持一致 */
-    padding: 15px;
-    background-color: white;    /* 确保背景是白色 */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);  /* 添加轻微阴影 */
+    margin-top: 12px; /* 减少上边距 */
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px; /* 减少内边距 */
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .variables-container h3 {
     color: #1e293b;
     font-size: 1.1rem;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e2e8f0;  /* 添加标题下划线 */
+    margin-bottom: 8px; /* 减少标题下边距 */
+    padding-bottom: 8px; /* 减少标题下内边距 */
+    padding-left: 10px;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .variables-list {
     max-height: 200px;
     overflow-y: auto;
-    padding: 10px;
+    padding: 2px;
 }
 
 /* 美化滚动条 */
@@ -478,18 +475,19 @@ h2 {
 .variables-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 10px;
-    padding: 10px;
+    gap: 4px;
+    padding: 0;
 }
 
 .variable-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 12px;
+    padding: 2px 12px; /* 减少上下内边距为2px */
     background: #f8fafc;
     border-radius: 6px;
     transition: all 0.2s ease;
+    margin-bottom: 2px; /* 添加小间距防止太挤 */
 }
 
 .variable-item:hover {
@@ -545,4 +543,31 @@ h2 {
     color: #64748b;
     padding: 20px;
     font-size: 14px;
+}
+
+/* 变量类型图标样式 */
+.variable-icon {
+    width: 16px;
+    text-align: center;
+    margin-right: 8px;
+}
+
+/* 连续变量 - 折线图图标 */
+.variable-icon.continuous { 
+    color: #2563eb; 
+}
+
+/* 分类变量 - 标签图标 */
+.variable-icon.categorical { 
+    color: #7c3aed; 
+}
+
+/* 文本变量 - 字体图标 */
+.variable-icon.text { 
+    color: #059669; 
+}
+
+/* 日期变量 - 日历图标 */
+.variable-icon.date { 
+    color: #dc2626; 
 } 

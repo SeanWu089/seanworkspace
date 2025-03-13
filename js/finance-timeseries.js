@@ -23,15 +23,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 监听模型选择变化
     if (modelSelect) {
-        modelSelect.addEventListener('change', function(e) {
-            const selectedModel = e.target.value;
-            showModelDescription(selectedModel);
-            
-            // 更新URL，不刷新页面
-            const newUrl = new URL(window.location.href);
-            newUrl.searchParams.set('model', selectedModel);
-            window.history.pushState({}, '', newUrl);
-        });
+    modelSelect.addEventListener('change', function(e) {
+        const selectedModel = e.target.value;
+        showModelDescription(selectedModel);
+        
+        // 更新URL，不刷新页面
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('model', selectedModel);
+        window.history.pushState({}, '', newUrl);
+    });
     }
 
     // 搜索输入处理
@@ -295,8 +295,60 @@ function clearVariablesList() {
     }
 }
 
-// 显示变量列表
-function displayVariables(variables) {
+// 在 displayVariables 函数中修改变量项的创建逻辑
+function getVariableTypeIcon(variable, sampleValue) {
+    // 转换变量名为小写以便比较
+    const varName = variable.toLowerCase();
+    
+    // 日期类型判断
+    if (varName.includes('date') || 
+        varName.includes('time') || 
+        varName.includes('year') ||
+        varName.includes('month') ||
+        varName.includes('day')) {
+        return '<i class="far fa-calendar-alt variable-icon date"></i>';
+    }
+    
+    // 数值/连续型变量判断
+    if (varName.includes('price') ||
+        varName.includes('amount') ||
+        varName.includes('value') ||
+        varName.includes('rate') ||
+        varName.includes('ratio') ||
+        varName.includes('number') ||
+        varName.includes('qty') ||
+        varName.includes('quantity') ||
+        varName.includes('age') ||
+        varName.includes('score')) {
+        return '<i class="fas fa-chart-line variable-icon continuous"></i>';
+    }
+    
+    // 分类变量判断
+    if (varName.includes('type') ||
+        varName.includes('category') ||
+        varName.includes('status') ||
+        varName.includes('level') ||
+        varName.includes('grade') ||
+        varName.includes('group') ||
+        varName.includes('class')) {
+        return '<i class="fas fa-list variable-icon categorical"></i>';
+    }
+    
+    // 文本变量判断
+    if (varName.includes('name') ||
+        varName.includes('description') ||
+        varName.includes('comment') ||
+        varName.includes('address') ||
+        varName.includes('title') ||
+        varName.includes('note')) {
+        return '<i class="fas fa-font variable-icon text"></i>';
+    }
+    
+    // 默认为分类变量
+    return '<i class="fas fa-tag variable-icon categorical"></i>';
+}
+
+function displayVariables(variables, sampleData = {}) {
     const variablesList = document.getElementById('variablesList');
     if (!variablesList) return;
 
@@ -307,7 +359,6 @@ function displayVariables(variables) {
         return;
     }
 
-    // 创建变量列表容器
     const listContainer = document.createElement('div');
     listContainer.className = 'variables-grid';
 
@@ -316,9 +367,12 @@ function displayVariables(variables) {
         div.className = 'variable-item';
         div.dataset.variable = variable;
         
+        // 获取变量类型图标
+        const icon = getVariableTypeIcon(variable, sampleData[variable]);
+        
         div.innerHTML = `
             <div class="variable-content">
-                <i class="fas fa-chart-line"></i>
+                ${icon}
                 <span>${variable}</span>
             </div>
             <div class="variable-actions">

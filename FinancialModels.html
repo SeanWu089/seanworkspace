@@ -7,18 +7,38 @@
   <link rel="stylesheet" href="css/financial-models.css">
   <link rel="stylesheet" href="css/sidebars.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- 必要的脚本引用 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Supabase配置 -->
+  <script src="js/supabase-config.js"></script>
+  <!-- 侧边栏功能 -->
+  <script src="js/sidebars.js"></script>
+  <!-- 页面特定的脚本 -->
+  <script src="js/financial-models.js"></script>
 </head>
 <body>
+  <!-- 左侧边栏 -->
+  <nav id="leftSidebar" class="sidebar">
+    <h2>Modules</h2>
+    <ul>
+      <li><a href="StatsTools.html">Statistic Tools</a></li>
+      <li><a href="statsmodel.html#visual">Visualization</a></li>
+    </ul>
+  </nav>
+  <div id="leftToggle" class="sidebar-toggle" aria-label="Toggle left sidebar"></div>
+
   <!-- 主页图标链接 -->
   <a href="index.html" class="home-button">
     <i class="fas fa-home"></i>
   </a>
 
   <!-- 页面标题 -->
-  <header class="page-header">
+  <div class="page-header">
     <h1>Financial Models</h1>
-    <p>Select models for quantitative analysis, risk management, and trading strategies</p>
-  </header>
+    <p class="subtitle">Select models for quantitative analysis, risk management, and trading strategies</p>
+  </div>
 
   <!-- 模型分类区域 -->
   <div class="models-container">
@@ -26,7 +46,7 @@
     <section class="model-category">
       <h2 class="category-title">Statistical & Time Series Models</h2>
       <div class="model-grid">
-        <div class="model-card" data-model="arima">
+        <div class="model-card" data-model="arima" data-category="time-series" onclick="window.location.href='finance-timeseries.html?model=arima'">
           <div class="model-icon"><i class="fas fa-chart-line"></i></div>
           <h3>ARIMA</h3>
           <p>Autoregressive Integrated Moving Average</p>
@@ -36,7 +56,7 @@
           </div>
         </div>
         
-        <div class="model-card" data-model="garch">
+        <div class="model-card" data-model="garch" onclick="window.location.href='finance-timeseries.html?model=garch'">
           <div class="model-icon"><i class="fas fa-chart-bar"></i></div>
           <h3>GARCH</h3>
           <p>Generalized Autoregressive Conditional Heteroskedasticity</p>
@@ -46,7 +66,7 @@
           </div>
         </div>
         
-        <div class="model-card" data-model="ewma">
+        <div class="model-card" data-model="ewma" onclick="window.location.href='finance-timeseries.html?model=ewma'">
           <div class="model-icon"><i class="fas fa-wave-square"></i></div>
           <h3>EWMA</h3>
           <p>Exponentially Weighted Moving Average</p>
@@ -63,16 +83,6 @@
           <div class="model-tags">
             <span class="tag">Probability</span>
             <span class="tag">States</span>
-          </div>
-        </div>
-        
-        <div class="model-card" data-model="regression">
-          <div class="model-icon"><i class="fas fa-calculator"></i></div>
-          <h3>Multivariate Regression</h3>
-          <p>Analyze relationships between multiple variables</p>
-          <div class="model-tags">
-            <span class="tag">Regression</span>
-            <span class="tag">Multivariate</span>
           </div>
         </div>
       </div>
@@ -92,16 +102,6 @@
           </div>
         </div>
         
-        <div class="model-card" data-model="cvar">
-          <div class="model-icon"><i class="fas fa-chart-area"></i></div>
-          <h3>CVaR / Expected Shortfall</h3>
-          <p>Conditional Value at Risk</p>
-          <div class="model-tags">
-            <span class="tag">Tail Risk</span>
-            <span class="tag">Risk</span>
-          </div>
-        </div>
-        
         <div class="model-card" data-model="monte-carlo">
           <div class="model-icon"><i class="fas fa-random"></i></div>
           <h3>Monte Carlo Simulation</h3>
@@ -109,16 +109,6 @@
           <div class="model-tags">
             <span class="tag">Simulation</span>
             <span class="tag">Pricing</span>
-          </div>
-        </div>
-        
-        <div class="model-card" data-model="stress-test">
-          <div class="model-icon"><i class="fas fa-bolt"></i></div>
-          <h3>Stress Testing</h3>
-          <p>Evaluate potential losses under extreme conditions</p>
-          <div class="model-tags">
-            <span class="tag">Risk</span>
-            <span class="tag">Extreme Events</span>
           </div>
         </div>
         
@@ -148,16 +138,6 @@
           </div>
         </div>
         
-        <div class="model-card" data-model="apt">
-          <div class="model-icon"><i class="fas fa-layer-group"></i></div>
-          <h3>APT</h3>
-          <p>Arbitrage Pricing Theory</p>
-          <div class="model-tags">
-            <span class="tag">Multi-factor</span>
-            <span class="tag">Pricing</span>
-          </div>
-        </div>
-        
         <div class="model-card" data-model="black-scholes">
           <div class="model-icon"><i class="fas fa-exchange-alt"></i></div>
           <h3>Black-Scholes Model</h3>
@@ -167,32 +147,12 @@
             <span class="tag">Pricing</span>
           </div>
         </div>
-        
-        <div class="model-card" data-model="fama-french">
-          <div class="model-icon"><i class="fas fa-cubes"></i></div>
-          <h3>Fama-French Models</h3>
-          <p>Three-factor and Five-factor models</p>
-          <div class="model-tags">
-            <span class="tag">Multi-factor</span>
-            <span class="tag">CAPM Extension</span>
-          </div>
-        </div>
-        
-        <div class="model-card" data-model="mpt">
-          <div class="model-icon"><i class="fas fa-briefcase"></i></div>
-          <h3>Modern Portfolio Theory</h3>
-          <p>Optimize risk-return allocation</p>
-          <div class="model-tags">
-            <span class="tag">Portfolio</span>
-            <span class="tag">Optimization</span>
-          </div>
-        </div>
       </div>
     </section>
 
-    <!-- 波动率和相关性模型 -->
+    <!-- 波动率模型 -->
     <section class="model-category">
-      <h2 class="category-title">Volatility & Correlation Models</h2>
+      <h2 class="category-title">Volatility Models</h2>
       <div class="model-grid">
         <div class="model-card" data-model="implied-vol">
           <div class="model-icon"><i class="fas fa-tachometer-alt"></i></div>
@@ -201,72 +161,6 @@
           <div class="model-tags">
             <span class="tag">Options</span>
             <span class="tag">Volatility</span>
-          </div>
-        </div>
-        
-        <div class="model-card" data-model="stochastic-vol">
-          <div class="model-icon"><i class="fas fa-dice"></i></div>
-          <h3>Stochastic Volatility Models</h3>
-          <p>Models with time-varying volatility</p>
-          <div class="model-tags">
-            <span class="tag">Volatility</span>
-            <span class="tag">Stochastic</span>
-          </div>
-        </div>
-        
-        <div class="model-card" data-model="dcc">
-          <div class="model-icon"><i class="fas fa-bezier-curve"></i></div>
-          <h3>DCC Models</h3>
-          <p>Dynamic Conditional Correlation</p>
-          <div class="model-tags">
-            <span class="tag">Correlation</span>
-            <span class="tag">Dynamic</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 机器学习与人工智能 -->
-    <section class="model-category">
-      <h2 class="category-title">Machine Learning & AI</h2>
-      <div class="model-grid">
-        <div class="model-card" data-model="neural-networks">
-          <div class="model-icon"><i class="fas fa-brain"></i></div>
-          <h3>Neural Networks</h3>
-          <p>Pattern recognition and non-linear modeling</p>
-          <div class="model-tags">
-            <span class="tag">Deep Learning</span>
-            <span class="tag">Non-linear</span>
-          </div>
-        </div>
-        
-        <div class="model-card" data-model="decision-trees">
-          <div class="model-icon"><i class="fas fa-tree"></i></div>
-          <h3>Decision Trees & Random Forests</h3>
-          <p>Classification and regression analysis</p>
-          <div class="model-tags">
-            <span class="tag">Classification</span>
-            <span class="tag">Ensemble</span>
-          </div>
-        </div>
-        
-        <div class="model-card" data-model="svm">
-          <div class="model-icon"><i class="fas fa-vector-square"></i></div>
-          <h3>Support Vector Machines</h3>
-          <p>Classification and regression analysis</p>
-          <div class="model-tags">
-            <span class="tag">Classification</span>
-            <span class="tag">Regression</span>
-          </div>
-        </div>
-        
-        <div class="model-card" data-model="reinforcement">
-          <div class="model-icon"><i class="fas fa-robot"></i></div>
-          <h3>Reinforcement Learning</h3>
-          <p>Optimize trading strategies</p>
-          <div class="model-tags">
-            <span class="tag">Trading</span>
-            <span class="tag">Optimization</span>
           </div>
         </div>
       </div>
@@ -285,48 +179,8 @@
             <span class="tag">Company Value</span>
           </div>
         </div>
-        
-        <div class="model-card" data-model="reduced-form">
-          <div class="model-icon"><i class="fas fa-percentage"></i></div>
-          <h3>Reduced-Form Models</h3>
-          <p>Direct probability modeling of default events</p>
-          <div class="model-tags">
-            <span class="tag">Default Risk</span>
-            <span class="tag">Probability</span>
-          </div>
-        </div>
-        
-        <div class="model-card" data-model="kmv">
-          <div class="model-icon"><i class="fas fa-chart-pie"></i></div>
-          <h3>KMV Model</h3>
-          <p>Estimate distance to default and default probability</p>
-          <div class="model-tags">
-            <span class="tag">Default Risk</span>
-            <span class="tag">Probability</span>
-          </div>
-        </div>
-        
-        <div class="model-card" data-model="creditmetrics">
-          <div class="model-icon"><i class="fas fa-credit-card"></i></div>
-          <h3>CreditMetrics</h3>
-          <p>Analyze credit asset portfolio risk</p>
-          <div class="model-tags">
-            <span class="tag">Portfolio</span>
-            <span class="tag">Credit Risk</span>
-          </div>
-        </div>
       </div>
     </section>
   </div>
-
-  <!-- 集成模型按钮 -->
-  <div class="integrated-models-section">
-    <a href="IntegratedModels.html" class="integrated-models-button">
-      <i class="fas fa-puzzle-piece"></i>
-      <span>Explore Integrated Models</span>
-    </a>
-  </div>
-
-  <script src="js/financial-models.js"></script>
 </body>
 </html> 
