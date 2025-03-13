@@ -45,28 +45,218 @@ body {
 .page-header {
   text-align: center;
   margin: 40px 0 60px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e5e7eb;
 }
 
-.page-header h1 {
-  font-size: 3rem;
+h1 {
+  font-size: 2.8rem;
   color: #2E72C6;
   margin-bottom: 15px;
   font-weight: 600;
 }
 
-.page-header p {
-  font-size: 1.2rem;
+.subtitle {
+  font-size: 1.1rem;
   color: #6b7280;
   max-width: 800px;
   margin: 0 auto;
 }
 
-/* 模型容器 */
-.models-container {
-  max-width: 1400px;
-  margin: 0 auto;
+/* 数据选择部分 */
+.data-selection-section {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.data-selection-section h2 {
+  font-size: 1.5rem;
+  color: #1e293b;
+  margin-bottom: 20px;
+}
+
+/* 数据表格样式 */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.data-table th,
+.data-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.data-table th {
+  background-color: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.data-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* 模型选择部分 */
+.model-selection-section {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+}
+
+.model-filters {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-group label {
+  font-weight: 500;
+  color: #475569;
+}
+
+.filter-group select {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: white;
+  color: #1e293b;
+  font-size: 0.9rem;
+}
+
+/* 模型卡片网格 */
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+/* 模型卡片样式 */
+.model-card {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.model-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.model-card.selected {
+  border-color: #2E72C6;
+  background-color: #f0f7ff;
+}
+
+.model-icon {
+  width: 60px;
+  height: 60px;
+  background-color: #eef2ff;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.model-icon i {
+  font-size: 24px;
+  color: #2E72C6;
+}
+
+.model-card h3 {
+  font-size: 1.3rem;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+
+.model-card p {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 15px;
+}
+
+.model-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  font-size: 0.8rem;
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+/* 生成结果按钮 */
+.generate-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(45deg, #2E72C6, #4f9cf9);
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(46, 114, 198, 0.3);
+}
+
+.generate-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(46, 114, 198, 0.4);
+}
+
+.generate-button:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 分类标题 */
+.category-title {
+  font-size: 1.8rem;
+  color: #1e293b;
+  margin: 40px 0 25px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .model-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .model-filters {
+    flex-direction: column;
+  }
+
+  .generate-button {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* 模型分类 */
@@ -83,48 +273,40 @@ body {
   font-weight: 600;
 }
 
-/* 模型网格 */
-.model-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 25px;
-}
-
-/* 模型卡片 */
-.model-card {
-  background-color: white;
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.model-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
 /* 选中状态的卡片 */
-.model-card.selected {
-  background-color: #f0f7ff;
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(46, 114, 198, 0.2);
-  border: 2px solid #2E72C6;
-}
-
 .model-card.selected::before {
-  height: 7px;
   background: linear-gradient(90deg, #1e5da8, #2E72C6);
 }
 
 .model-card.selected .model-icon {
   background-color: #d9e8ff;
+}
+
+/* 添加选择指示器 */
+.model-card .selection-indicator {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e2e8f0;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.model-card.selected .selection-indicator {
+  background-color: #2E72C6;
+  border-color: #2E72C6;
+}
+
+.model-card.selected .selection-indicator::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
 }
 
 .model-card::before {
@@ -135,52 +317,6 @@ body {
   width: 100%;
   height: 5px;
   background: linear-gradient(90deg, #2E72C6, #4f9cf9);
-}
-
-.model-icon {
-  width: 60px;
-  height: 60px;
-  background-color: #eef2ff;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.model-icon i {
-  font-size: 28px;
-  color: #2E72C6;
-}
-
-.model-card h3 {
-  font-size: 1.4rem;
-  color: #1e293b;
-  margin-bottom: 10px;
-  font-weight: 600;
-}
-
-.model-card p {
-  font-size: 0.95rem;
-  color: #64748b;
-  margin-bottom: 20px;
-  flex-grow: 1;
-}
-
-/* 标签 */
-.model-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.tag {
-  font-size: 0.8rem;
-  background-color: #f1f5f9;
-  color: #475569;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-weight: 500;
 }
 
 /* 集成模型按钮 */
@@ -214,41 +350,53 @@ body {
   box-shadow: 0 6px 20px rgba(46, 114, 198, 0.4);
 }
 
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .page-header h1 {
-    font-size: 2.5rem;
-  }
-  
-  .page-header p {
-    font-size: 1rem;
-  }
-  
-  .category-title {
-    font-size: 1.7rem;
-  }
-  
-  .model-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-  }
-  
-  .model-card {
-    padding: 20px;
-  }
-  
-  .model-icon {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .model-icon i {
-    font-size: 24px;
-  }
-  
-  .model-card h3 {
-    font-size: 1.2rem;
-  }
+/* 数据选择部分样式 */
+.data-selection-section {
+  margin-bottom: 40px;
+}
+
+.data-table-wrapper {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-badge.ready {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.processing {
+  background-color: #fff7ed;
+  color: #9a3412;
+}
+
+.status-badge.error {
+  background-color: #fef2f2;
+  color: #991b1b;
+}
+
+.select-data-btn {
+  background-color: #2E72C6;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.select-data-btn:hover {
+  background-color: #1e5da8;
 }
 
 @media (max-width: 480px) {
@@ -264,4 +412,11 @@ body {
     padding: 12px 25px;
     font-size: 1rem;
   }
+}
+
+/* 模型分类区域 */
+.models-container {
+  max-width: 1300px;  /* 减小最大宽度，原来没有这个限制 */
+  margin: 0 auto;     /* 居中显示 */
+  padding: 0 20px;    /* 添加内边距 */
 } 
