@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/sidebars.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.30.1.min.js"></script>
     <script src="js/finance-timeseries.js"></script>
 </head>
 <body>
@@ -73,9 +74,7 @@
                 <div id="dataPreviewPlaceholder" class="placeholder-stripes">
                     <span>Please select data to preview</span>
                 </div>
-                <div id="timeSeriesPreview" class="hidden">
-                    <canvas id="previewChart"></canvas>
-                </div>
+                <div id="timeSeriesPreview" class="plot-container"></div>
             </div>
         </div>
 
@@ -131,5 +130,7 @@
             </div>
         </div>
     </div>
+
+    <div id="plotConfigPanel" class="config-panel"></div>
 </body>
 </html> 

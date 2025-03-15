@@ -20,6 +20,10 @@ function showModelDescription(modelType) {
 // 添加 Railway 的基础 URL
 const API_BASE_URL = 'https://seanholisticworkspace-production.up.railway.app';  // 你的 Railway URL
 
+// 添加全局变量
+let currentFileId = null;
+let currentPlot = null;
+
 document.addEventListener('DOMContentLoaded', function() {
     // 获取所有必要的DOM元素
     const modelSelect = document.getElementById('modelSelect');
@@ -251,9 +255,11 @@ function getVariableTypeIcon(type) {
     }
 }
 
-// 显示变量列表
+// 修复显示变量列表函数
 async function displayVariables(variables) {
     const variablesList = document.getElementById('variablesList');
+    if (!variablesList) return;
+    
     variablesList.innerHTML = '';
     
     if (!variables || Object.keys(variables).length === 0) {
@@ -279,95 +285,187 @@ async function displayVariables(variables) {
         `;
         
         // 添加拖拽事件监听器
-        varItem.addEventListener('dragstart', handleDragStart);
-        varItem.addEventListener('dragend', handleDragEnd);
+        varItem.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', varName);
+            varItem.classList.add('dragging');
+        });
+        
+        varItem.addEventListener('dragend', () => {
+            varItem.classList.remove('dragging');
+        });
         
         grid.appendChild(varItem);
     }
     
     variablesList.appendChild(grid);
+    
+    // 初始化拖放功能
+    initializeDragAndDrop();
 }
 
-// 初始化拖放功能
+// 修复拖放初始化函数
 function initializeDragAndDrop() {
-    const previewArea = document.getElementById('timeSeriesPreview');
-    const placeholder = document.getElementById('dataPreviewPlaceholder');
+    const previewArea = document.getElementById('dataPreviewPlaceholder');
+    const plotArea = document.getElementById('timeSeriesPreview');
     
-    previewArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
-    });
-    
-    previewArea.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        const variable = e.dataTransfer.getData('text/plain');
-        await updateTimeSeriesPreview(variable);
+    [previewArea, plotArea].forEach(area => {
+        if (!area) return;
+        
+        area.addEventListener('dragover', handleDragOver);
+        area.addEventListener('dragleave', handleDragLeave);
+        area.addEventListener('drop', handleDrop);
     });
 }
 
-// 处理拖拽开始
-function handleDragStart(e) {
-    e.dataTransfer.setData('text/plain', e.target.dataset.variable);
-    e.target.classList.add('dragging');
+// 修改处理拖拽悬停函数，移除加号提示，改用背景动画
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    
+    // 添加拖拽提示效果
+    const dropTarget = e.currentTarget;
+    dropTarget.classList.add('drag-over');
+    
+    // 如果是占位符，隐藏文字并添加动画背景
+    if (dropTarget.id === 'dataPreviewPlaceholder') {
+        // 隐藏占位符文字
+        const placeholderText = dropTarget.querySelector('span');
+        if (placeholderText) {
+            placeholderText.style.display = 'none';
+        }
+    }
 }
 
-// 处理拖拽结束
-function handleDragEnd(e) {
-    e.target.classList.remove('dragging');
+// 修改处理拖拽离开函数
+function handleDragLeave(e) {
+    e.preventDefault();
+    const dropTarget = e.currentTarget;
+    dropTarget.classList.remove('drag-over');
+    
+    // 如果是占位符，恢复文字显示
+    if (dropTarget.id === 'dataPreviewPlaceholder') {
+        const placeholderText = dropTarget.querySelector('span');
+        if (placeholderText) {
+            placeholderText.style.display = '';
+        }
+    }
 }
 
-// 更新时间序列预览
-async function updateTimeSeriesPreview(variableName) {
-    const previewArea = document.getElementById('timeSeriesPreview');
-    const placeholder = document.getElementById('dataPreviewPlaceholder');
+// 处理拖拽放下
+async function handleDrop(e) {
+    e.preventDefault();
+    const dropTarget = e.currentTarget;
+    
+    // 移除拖拽效果
+    dropTarget.classList.remove('drag-over');
+    
+    // 获取变量名
+    const variableName = e.dataTransfer.getData('text/plain');
+    if (!variableName || !currentFileId) return;
     
     try {
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        
+        // 显示加载状态
+        showLoading('Generating plot...');
+        
         const response = await fetch(`${API_BASE_URL}/finance/timeseries_plot`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                file_id: currentFileId,
-                variable_name: variableName
+                file_path: `${session.user.id}/${currentFileId}`,
+                variable_name: variableName,
+                user_id: session.user.id
             })
         });
         
-        const data = await response.json();
-        
-        if (data.status === 'success') {
-            placeholder.classList.add('hidden');
-            previewArea.classList.remove('hidden');
+        const result = await response.json();
+        if (result.status === 'success') {
+            // 隐藏占位符
+            const placeholder = document.getElementById('dataPreviewPlaceholder');
+            if (placeholder) {
+                placeholder.classList.add('hidden');
+            }
             
-            // 解析并显示 Plotly 图表
-            const plotData = JSON.parse(data.plot_data);
-            Plotly.newPlot('timeSeriesPreview', plotData.data, plotData.layout);
-        } else {
-            throw new Error(data.message || 'Failed to create plot');
+            // 显示图表区域
+            const plotArea = document.getElementById('timeSeriesPreview');
+            if (plotArea) {
+                plotArea.classList.remove('hidden');
+                // 使用 Plotly 显示图表
+                const plotData = JSON.parse(result.plot);
+                Plotly.newPlot('timeSeriesPreview', plotData.data, plotData.layout);
+            }
         }
     } catch (error) {
-        console.error('Error updating time series preview:', error);
-        // 显示错误信息
-        placeholder.innerHTML = `<span>Error: ${error.message}</span>`;
-        placeholder.classList.remove('hidden');
-        previewArea.classList.add('hidden');
+        console.error('Error plotting variable:', error);
+        showError(`Failed to plot: ${error.message}`);
+    } finally {
+        hideLoading();
     }
 }
 
-// 处理文件选择
+// 更新样式，移除绿色提示，添加新的动画效果
+const dragStyles = `
+    #dataPreviewPlaceholder.drag-over,
+    #timeSeriesPreview.drag-over {
+        border: 2px dashed #2E72C6;
+        background: linear-gradient(
+            45deg,
+            rgba(46, 114, 198, 0.05) 25%,
+            rgba(46, 114, 198, 0.1) 25%,
+            rgba(46, 114, 198, 0.1) 50%,
+            rgba(46, 114, 198, 0.05) 50%,
+            rgba(46, 114, 198, 0.05) 75%,
+            rgba(46, 114, 198, 0.1) 75%,
+            rgba(46, 114, 198, 0.1)
+        );
+        background-size: 56.57px 56.57px;
+        animation: moveStripes 1s linear infinite;
+        transition: all 0.3s ease;
+    }
+    
+    @keyframes moveStripes {
+        0% {
+            background-position: 0 0;
+        }
+        100% {
+            background-position: 56.57px 56.57px;
+        }
+    }
+    
+    .dragging {
+        opacity: 0.5;
+    }
+    
+    #dataPreviewPlaceholder.drag-over span {
+        display: none;
+    }
+`;
+
+// 更新样式
+const dragStyleSheet = document.createElement('style');
+dragStyleSheet.textContent = dragStyles;
+document.head.appendChild(dragStyleSheet);
+
+// 修改文件选择处理函数
 async function processSelectedFile(fileId) {
     try {
+        // 保存当前文件ID
+        currentFileId = fileId;
         const { data: { session } } = await window.supabaseClient.auth.getSession();
         const userId = session?.user?.id;
         
         if (!userId) {
-            throw new Error('User not authenticated');
+            showError('User not authenticated');
+            return;
         }
         
-        const filePath = `${userId}/${fileId}`;
-        console.log('Processing file path:', filePath);
+        // 显示加载状态
+        showLoading('Processing file...');
         
-        // 使用 Railway URL
+        const filePath = `${userId}/${fileId}`;
         const response = await fetch(`${API_BASE_URL}/data_type`, {
             method: 'POST',
             headers: {
@@ -380,31 +478,211 @@ async function processSelectedFile(fileId) {
         });
         
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
         
         if (data.status === 'success') {
             await displayVariables(data.variables);
-            initializeDragAndDrop();
+            hideLoading();
         } else {
             throw new Error(data.message || 'Failed to get variable types');
         }
     } catch (error) {
-        console.error('Error processing file:', error);
-        const variablesList = document.getElementById('variablesList');
-        if (variablesList) {
-            variablesList.innerHTML = `
-                <div class="error-message">
-                    Error: ${error.message}
-                    <br>
-                    <small>Please check the console for more details.</small>
-                </div>`;
-        }
+        hideLoading();
+        showError(`Error: ${error.message}`);
     }
 }
+
+// 添加加载状态组件
+function showLoading(message) {
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'loadingOverlay';
+    loadingDiv.innerHTML = `
+        <div class="loading-spinner"></div>
+        <p>${message}</p>
+    `;
+    document.body.appendChild(loadingDiv);
+}
+
+function hideLoading() {
+    const loadingDiv = document.getElementById('loadingOverlay');
+    if (loadingDiv) {
+        loadingDiv.remove();
+    }
+}
+
+// 添加错误提示组件
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-toast';
+    errorDiv.innerHTML = `
+        <i class="fas fa-exclamation-circle"></i>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(errorDiv);
+    
+    // 3秒后自动消失
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 3000);
+}
+
+// 更新时间序列预览函数
+async function updateTimeSeriesPreview(variableName) {
+    const previewArea = document.getElementById('timeSeriesPreview');
+    const configPanel = document.getElementById('plotConfigPanel');
+    
+    try {
+        if (!currentFileId) {
+            throw new Error('No file selected');
+        }
+        
+        showLoading('Generating plot...');
+        
+        // 获取时间范围配置
+        const timeRange = getTimeRangeConfig();
+        
+        const response = await fetch(`${API_BASE_URL}/finance/timeseries_plot`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                file_id: currentFileId,
+                variable_name: variableName,
+                start_date: timeRange.startDate,
+                end_date: timeRange.endDate
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            // 解析并显示 Plotly 图表，添加动画效果
+            const plotData = JSON.parse(data.plot);
+            currentPlot = await Plotly.newPlot('timeSeriesPreview', 
+                plotData.data, 
+                {
+                    ...plotData.layout,
+                    transition: {
+                        duration: 500,
+                        easing: 'cubic-in-out'
+                    }
+                }
+            );
+            
+            // 显示配置面板
+            showPlotConfigPanel(variableName);
+        } else {
+            throw new Error(data.message || 'Failed to create plot');
+        }
+    } catch (error) {
+        showError(`Error: ${error.message}`);
+    } finally {
+        hideLoading();
+    }
+}
+
+// 添加图表配置面板
+function showPlotConfigPanel(variableName) {
+    const configPanel = document.getElementById('plotConfigPanel');
+    if (!configPanel) return;
+    
+    configPanel.innerHTML = `
+        <h3>Plot Configuration</h3>
+        <div class="config-group">
+            <label>Time Range:</label>
+            <input type="date" id="startDate" />
+            <input type="date" id="endDate" />
+        </div>
+        <div class="config-group">
+            <label>Plot Type:</label>
+            <select id="plotType">
+                <option value="line">Line</option>
+                <option value="scatter">Scatter</option>
+                <option value="candlestick">Candlestick</option>
+            </select>
+        </div>
+        <button onclick="applyPlotConfig()">Apply</button>
+    `;
+    
+    // 设置默认日期范围
+    setDefaultDateRange();
+}
+
+// 获取时间范围配置
+function getTimeRangeConfig() {
+    const startDate = document.getElementById('startDate')?.value;
+    const endDate = document.getElementById('endDate')?.value;
+    
+    return {
+        startDate: startDate || null,
+        endDate: endDate || null
+    };
+}
+
+// 应用图表配置
+async function applyPlotConfig() {
+    const variableName = currentPlot?.data[0]?.name;
+    if (variableName) {
+        await updateTimeSeriesPreview(variableName);
+    }
+}
+
+// 添加样式
+const styles = `
+    #loadingOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+    
+    .error-toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #ff4444;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        z-index: 1000;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes slideIn {
+        from { transform: translateX(100%); }
+        to { transform: translateX(0); }
+    }
+`;
+
+// 添加样式到页面
+const styleSheet = document.createElement('style');
+styleSheet.textContent = styles;
+document.head.appendChild(styleSheet);
 
 // 添加测试函数，用于验证API是否工作
 async function testAPI() {
