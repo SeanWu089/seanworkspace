@@ -1,19 +1,66 @@
 // 将函数移到文件顶部，全局作用域
 function showModelDescription(modelType) {
+    console.log('showModelDescription called with:', modelType); // 添加调试日志
+    
     const modelInfos = {
+        auto: document.getElementById('autoDesc'),
         arima: document.getElementById('arimaDesc'),
         garch: document.getElementById('garchDesc'),
         ewma: document.getElementById('ewmaDesc')
     };
-
-    // 隐藏所有模型描述
-    Object.values(modelInfos).forEach(info => {
-        if (info) info.classList.add('hidden');
+    
+    const arimaParams = document.getElementById('arimaParams');
+    const autoMode = document.getElementById('autoMode');
+    
+    console.log('Auto mode checked:', autoMode?.checked); // 检查 autoMode 状态
+    
+    // 先检查元素是否存在
+    if (!arimaParams) {
+        console.error('arimaParams element not found!');
+    }
+    
+    Object.entries(modelInfos).forEach(([key, element]) => {
+        if (!element) {
+            console.error(`${key} description element not found!`);
+        }
     });
-
-    // 显示选中的模型描述
+    
+    // 隐藏所有模型描述和参数面板
+    Object.values(modelInfos).forEach(info => {
+        if (info) {
+            info.classList.add('hidden');
+            console.log(`Hidden ${info.id}`);
+        }
+    });
+    
+    if (arimaParams) {
+        arimaParams.classList.add('hidden');
+        console.log('Hidden arimaParams');
+    }
+    
+    // 根据自动模式状态显示不同内容
+    if (autoMode && autoMode.checked) {
+        // 自动模式：只显示模型描述
+        if (modelType && modelInfos[modelType]) {
+            modelInfos[modelType].classList.remove('hidden');
+            console.log(`Showing ${modelType} description`);
+        }
+    } else {
+        // 手动模式：只显示参数设置面板，不显示模型描述
+        if (modelType === 'arima' && arimaParams) {
+            arimaParams.classList.remove('hidden');
+            console.log('Showing arimaParams');
+        }
+        // 这里可以添加其他模型的参数面板
+    }
+    
+    // 强制应用 CSS 更改
+    if (arimaParams) {
+        arimaParams.style.display = autoMode?.checked ? 'none' : 'flex';
+    }
+    
     if (modelType && modelInfos[modelType]) {
-        modelInfos[modelType].classList.remove('hidden');
+        modelInfos[modelType].style.display = autoMode?.checked ? 'block' : 'none';
     }
 }
 
@@ -25,8 +72,10 @@ let currentFileId = null;
 let currentPlot = null;
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded');
+    
     // 获取所有必要的DOM元素
-    const modelSelect = document.getElementById('modelSelect');
+    const radioButtons = document.querySelectorAll('input[name="modelType"]');
     const fileSelect = document.getElementById('fileSelect');
     const searchInput = document.getElementById('searchInput');
     const searchResults = document.getElementById('searchResults');
@@ -37,23 +86,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const modelType = urlParams.get('model');
 
     // 如果URL中包含模型参数，自动选择相应的模型
-    if (modelType && modelSelect) {
-        modelSelect.value = modelType;
-        showModelDescription(modelType);
+    if (modelType) {
+        const radioButton = document.querySelector(`input[name="modelType"][value="${modelType}"]`);
+        if (radioButton) {
+            radioButton.checked = true;
+            showModelDescription(modelType);
+        }
+    } else {
+        // 默认选中ARIMA
+        const defaultRadio = document.getElementById('arimaMode');
+        if (defaultRadio) {
+            defaultRadio.checked = true;
+            showModelDescription('arima');
+        }
     }
 
-    // 监听模型选择变化
-    if (modelSelect) {
-    modelSelect.addEventListener('change', function(e) {
-        const selectedModel = e.target.value;
-        showModelDescription(selectedModel);
-        
-        // 更新URL，不刷新页面
-        const newUrl = new URL(window.location.href);
-        newUrl.searchParams.set('model', selectedModel);
-        window.history.pushState({}, '', newUrl);
+    // 监听单选按钮变化
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', function(e) {
+            if (this.checked) {
+                const selectedModel = this.value;
+                showModelDescription(selectedModel);
+                
+                // 更新URL，不刷新页面
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('model', selectedModel);
+                window.history.pushState({}, '', newUrl);
+            }
+        });
     });
-    }
 
     // 搜索输入处理
     if (searchInput) {
@@ -73,19 +134,225 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // 文件选择框交互
+    const fileSelectButton = document.getElementById('fileSelect');
+    const fileSelectDropdown = document.getElementById('fileSelectDropdown');
+
+    if (fileSelectButton && fileSelectDropdown) {
+        console.log('Setting up file select dropdown');
+        
+        // 点击按钮显示/隐藏下拉菜单
+        fileSelectButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('File select button clicked');
+            fileSelectDropdown.classList.toggle('show');
+        });
+    }
+
+    // 模型选择下拉菜单处理
+    const modelSelectButton = document.getElementById('modelSelect');
+    const modelSelectDropdown = document.getElementById('modelSelectDropdown');
+    
+    if (modelSelectButton && modelSelectDropdown) {
+        console.log('Setting up model select dropdown');
+        
+        // 点击按钮显示/隐藏下拉菜单
+        modelSelectButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Model select button clicked');
+            modelSelectDropdown.classList.toggle('show');
+        });
+        
+        // 确保下拉菜单中有四个选项
+        modelSelectDropdown.innerHTML = `
+            <div class="model-option" data-value="prophet">
+                <span>Prophet</span>
+            </div>
+            <div class="model-option" data-value="garch">
+                <span>GARCH</span>
+            </div>
+            <div class="model-option" data-value="lstm">
+                <span>LSTM</span>
+            </div>
+            <div class="model-option" data-value="tree">
+                <span>Tree-based</span>
+            </div>
+        `;
+        
+        // 为每个选项添加点击事件
+        const modelOptions = modelSelectDropdown.querySelectorAll('.model-option');
+        modelOptions.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Model option clicked:', this.dataset.value);
+                
+                // 更新按钮文本
+                modelSelectButton.querySelector('span').textContent = 
+                    this.querySelector('span').textContent;
+                
+                // 更新选中状态
+                modelOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                // 隐藏下拉菜单
+                modelSelectDropdown.classList.remove('show');
+                
+                // 获取选中的模型类型
+                const modelType = this.dataset.value;
+                console.log('Selected model:', modelType);
+            });
+        });
+    }
+
+    // 检查所有相关元素是否存在
+    const autoMode = document.getElementById('autoMode');
+    console.log('Auto Mode element:', autoMode);
+    
+    const prophetDesc = document.getElementById('prophetDesc');
+    console.log('Prophet description element:', prophetDesc);
+    
+    const prophetParams = document.getElementById('prophetParams');
+    console.log('Prophet params element:', prophetParams);
+    
+    // Auto Mode 开关逻辑
+    if (autoMode && prophetDesc && prophetParams) {
+        console.log('Setting up Auto Mode toggle');
+        
+        // 初始状态设置
+        const isAutoMode = autoMode.checked;
+        console.log('Initial Auto Mode state:', isAutoMode);
+        
+        if (isAutoMode) {
+            prophetDesc.classList.remove('hidden');
+            prophetParams.classList.add('hidden');
+        } else {
+            prophetDesc.classList.add('hidden');
+            prophetParams.classList.remove('hidden');
+        }
+        
+        // 监听变化
+        autoMode.addEventListener('change', function() {
+            console.log('Auto Mode changed:', this.checked);
+            
+            if (this.checked) {
+                prophetDesc.classList.remove('hidden');
+                prophetParams.classList.add('hidden');
+            } else {
+                prophetDesc.classList.add('hidden');
+                prophetParams.classList.remove('hidden');
+            }
+        });
+    } else {
+        console.error('Auto Mode elements not found:', { 
+            autoMode: autoMode ? 'found' : 'not found', 
+            prophetDesc: prophetDesc ? 'found' : 'not found', 
+            prophetParams: prophetParams ? 'found' : 'not found' 
+        });
+    }
+
+    // 设置滑块值更新
+    setupSliderValueUpdate('changepointScaleSlider', 'changepointScaleValue');
+    setupSliderValueUpdate('seasonalityScaleSlider', 'seasonalityScaleValue');
+    setupSliderValueUpdate('holidaysScaleSlider', 'holidaysScaleValue');
+
+    // 获取建模按钮
+    const startModelingBtn = document.getElementById('startModelingBtn');
+    
+    // 添加点击事件处理
+    if (startModelingBtn) {
+        startModelingBtn.addEventListener('click', async function() {
+            try {
+                // 检查是否有选中的变量
+                const timeSeriesPreview = document.getElementById('timeSeriesPreview');
+                if (!timeSeriesPreview || !timeSeriesPreview.data || !timeSeriesPreview.data[0]) {
+                    showError('Please select a variable first');
+                    return;
+                }
+
+                // 显示加载状态
+                startModelingBtn.disabled = true;
+                startModelingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                
+                // 获取选中的变量名
+                const variableName = timeSeriesPreview.data[0].name;
+                
+                // 调用建模函数
+                await fitTimeSeriesModel(variableName);
+                
+            } catch (error) {
+                showError(`Modeling failed: ${error.message}`);
+            } finally {
+                // 恢复按钮状态
+                startModelingBtn.disabled = false;
+                startModelingBtn.innerHTML = '<i class="fas fa-play"></i> Start Modeling';
+            }
+        });
+    }
+
     // 初始化文件列表
     initializeFileList();
 
-    // 初始化侧边栏
-    if (typeof initializeSidebars === 'function') {
-        initializeSidebars();
-    }
-
-    // 页面加载时测试API
-    testAPI().then(result => {
-        console.log('API connection test:', result.status === 'success' ? 'PASSED' : 'FAILED');
+    // 全局点击事件处理程序来关闭下拉菜单
+    document.addEventListener('click', function(e) {
+        // 关闭文件选择下拉菜单
+        if (!e.target.closest('.custom-file-select')) {
+            if (fileSelectDropdown) {
+                fileSelectDropdown.classList.remove('show');
+            }
+        }
+        
+        // 关闭模型选择下拉菜单
+        if (!e.target.closest('.custom-model-select')) {
+            if (modelSelectDropdown) {
+                modelSelectDropdown.classList.remove('show');
+            }
+        }
     });
 });
+
+// 切换 Prophet 内容显示
+function toggleProphetContent(isAutoMode) {
+    console.log('Toggling Prophet content, Auto Mode:', isAutoMode);
+    
+    const prophetDesc = document.getElementById('prophetDesc');
+    const prophetParams = document.getElementById('prophetParams');
+    
+    if (!prophetDesc || !prophetParams) {
+        console.error('Prophet content elements not found');
+        return;
+    }
+    
+    if (isAutoMode) {
+        // Auto Mode 开启：显示描述，隐藏参数
+        prophetDesc.classList.remove('hidden');
+        prophetParams.classList.add('hidden');
+        console.log('Showing description, hiding params');
+    } else {
+        // Auto Mode 关闭：隐藏描述，显示参数
+        prophetDesc.classList.add('hidden');
+        prophetParams.classList.remove('hidden');
+        console.log('Hiding description, showing params');
+    }
+}
+
+// 设置滑块值更新
+function setupSliderValueUpdate(sliderId, valueId) {
+    const slider = document.getElementById(sliderId);
+    const valueDisplay = document.getElementById(valueId);
+    
+    if (slider && valueDisplay) {
+        // 初始值设置
+        valueDisplay.textContent = slider.value;
+        
+        // 监听滑块变化
+        slider.addEventListener('input', function() {
+            valueDisplay.textContent = this.value;
+        });
+    }
+}
 
 // 变量搜索和选择功能
 async function searchVariables(query) {
@@ -162,15 +429,12 @@ function addSelectedVariable(variable) {
     selectedVariables.appendChild(div);
 }
 
-// 恢复原始的文件选择逻辑，但修复错误
+// 修改初始化文件列表函数
 async function initializeFileList() {
     try {
-        const fileSelect = document.getElementById('fileSelect');
-        if (!fileSelect) {
-            console.error('File select element not found');
-            return;
-        }
-
+        const fileSelectDropdown = document.getElementById('fileSelectDropdown');
+        const fileSelectButton = document.getElementById('fileSelect');
+        
         // 获取当前用户
         const { data: { session } } = await window.supabaseClient.auth.getSession();
         if (!session?.user) {
@@ -189,32 +453,34 @@ async function initializeFileList() {
             return;
         }
 
-        // 清空现有选项
-        while (fileSelect.firstChild) {
-            fileSelect.removeChild(fileSelect.firstChild);
-        }
-
-        // 添加默认选项
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.textContent = 'Choose a file...';
-        fileSelect.appendChild(defaultOption);
+        // 清空下拉菜单
+        fileSelectDropdown.innerHTML = '';
 
         // 添加文件选项
         data.forEach(file => {
             const displayName = file.name.replace(/^\d+_/, '');
-            const option = document.createElement('option');
-            option.value = file.name;
-            option.textContent = displayName;
-            fileSelect.appendChild(option);
-        });
+            const option = document.createElement('div');
+            option.className = 'file-option';
+            option.innerHTML = `
+                <i class="fas fa-file-csv"></i>
+                <span>${displayName}</span>
+            `;
+            
+            // 添加点击事件
+            option.addEventListener('click', () => {
+                // 更新按钮文本
+                fileSelectButton.querySelector('span').textContent = displayName;
+                // 处理文件选择
+                processSelectedFile(file.name);
+                // 隐藏下拉菜单
+                fileSelectDropdown.classList.remove('show');
+                // 移除其他选项的选中状态
+                document.querySelectorAll('.file-option').forEach(opt => opt.classList.remove('selected'));
+                // 添加当前选项的选中状态
+                option.classList.add('selected');
+            });
 
-        // 添加文件选择事件
-        fileSelect.addEventListener('change', function() {
-            const selectedFile = this.value;
-            if (selectedFile) {
-                processSelectedFile(selectedFile);
-            }
+            fileSelectDropdown.appendChild(option);
         });
 
     } catch (error) {
@@ -529,191 +795,150 @@ function showError(message) {
     }, 3000);
 }
 
-// 更新时间序列预览函数
-async function updateTimeSeriesPreview(variableName) {
-    const previewArea = document.getElementById('timeSeriesPreview');
-    const configPanel = document.getElementById('plotConfigPanel');
-    
+// 修改建模函数
+async function fitTimeSeriesModel(variableName) {
     try {
+        showLoading('Fitting model...');
+        
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        if (!session?.user?.id) {
+            throw new Error('User not authenticated');
+        }
+
         if (!currentFileId) {
-            throw new Error('No file selected');
+            throw new Error('Please select a file first');
+        }
+
+        // 根据 auto mode 决定使用哪些参数
+        const isAutoMode = document.getElementById('autoMode')?.checked ?? true;
+        let modelParams = {};
+        
+        if (!isAutoMode) {
+            // 手动模式：获取用户设置的所有参数
+            modelParams = {
+                yearly_seasonality: document.getElementById('yearlySeasonality')?.checked ?? true,
+                weekly_seasonality: document.getElementById('weeklySeasonality')?.checked ?? true,
+                daily_seasonality: document.getElementById('dailySeasonality')?.checked ?? false,
+                changepoint_prior_scale: parseFloat(document.getElementById('changepointScaleSlider')?.value ?? 0.5),
+                seasonality_prior_scale: parseFloat(document.getElementById('seasonalityScaleSlider')?.value ?? 10.0),
+                holidays_prior_scale: parseFloat(document.getElementById('holidaysScaleSlider')?.value ?? 10.0)
+            };
         }
         
-        showLoading('Generating plot...');
+        const filePath = `${session.user.id}/${currentFileId}`;
         
-        // 获取时间范围配置
-        const timeRange = getTimeRangeConfig();
-        
-        const response = await fetch(`${API_BASE_URL}/finance/timeseries_plot`, {
+        const response = await fetch(`${API_BASE_URL}/finance/timeseries_model`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                file_id: currentFileId,
+                file_path: filePath,
                 variable_name: variableName,
-                start_date: timeRange.startDate,
-                end_date: timeRange.endDate
+                model_type: 'prophet',
+                auto_mode: isAutoMode,
+                model_params: modelParams,
+                user_id: session.user.id
             })
         });
-        
-        const data = await response.json();
-        
-        if (data.status === 'success') {
-            // 解析并显示 Plotly 图表，添加动画效果
-            const plotData = JSON.parse(data.plot);
-            currentPlot = await Plotly.newPlot('timeSeriesPreview', 
-                plotData.data, 
-                {
-                    ...plotData.layout,
-                    transition: {
-                        duration: 500,
-                        easing: 'cubic-in-out'
-                    }
-                }
-            );
-            
-            // 显示配置面板
-            showPlotConfigPanel(variableName);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `Request failed with status ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            displayModelResults(result);
         } else {
-            throw new Error(data.message || 'Failed to create plot');
+            throw new Error(result.message || 'Model fitting failed');
         }
     } catch (error) {
-        showError(`Error: ${error.message}`);
+        console.error('Modeling error:', error);
+        showError(`Modeling failed: ${error.message}`);
     } finally {
         hideLoading();
     }
 }
 
-// 添加图表配置面板
-function showPlotConfigPanel(variableName) {
-    const configPanel = document.getElementById('plotConfigPanel');
-    if (!configPanel) return;
+// 显示模型结果
+function displayModelResults(result) {
+    // 更新模型信息
+    document.querySelector('.model-badge').textContent = result.model_type;
     
-    configPanel.innerHTML = `
-        <h3>Plot Configuration</h3>
-        <div class="config-group">
-            <label>Time Range:</label>
-            <input type="date" id="startDate" />
-            <input type="date" id="endDate" />
-        </div>
-        <div class="config-group">
-            <label>Plot Type:</label>
-            <select id="plotType">
-                <option value="line">Line</option>
-                <option value="scatter">Scatter</option>
-                <option value="candlestick">Candlestick</option>
-            </select>
-        </div>
-        <button onclick="applyPlotConfig()">Apply</button>
-    `;
-    
-    // 设置默认日期范围
-    setDefaultDateRange();
-}
-
-// 获取时间范围配置
-function getTimeRangeConfig() {
-    const startDate = document.getElementById('startDate')?.value;
-    const endDate = document.getElementById('endDate')?.value;
-    
-    return {
-        startDate: startDate || null,
-        endDate: endDate || null
-    };
-}
-
-// 应用图表配置
-async function applyPlotConfig() {
-    const variableName = currentPlot?.data[0]?.name;
-    if (variableName) {
-        await updateTimeSeriesPreview(variableName);
-    }
-}
-
-// 添加样式
-const styles = `
-    #loadingOverlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    }
-    
-    .loading-spinner {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #3498db;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-    }
-    
-    .error-toast {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #ff4444;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 4px;
-        z-index: 1000;
-        animation: slideIn 0.3s ease-out;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    @keyframes slideIn {
-        from { transform: translateX(100%); }
-        to { transform: translateX(0); }
-    }
-`;
-
-// 添加样式到页面
-const styleSheet = document.createElement('style');
-styleSheet.textContent = styles;
-document.head.appendChild(styleSheet);
-
-// 添加测试函数，用于验证API是否工作
-async function testAPI() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/test`);
+    // 更新参数值
+    if (result.parameters) {
+        // 季节性参数
+        document.getElementById('yearlyValue').textContent = 
+            result.parameters.yearly_seasonality;
+        document.getElementById('weeklyValue').textContent = 
+            result.parameters.weekly_seasonality;
+        document.getElementById('dailyValue').textContent = 
+            result.parameters.daily_seasonality;
         
-        // 检查response类型
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            throw new Error(`Expected JSON but got ${contentType}`);
-        }
-        
-        const data = await response.json();
-        console.log('API test result:', data);
-        return data;
-    } catch (error) {
-        console.error('API test failed:', error);
-        // 失败不影响正常使用
-        return { status: 'error', message: error.message };
-    }
-}
-
-// 初始化页面
-document.addEventListener('DOMContentLoaded', () => {
-    // 获取URL参数中的模型类型
-    const urlParams = new URLSearchParams(window.location.search);
-    const modelType = urlParams.get('model');
-    if (modelType) {
-        showModelDescription(modelType);
+        // 先验尺度参数
+        document.getElementById('changepointValue').textContent = 
+            result.parameters.changepoint_prior_scale.toFixed(1);
+        document.getElementById('seasonalityValue').textContent = 
+            result.parameters.seasonality_prior_scale.toFixed(1);
+        document.getElementById('holidaysValue').textContent = 
+            result.parameters.holidays_prior_scale.toFixed(1);
     }
     
-    // 初始化文件列表
-    initializeFileList();
+    // 更新评估指标
+    if (result.metrics) {
+        document.getElementById('rmseValue').textContent = 
+            result.metrics.rmse ? result.metrics.rmse.toFixed(4) : '-';
+        document.getElementById('maeValue').textContent = 
+            result.metrics.mae ? result.metrics.mae.toFixed(4) : '-';
+        document.getElementById('mapeValue').textContent = 
+            result.metrics.mape ? result.metrics.mape.toFixed(2) + '%' : '-';
+        document.getElementById('r2Value').textContent = 
+            result.metrics.r2 ? result.metrics.r2.toFixed(4) : '-';
+    }
+    
+    // 显示图表
+    if (result.plots) {
+        // 拟合图
+        Plotly.newPlot('fitPlot', result.plots.data_plot.data, result.plots.data_plot.layout);
+        
+        // 残差图
+        Plotly.newPlot('residualsPlot', result.plots.residuals_plot.data, result.plots.residuals_plot.layout);
+        
+        // ACF和PACF图（这些是base64图像）
+        document.getElementById('acfPlot').innerHTML = `<img src="data:image/png;base64,${result.plots.acf_plot}" style="width:100%;height:100%;object-fit:contain;">`;
+        document.getElementById('pacfPlot').innerHTML = `<img src="data:image/png;base64,${result.plots.pacf_plot}" style="width:100%;height:100%;object-fit:contain;">`;
+    }
+    
+    // 更新预测表格
+    const tableBody = document.getElementById('forecastTableBody');
+    tableBody.innerHTML = '';
+    
+    if (result.forecast && result.forecast.dates && result.forecast.values) {
+        result.forecast.dates.forEach((date, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${date}</td>
+                <td>${result.forecast.values[index].toFixed(4)}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+    
+    // 显示结果面板
+    document.getElementById('modelResults').style.display = 'flex';
+}
+
+// 处理图表标签切换
+document.querySelectorAll('.plot-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        // 移除所有标签和内容的active类
+        document.querySelectorAll('.plot-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.plot-item').forEach(p => p.classList.remove('active'));
+        
+        // 添加active类到当前标签和对应内容
+        this.classList.add('active');
+        const plotId = this.dataset.plot + 'Plot';
+        document.getElementById(plotId).classList.add('active');
+    });
 }); 

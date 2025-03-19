@@ -51,11 +51,15 @@
             <div class="left-panel">
                 <div class="data-selection">
                     <h2>Select Data</h2>
-                    <!-- 文件选择部分 -->
-                    <div class="select-container">
-                        <select id="fileSelect" class="form-select">
-                            <option value="">Choose a file...</option>
-                        </select>
+                    <!-- 替换原来的文件选择框 -->
+                    <div class="custom-file-select" id="fileSelector">
+                        <div class="file-select-button" id="fileSelect">
+                            <span>Choose a file...</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="file-select-dropdown" id="fileSelectDropdown">
+                            <!-- 选项会通过JavaScript动态添加 -->
+                        </div>
                     </div>
 
                     <!-- 变量展示框 -->
@@ -83,50 +87,208 @@
             <!-- 模型选择部分 -->
             <div class="model-panel">
                 <h2>Select Model</h2>
-                <div class="model-selector">
-                    <select id="modelSelect">
-                        <option value="arima">ARIMA</option>
-                        <option value="garch">GARCH</option>
-                        <option value="ewma">EWMA</option>
-                    </select>
+                <div class="model-select-group">
+                    <!-- 左侧模型选择 -->
+                    <div class="custom-model-select">
+                        <div class="model-select-button" id="modelSelect">
+                            <span>Prophet</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="model-select-dropdown" id="modelSelectDropdown">
+                            <!-- 选项会通过JavaScript动态添加 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧Auto Mode开关 -->
+                    <div class="auto-mode-toggle">
+                        <label class="auto-mode-label">
+                            <input type="checkbox" id="autoMode" checked>
+                            <span class="toggle-track"></span>
+                            <span class="toggle-text">Auto Mode</span>
+                        </label>
+                    </div>
                 </div>
                 <div class="model-info">
-                    <div id="arimaDesc" class="model-info hidden">
-                        <h3>ARIMA Model</h3>
-                        <p>Autoregressive Integrated Moving Average model for time series forecasting.</p>
+                    <!-- Prophet 描述 -->
+                    <div id="prophetDesc" class="model-description">
+                        <p>Prophet is a procedure for forecasting time series data based on an additive model.</p>
                         <ul>
-                            <li>Suitable for stationary or differenced stationary data</li>
-                            <li>Captures linear relationships in time series</li>
-                            <li>Parameters: (p,d,q) for AR, differencing, and MA orders</li>
+                            <li>Handles missing data and outliers</li>
+                            <li>Automatically detects trend changes</li>
+                            <li>Captures seasonal patterns</li>
                         </ul>
                     </div>
 
-                    <div id="garchDesc" class="model-info hidden">
-                        <h3>GARCH Model</h3>
-                        <p>Generalized Autoregressive Conditional Heteroskedasticity for volatility modeling.</p>
-                        <ul>
-                            <li>Models time-varying volatility</li>
-                            <li>Captures volatility clustering</li>
-                            <li>Suitable for financial returns data</li>
-                        </ul>
+                    <!-- 参数调整面板 -->
+                    <div id="prophetParams" class="model-params hidden">
+                        <h4>Model Parameters</h4>
+                        
+                        <!-- 布尔参数组 -->
+                        <div class="bool-params-group">
+                            <div class="bool-param-item">
+                                <span class="param-label">Yearly Seasonality</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="yearlySeasonality" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="bool-param-item">
+                                <span class="param-label">Weekly Seasonality</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="weeklySeasonality" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="bool-param-item">
+                                <span class="param-label">Daily Seasonality</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="dailySeasonality">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- 数值参数组 -->
+                        <div class="numeric-params-group">
+                            <!-- Changepoint Scale -->
+                            <div class="param-slider-container">
+                                <div class="param-header">
+                                    <div class="param-title">
+                                        Changepoint Scale
+                                        <i class="fas fa-info-circle info-icon" title="Controls the flexibility of the trend. Higher values allow more frequent trend changes."></i>
+                                    </div>
+                                    <span class="param-value" id="changepointScaleValue">0.5</span>
+                                </div>
+                                <div class="slider-container">
+                                    <input type="range" class="param-slider" id="changepointScaleSlider" 
+                                           min="0.1" max="1.0" value="0.5" step="0.1">
+                                    <div class="slider-ticks">
+                                        <div class="tick"><span class="tick-label">0.1</span></div>
+                                        <div class="tick"><span class="tick-label">0.5</span></div>
+                                        <div class="tick"><span class="tick-label">1.0</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Seasonality Scale -->
+                            <div class="param-slider-container">
+                                <div class="param-header">
+                                    <div class="param-title">
+                                        Seasonality Scale
+                                        <i class="fas fa-info-circle info-icon" title="Controls the flexibility of the seasonality. Higher values allow more complex seasonal patterns."></i>
+                                    </div>
+                                    <span class="param-value" id="seasonalityScaleValue">10.0</span>
+                                </div>
+                                <div class="slider-container">
+                                    <input type="range" class="param-slider" id="seasonalityScaleSlider" 
+                                           min="0.1" max="20.0" value="10.0" step="0.1">
+                                    <div class="slider-ticks">
+                                        <div class="tick"><span class="tick-label">0.1</span></div>
+                                        <div class="tick"><span class="tick-label">10.0</span></div>
+                                        <div class="tick"><span class="tick-label">20.0</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Holidays Scale -->
+                            <div class="param-slider-container">
+                                <div class="param-header">
+                                    <div class="param-title">
+                                        Holidays Scale
+                                        <i class="fas fa-info-circle info-icon" title="Controls the flexibility of the holiday effects. Higher values allow stronger holiday effects."></i>
+                                    </div>
+                                    <span class="param-value" id="holidaysScaleValue">10.0</span>
+                                </div>
+                                <div class="slider-container">
+                                    <input type="range" class="param-slider" id="holidaysScaleSlider" 
+                                           min="0.1" max="20.0" value="10.0" step="0.1">
+                                    <div class="slider-ticks">
+                                        <div class="tick"><span class="tick-label">0.1</span></div>
+                                        <div class="tick"><span class="tick-label">10.0</span></div>
+                                        <div class="tick"><span class="tick-label">20.0</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <div id="ewmaDesc" class="model-info hidden">
-                        <h3>EWMA Model</h3>
-                        <p>Exponentially Weighted Moving Average for adaptive forecasting.</p>
-                        <ul>
-                            <li>Gives more weight to recent observations</li>
-                            <li>Simple but effective for volatility estimation</li>
-                            <li>Single parameter (λ) controls decay rate</li>
-                        </ul>
-                    </div>
+                </div>
+                <div class="model-action">
+                    <button id="startModelingBtn" class="start-modeling-btn">
+                        <i class="fas fa-play"></i>
+                        Start Modeling
+                    </button>
                 </div>
             </div>
 
             <!-- 分析结果部分 -->
             <div class="results-panel">
                 <h2>Analysis Results</h2>
-                <!-- 分析结果将在这里显示 -->
+                <div id="modelResults" class="model-results">
+                    <!-- Model Information Section -->
+                    <div class="model-info-section">
+                        <div class="model-header">
+                            <h3>Model Information</h3>
+                            <span class="model-badge">Prophet</span>
+                        </div>
+                        <div class="parameters-grid">
+                            <!-- 季节性参数组 -->
+                            <div class="param-group">
+                                <span class="param-group-title">Seasonality</span>
+                                <div class="param-item">
+                                    <span class="param-label">Yearly</span>
+                                    <span class="param-value" id="yearlyValue">True</span>
+                                </div>
+                                <div class="param-item">
+                                    <span class="param-label">Weekly</span>
+                                    <span class="param-value" id="weeklyValue">True</span>
+                                </div>
+                                <div class="param-item">
+                                    <span class="param-label">Daily</span>
+                                    <span class="param-value" id="dailyValue">False</span>
+                                </div>
+                            </div>
+                            <!-- 先验尺度参数组 -->
+                            <div class="param-group">
+                                <span class="param-group-title">Prior Scales</span>
+                                <div class="param-item">
+                                    <span class="param-label">Changepoint</span>
+                                    <span class="param-value" id="changepointValue">0.5</span>
+                                </div>
+                                <div class="param-item">
+                                    <span class="param-label">Seasonality</span>
+                                    <span class="param-value" id="seasonalityValue">10.0</span>
+                                </div>
+                                <div class="param-item">
+                                    <span class="param-label">Holidays</span>
+                                    <span class="param-value" id="holidaysValue">10.0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Model Metrics Section -->
+                    <div class="metrics-section">
+                        <h3>Model Metrics</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <span class="metric-title">RMSE</span>
+                                <span class="metric-value" id="rmseValue">-</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-title">MAE</span>
+                                <span class="metric-value" id="maeValue">-</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-title">MAPE</span>
+                                <span class="metric-value" id="mapeValue">-</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-title">R²</span>
+                                <span class="metric-value" id="r2Value">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
