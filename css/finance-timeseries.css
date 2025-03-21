@@ -1128,6 +1128,7 @@ input:checked + .toggle-slider:before {
 }
 
 .plot-tab.active {
+    
     color: #2E72C6;
     background: #e0e7ff;
 }
