@@ -891,36 +891,31 @@ function displayModelResults(result) {
     document.getElementById('minForecastValue').textContent = result.insights.min.toFixed(2);
     document.getElementById('maxForecastValue').textContent = result.insights.max.toFixed(2);
 
-    // 显示图表 - 尝试直接使用整个plot对象
+    // 显示图表
     if (result.plot) {
-        console.log("Plot data structure:", result.plot);
-        
-        // 尝试方法1: 直接使用整个plot对象
         try {
-            Plotly.newPlot('forecastPlot', result.plot);
-            console.log("Method 1 succeeded");
-        } catch (e) {
-            console.error("Method 1 failed:", e);
+            // 确保图表容器有正确的尺寸
+            const plotContainer = document.getElementById('forecastPlot');
+            plotContainer.style.height = '700px';
+            plotContainer.style.width = '100%';
+
+            // 使用plot的data和layout
+            const plotData = result.plot.data;
+            const plotLayout = result.plot.layout;
             
-            // 尝试方法2: 分离data和layout
-            try {
-                Plotly.newPlot('forecastPlot', result.plot.data, result.plot.layout);
-                console.log("Method 2 succeeded");
-            } catch (e) {
-                console.error("Method 2 failed:", e);
-                
-                // 尝试方法3: 解析JSON字符串
-                try {
-                    const plotData = typeof result.plot === 'string' ? 
-                        JSON.parse(result.plot) : result.plot;
-                    Plotly.newPlot('forecastPlot', plotData.data, plotData.layout);
-                    console.log("Method 3 succeeded");
-                } catch (e) {
-                    console.error("Method 3 failed:", e);
-                    document.getElementById('forecastPlot').innerHTML = 
-                        '<div class="error-message">Failed to display plot. See console for details.</div>';
-                }
-            }
+            // 调整布局以适应容器
+            plotLayout.autosize = true;
+            plotLayout.width = null;  // 让Plotly自动处理宽度
+            
+            Plotly.newPlot('forecastPlot', plotData, plotLayout, {
+                responsive: true,
+                displayModeBar: true,
+                displaylogo: false
+            });
+        } catch (e) {
+            console.error("Failed to display plot:", e);
+            document.getElementById('forecastPlot').innerHTML = 
+                '<div class="error-message">Failed to display plot. See console for details.</div>';
         }
     }
 }
