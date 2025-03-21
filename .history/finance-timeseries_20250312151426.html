@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Time Series Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/finance-timeseries.css">
+    <link rel="stylesheet" href="css/sidebars.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 必要的脚本引用 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sidebars.js"></script>
+    <script src="js/finance-timeseries.js"></script>
+</head>
+<body>
+    <!-- 左侧边栏 -->
+    <nav id="leftSidebar" class="sidebar">
+        <h2>Modules</h2>
+        <ul>
+            <li><a href="StatsTools.html">Statistic Tools</a></li>
+            <li><a href="statsmodel.html#visual">Visualization</a></li>
+        </ul>
+    </nav>
+    <div id="leftToggle" class="sidebar-toggle" aria-label="Toggle left sidebar"></div>
+
+    <!-- 主页按钮 -->
+    <a href="index.html" class="home-button">
+        <i class="fas fa-home"></i>
+    </a>
+
+    <!-- 页面标题 -->
+    <div class="page-header">
+        <h1>Time Series Analysis</h1>
+        <p class="subtitle">Advanced time series modeling and forecasting tools</p>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="main-container">
+        <!-- 模型选择部分 -->
+        <section class="model-selection">
+            <h2>Select Model</h2>
+            <div class="model-selector">
+                <select id="modelSelect">
+                    <option value="">Choose a model...</option>
+                    <option value="arima">ARIMA</option>
+                    <option value="garch">GARCH</option>
+                    <option value="ewma">EWMA</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- 模型描述部分 -->
+        <section class="model-description">
+            <div id="arimaDesc" class="model-info hidden">
+                <h3>ARIMA Model</h3>
+                <p>Autoregressive Integrated Moving Average model for time series forecasting.</p>
+                <ul>
+                    <li>Suitable for stationary or differenced stationary data</li>
+                    <li>Captures linear relationships in time series</li>
+                    <li>Parameters: (p,d,q) for AR, differencing, and MA orders</li>
+                </ul>
+            </div>
+
+            <div id="garchDesc" class="model-info hidden">
+                <h3>GARCH Model</h3>
+                <p>Generalized Autoregressive Conditional Heteroskedasticity for volatility modeling.</p>
+                <ul>
+                    <li>Models time-varying volatility</li>
+                    <li>Captures volatility clustering</li>
+                    <li>Suitable for financial returns data</li>
+                </ul>
+            </div>
+
+            <div id="ewmaDesc" class="model-info hidden">
+                <h3>EWMA Model</h3>
+                <p>Exponentially Weighted Moving Average for adaptive forecasting.</p>
+                <ul>
+                    <li>Gives more weight to recent observations</li>
+                    <li>Simple but effective for volatility estimation</li>
+                    <li>Single parameter (λ) controls decay rate</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 后续会添加的部分的占位符 -->
+        <section class="data-section hidden">
+            <!-- 数据选择和预处理部分将在这里 -->
+        </section>
+
+        <section class="analysis-section hidden">
+            <!-- 分析和结果展示部分将在这里 -->
+        </section>
+    </div>
+</body>
+</html> 

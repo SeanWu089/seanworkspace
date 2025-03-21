@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quantitative Volatility Analysis</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/workspace.css"/>
+  <link rel="stylesheet" href="css/quant-volatility.css"/>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="quant-header">
+    <div class="logo">QVA</div>
+    <h1>Volatility Analysis</h1>
+    <div class="header-controls">
+      <button id="darkModeToggle" class="icon-button" title="Toggle Dark Mode">
+        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm0-2V4a8 8 0 0 0 0 16z"/></svg>
+      </button>
+      <button id="settingsButton" class="icon-button" title="Settings">
+        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5zm7.43-2.53c.04-.32.07-.64.07-.97 0-.33-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65c-.04-.24-.25-.42-.5-.42h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1 0 .33.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.66z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- 主工作区 -->
+  <div class="quant-container">
+    <!-- 左侧参数面板 -->
+    <aside class="params-panel">
+      <div class="panel-section">
+        <div class="section-header">
+          <h3>Assets</h3>
+          <button id="addAssetBtn" class="small-button">+</button>
+        </div>
+        <div class="asset-input-container">
+          <input id="assetInput" type="text" placeholder="Ticker or ID" autocomplete="off">
+          <div id="assetSuggestions" class="suggestions-dropdown"></div>
+        </div>
+        <div id="selectedAssets" class="selected-items">
+          <!-- 动态添加的资产标签 -->
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3>Time Series</h3>
+        <div class="date-range">
+          <div class="date-input">
+            <label for="startDate">From</label>
+            <input id="startDate" type="date" value="2020-01-01">
+          </div>
+          <div class="date-input">
+            <label for="endDate">To</label>
+            <input id="endDate" type="date" value="2023-01-01">
+          </div>
+        </div>
+        <div class="quick-ranges">
+          <button data-range="1M">1M</button>
+          <button data-range="3M">3M</button>
+          <button data-range="6M">6M</button>
+          <button data-range="1Y">1Y</button>
+          <button data-range="3Y">3Y</button>
+          <button data-range="5Y">5Y</button>
+          <button data-range="YTD">YTD</button>
+        </div>
+        <div class="frequency-selector">
+          <label for="frequency">Frequency</label>
+          <select id="frequency">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3>Model Specification</h3>
+        <div class="model-selector">
+          <div class="model-family">
+            <label for="modelFamily">Family</label>
+            <select id="modelFamily">
+              <option value="GARCH">GARCH</option>
+              <option value="EGARCH">EGARCH</option>
+              <option value="GJR-GARCH">GJR-GARCH</option>
+              <option value="TGARCH">TGARCH</option>
+              <option value="APARCH">APARCH</option>
+            </select>
+          </div>
+          <div class="model-order">
+            <div class="order-input">
+              <label for="pOrder">p</label>
+              <input id="pOrder" type="number" min="1" max="5" value="1">
+            </div>
+            <div class="order-input">
+              <label for="qOrder">q</label>
+              <input id="qOrder" type="number" min="1" max="5" value="1">
+            </div>
+          </div>
+        </div>
+        
+        <div class="distribution-selector">
+          <label for="distribution">Distribution</label>
+          <select id="distribution">
+            <option value="normal">Normal</option>
+            <option value="student">Student-t</option>
+            <option value="skewt">Skewed-t</option>
+            <option value="ged">GED</option>
+          </select>
+        </div>
+        
+        <div class="estimation-method">
+          <label for="estimationMethod">Estimation</label>
+          <select id="estimationMethod">
+            <option value="mle">Maximum Likelihood</option>
+            <option value="qmle">Quasi-MLE</option>
+            <option value="bayesian">Bayesian</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <h3>Risk Metrics</h3>
+        <div class="risk-params">
+          <div class="confidence-level">
+            <label for="confidenceLevel">VaR Confidence</label>
+            <div class="slider-container">
+              <input type="range" id="confidenceSlider" min="90" max="99" step="0.5" value="95">
+              <span id="confidenceValue">95%</span>
+            </div>
+          </div>
+          <div class="horizon-selector">
+            <label for="forecastHorizon">Forecast Horizon</label>
+            <div class="horizon-inputs">
+              <input id="forecastHorizon" type="number" min="1" max="30" value="5">
+              <span>days</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="runAnalysisBtn" class="primary-button">RUN ANALYSIS</button>
+    </aside>
+
+    <!-- 右侧结果区域 -->
+    <main class="results-area">
+      <div class="tabs-container">
+        <div class="tabs">
+          <button class="tab-button active" data-tab="volatility">Volatility</button>
+          <button class="tab-button" data-tab="returns">Returns</button>
+          <button class="tab-button" data-tab="var">VaR</button>
+          <button class="tab-button" data-tab="diagnostics">Diagnostics</button>
+        </div>
+        
+        <div class="tab-content active" id="volatilityTab">
+          <div class="chart-container">
+            <div id="volatilityChart" class="chart"></div>
+            <div class="chart-overlay hidden" id="loadingOverlay">
+              <div class="spinner"></div>
+              <p>Computing...</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tab-content" id="returnsTab">
+          <div class="chart-container">
+            <div id="returnsChart" class="chart"></div>
+          </div>
+        </div>
+        
+        <div class="tab-content" id="varTab">
+          <div class="chart-container">
+            <div id="varChart" class="chart"></div>
+          </div>
+        </div>
+        
+        <div class="tab-content" id="diagnosticsTab">
+          <div class="diagnostics-container">
+            <div class="diagnostics-charts">
+              <div id="acfChart" class="small-chart"></div>
+              <div id="pacfChart" class="small-chart"></div>
+              <div id="qqChart" class="small-chart"></div>
+              <div id="residualsChart" class="small-chart"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-panel">
+        <div class="panel-header">
+          <h3>Analysis Results</h3>
+          <div class="panel-controls">
+            <button id="exportResultsBtn" class="text-button">Export</button>
+            <button id="toggleResultsBtn" class="icon-button">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M7 10l5 5 5-5H7z"/></svg>
+            </button>
+          </div>
+        </div>
+        
+        <div class="results-content">
+          <div class="results-grid">
+            <div class="result-card">
+              <h4>Model Summary</h4>
+              <div id="modelSummary" class="scrollable-content">
+                <table class="data-table" id="parametersTable">
+                  <thead>
+                    <tr>
+                      <th>Parameter</th>
+                      <th>Estimate</th>
+                      <th>Std. Error</th>
+                      <th>t-value</th>
+                      <th>Pr(>|t|)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- 动态填充 -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <div class="result-card">
+              <h4>Fit Statistics</h4>
+              <div id="fitStatistics" class="metrics-grid">
+                <!-- 动态填充 -->
+              </div>
+            </div>
+            
+            <div class="result-card">
+              <h4>Risk Metrics</h4>
+              <div id="riskMetrics" class="metrics-grid">
+                <!-- 动态填充 -->
+              </div>
+            </div>
+            
+            <div class="result-card">
+              <h4>Forecast</h4>
+              <div id="forecastResults" class="scrollable-content">
+                <table class="data-table" id="forecastTable">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Volatility</th>
+                      <th>VaR</th>
+                      <th>ES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- 动态填充 -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 设置弹窗 -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Advanced Settings</h3>
+        <button class="close-button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <h4>Optimization</h4>
+          <div class="setting-item">
+            <label for="maxIterations">Max Iterations</label>
+            <input type="number" id="maxIterations" min="100" max="10000" value="1000">
+          </div>
+          <div class="setting-item">
+            <label for="convergenceTolerance">Convergence Tolerance</label>
+            <input type="number" id="convergenceTolerance" min="0.00001" max="0.01" step="0.00001" value="0.0001">
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h4>Initial Values</h4>
+          <div class="setting-item">
+            <label for="useCustomInitial">Use Custom Initial Values</label>
+            <input type="checkbox" id="useCustomInitial">
+          </div>
+          <div class="initial-values-container">
+            <!-- 动态填充 -->
+          </div>
+        </div>
+        
+        <div class="settings-section">
+          <h4>Display</h4>
+          <div class="setting-item">
+            <label for="decimalPlaces">Decimal Places</label>
+            <input type="number" id="decimalPlaces" min="2" max="6" value="4">
+          </div>
+          <div class="setting-item">
+            <label for="showConfidenceBands">Show Confidence Bands</label>
+            <input type="checkbox" id="showConfidenceBands" checked>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="resetSettingsBtn" class="secondary-button">Reset to Defaults</button>
+        <button id="applySettingsBtn" class="primary-button">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主体脚本 -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2"></script>
+  <script src="js/quant-volatility.js"></script>
+</body>
+</html> 

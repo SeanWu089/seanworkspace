@@ -1,0 +1,274 @@
+/* 波动率分析工具特定样式 */
+
+/* 工作区容器调整 */
+#workspaceContainer {
+  display: flex;
+  margin-top: 100px;
+  gap: 30px;
+}
+
+/* 参数选择区域 */
+#paramSelector {
+  width: 300px;
+  margin-top: 40px;
+  margin-left: 30px;
+  box-sizing: border-box;
+}
+
+#paramSelector h3 {
+  color: #002FA7;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
+
+.param-group {
+  margin-bottom: 25px;
+}
+
+.param-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+}
+
+/* 股票输入区域 */
+.ticker-input-container {
+  display: flex;
+  gap: 10px;
+}
+
+#tickerInput {
+  flex: 1;
+  height: 40px;
+  padding-left: 10px;
+  box-sizing: border-box;
+  border: 1px solid #626d89;
+  border-radius: 5px;
+  font-size: 1rem;
+  color: #1c31b8;
+}
+
+#addTickerBtn {
+  width: 40px;
+  height: 40px;
+  background-color: #002FA7;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#selectedTickers {
+  margin-top: 10px;
+  min-height: 60px;
+}
+
+.ticker-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e0e7ff;
+  color: #002FA7;
+  padding: 5px 10px;
+  border-radius: 15px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.ticker-tag .remove-ticker {
+  margin-left: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* 日期范围选择 */
+.date-range-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.date-range-container input[type="date"] {
+  flex: 1;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid #626d89;
+  border-radius: 5px;
+  color: #333;
+}
+
+/* 模型选择区域 */
+.model-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.model-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.model-option input[type="radio"] {
+  accent-color: #002FA7;
+}
+
+/* 置信区间选择 */
+#confidenceLevel {
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid #626d89;
+  border-radius: 5px;
+  color: #333;
+  background-color: white;
+}
+
+/* 分析按钮 */
+#analyzeBtn {
+  width: 100%;
+  height: 50px;
+  margin-top: 30px;
+  background-color: #002FA7;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#analyzeBtn:hover {
+  background-color: #001f7a;
+}
+
+/* 可视化区域 */
+#visualizationArea {
+  flex: 1;
+  margin-right: 30px;
+}
+
+#chartContainer {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#placeholderMessage {
+  color: #6c757d;
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 20px;
+}
+
+/* 加载动画 */
+#loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #002FA7;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* 结果部分样式调整 */
+#resultsSection {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+
+#resultsSection.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 风险指标卡片 */
+.metric-card {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.metric-card h3 {
+  margin-top: 0;
+  color: #002FA7;
+  font-size: 1.1rem;
+}
+
+.metric-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  margin: 10px 0;
+}
+
+.metric-description {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+/* 模型参数表格 */
+.params-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.params-table th,
+.params-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.params-table th {
+  background-color: #e9ecef;
+  color: #495057;
+  font-weight: 600;
+}
+
+.params-table tr:hover {
+  background-color: #f8f9fa;
+} 

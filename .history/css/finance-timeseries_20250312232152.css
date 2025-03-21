@@ -1,0 +1,475 @@
+/* 基础样式 */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+    
+    line-height: 1.6;
+}
+
+/* 顶部导航样式 */
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 20px;
+    background-color: #f8f9fa;
+    z-index: 1000;
+    padding: 20px;
+}
+
+/* 导航内容容器 */
+/* .top-nav > div {
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    padding-left: 60px; 
+} */
+
+/* 左侧导航组 - 只包含返回按钮 */
+.nav-left {
+    display: flex;
+    align-items: center;
+    margin-right: auto;
+    margin-left: 45px;  /* 与home按钮保持距离 */
+}
+
+/* 主页链接样式 */
+.home-link {
+    position: absolute;
+    left: 0;           /* 放置在容器最左侧 */
+    width: 40px;
+    height: 40px;
+    background-color: #2E72C6;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.home-link:hover {
+    background-color: #1e5da8;
+    transform: scale(1.1);
+}
+
+.home-link i {
+    font-size: 18px;
+}
+
+/* 返回按钮样式 */
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 20px;
+    background-color: #2E72C6;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #1e5da8;
+    transform: translateX(-5px);
+}
+
+.back-button i {
+    font-size: 16px;
+}
+
+/* 页面标题样式 */
+.page-header {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    top: 30px;
+    right: 30px;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    color: #2E72C6;
+    line-height: 1.2;
+    margin-bottom: 10px;
+}
+
+.page-header .subtitle {
+    font-size: 1rem;
+    color: #666;
+}
+
+/* >>>> 页面主要内容区域 */
+.page-layout {
+    max-width: 1350px;
+    margin: 130px auto 40px;
+    padding: 0 20px;
+}
+
+/* 上部分布局 */
+.top-section {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+    margin-bottom: 40px;
+    align-items: start;
+}
+
+/* 下部分布局 */
+.bottom-section {
+    display: grid;
+    grid-template-columns: 1fr;  /* 可以根据需要调整 */
+    gap: 30px;
+}
+
+/* 左侧面板样式 */
+.left-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-top: -30px;  /* 向上移动 */
+    min-height: 530px;  /* 设置最小高度，确保比右侧长 */
+}
+
+/* 右侧预览面板 */
+.right-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    height: 500px;  /* 固定右侧高度 */
+}
+
+/* 占位图样式 */
+.placeholder-stripes {
+    width: 100%;
+    height: 84%;  /* 改为100%以填充右侧面板 */
+    background: repeating-linear-gradient(
+        45deg,
+        #f0f0f0,
+        #f0f0f0 10px,
+        #ffffff 10px,
+        #ffffff 20px
+    );
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 1.2rem;
+}
+
+/* 标题样式 */
+h2 {
+    color: #1e293b;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+/* 如果其他地方的 h2 还需要下划线，可以单独设置 */
+.bottom-section h2,
+.right-panel h2 {
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+    .top-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .top-nav {
+        padding: 15px 20px;
+    }
+
+    .home-link {
+        position: static;
+        left: auto;
+    }
+
+    .top-nav > div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .nav-left {
+        display: flex;
+        gap: 15px;
+        margin-right: 0;
+        width: 100%;
+    }
+
+    .page-header {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .back-button span {
+        display: none;
+    }
+
+    .back-button {
+        padding: 8px 15px;
+    }
+
+    .home-link {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+/* 工具类 */
+.hidden {
+    display: none;
+}
+
+/* 模型选择面板 */
+.model-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.model-selector select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+/* 结果面板 */
+.results-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-top: 30px;
+}
+
+/* 移除之前的模型选择相关样式 */
+.model-selection {
+    /* 删除或注释掉 */
+}
+
+/* 文件选择器容器 */
+#fileSelector {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+/* 自定义文件选择框 */
+#fileSelect {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    color: #2E72C6;
+    background-color: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    cursor: pointer;
+    appearance: none;  /* 移除默认的下拉箭头 */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: all 0.3s ease;
+}
+
+
+/* 悬停效果 */
+#fileSelect:hover {
+    border-color: #2E72C6;
+    box-shadow: 0 2px 8px rgba(46, 114, 198, 0.1);
+}
+
+/* 聚焦效果 */
+#fileSelect:focus {
+    outline: none;
+    border-color: #2E72C6;
+    box-shadow: 0 0 0 3px rgba(46, 114, 198, 0.1);
+}
+
+/* 选项样式 */
+#fileSelect option {
+    padding: 12px;
+    font-size: 0.95rem;
+    color: #1e293b;
+    background-color: white;
+}
+
+/* 占位符文本样式 */
+#fileSelect option[value=""] {
+    color: #94a3b8;
+}
+
+/* 变量展示框样式 */
+.variables-container {
+    margin-top: 20px;
+    border: 2px solid #e2e8f0;  /* 添加边框 */
+    border-radius: 10px;        /* 圆角与文件选择框保持一致 */
+    padding: 15px;
+    background-color: white;    /* 确保背景是白色 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);  /* 添加轻微阴影 */
+}
+
+.variables-container h3 {
+    color: #1e293b;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;  /* 添加标题下划线 */
+}
+
+.variables-list {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+/* 美化滚动条 */
+.variables-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.variables-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.variables-list::-webkit-scrollbar-thumb {
+    background: #c5c5c5;
+    border-radius: 4px;
+}
+
+.variables-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* 自定义文件下拉框样式 */
+.custom-file-dropdown {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.selected-file {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.selected-file:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.files-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    margin-top: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.files-list.hidden {
+    display: none;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-item:hover {
+    background: #f7fafc;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-icon {
+    font-size: 20px;
+    width: 24px;
+}
+
+.file-icon.fa-file-csv { color: #1da750; }
+.file-icon.fa-file-excel { color: #217346; }
+
+.file-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.file-name {
+    font-size: 14px;
+    color: #2d3748;
+    margin-bottom: 2px;
+}
+
+.file-meta {
+    font-size: 12px;
+    color: #718096;
+}
+
+.dropdown-arrow {
+    transition: transform 0.2s ease;
+}
+
+.dropdown-arrow.rotate {
+    transform: rotate(180deg);
+}
+
+/* 美化滚动条 */
+.files-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.files-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.files-list::-webkit-scrollbar-thumb {
+    background: #c5c5c5;
+    border-radius: 4px;
+}
+
+.files-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+} 

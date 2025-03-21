@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sean's Holistic Workspace - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Raleway:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Bubblegum+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Alice:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/homepage.css"/>
+  <link rel="stylesheet" href="css/sidebars.css"/>
+  <!-- 修改脚本加载顺序，与 StatsTools.html 保持一致 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/sidebars.js" defer></script>
+  <script src="js/homepage.js" defer></script>
+  <style>
+    /* 覆盖箭头位置样式 */
+    #leftSidebar.show ~ #leftToggle {
+      left: 230px !important;
+    }
+    
+    #rightSidebar.show ~ #rightToggle {
+      right: 290px !important;
+    }
+    
+    #rightSidebar.expanded.show ~ #rightToggle {
+      right: calc(66vw - 10px) !important;
+    }
+    
+    /* 确保基本位置正确 */
+    #leftToggle {
+      left: 2px !important;
+    }
+    
+    #rightToggle {
+      right: 2px !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-buttons">
+    <button id="open-login-button" class="login-btn">Login</button>
+    <button id="my-account-button" class="login-btn" style="display: none;">My Account</button>
+  </div>
+
+  <!-- 左侧侧边栏 -->
+  <nav id="leftSidebar" class="sidebar">
+    <h2>Modules</h2>
+    <ul>
+      <li><a href="StatsTools.html">Statistic Tools</a></li>
+      <li><a href="statsmodel.html#visual">Visualization</a></li>
+    </ul>
+  </nav>
+
+  <!-- 箭头按钮必须紧跟在侧边栏后面，这样相邻选择器才能工作 -->
+  <div id="leftToggle" class="sidebar-toggle"></div>
+
+  <!-- 右侧预览边栏 - 修改为与 StatsTools.html 一致的结构 -->
+  <nav id="rightSidebar" class="sidebar">
+    <div class="sidebar-header">
+      <h2>Data Preview</h2>
+      <button id="clearPreviewBtn" class="preview-close" aria-label="Clear preview"></button>
+    </div>
+    <!-- 空状态显示 -->
+    <div id="preview-empty-state" class="empty-state">
+      <p>No data selected for preview</p>
+      <button id="selectFileBtn" class="sidebar-btn">Select File</button>
+    </div>
+    <!-- 预览内容 -->
+    <div id="preview-content" style="display: none;">
+      <table id="preview-table">
+        <thead>
+          <tr>
+            <th>Variables</th>
+            <th>DataType</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- JS 将在这里插入数据行 -->
+        </tbody>
+      </table>
+    </div>
+  </nav>
+  <div id="rightToggle" class="sidebar-toggle"></div>
+
+  <!-- 主体内容 -->
+  <main class="main-content">
+    <h1>Welcome to <br> <span>Sean's</span> <br>Holistic Workspace</h1>
+    <button id="uploadBtn" class="upload-button">
+      WHY DONT WE START FROM HERE
+    </button>
+    <input type="file" id="file-input" style="display: none;" accept=".csv,.json, .xlsx, .xls, .pdf, .docx, .pptx, .ppt">
+  </main>
+
+  <!-- 登录弹窗 -->
+  <div id="auth-modal" class="modal-wrapper">
+    <div class="auth-overlay"></div>
+    <div class="auth-container">
+        <div class="auth-left">
+            <img src="media/images/sean.PNG" alt="Destination" class="auth-image">
+            <div class="auth-title">Sean's Workspace</div>
+            <div class="auth-details" id="auth-date-time"></div>
+        </div>
+        <div class="auth-right">
+            <div class="auth-header">
+                <h2 class="login-title">Log in</h2>
+                <a href="#" id="signup-link" class="signup-link">Sign up</a>
+            </div>
+            <form id="login-form" class="login-form">
+                <div class="input-wrapper">
+                    <div class="prefix-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <input type="email" id="login-email" class="input-field" placeholder="e-mail address" required>
+                </div>
+                <div class="input-wrapper">
+                    <div class="prefix-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7z"/>
+                        </svg>
+                    </div>
+                    <input type="password" id="login-password" class="input-field" placeholder="password" required>
+                    <a href="#" class="forgot-link">I forgot</a>
+                </div>
+                <div class="login-buttons">
+                    <button type="button" id="google-login-btn" class="google-button">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M17.64 9.20419C17.64 8.56601 17.5827 7.95237 17.4764 7.36328H9V10.8446H13.8436C13.635 11.9696 13.0009 12.9228 12.0477 13.5614V15.8196H14.9564C16.6582 14.2524 17.64 11.9451 17.64 9.20419Z" fill="#4285F4"/>
+                            <path d="M9 18C11.43 18 13.4673 17.1941 14.9564 15.8196L12.0477 13.5614C11.2418 14.1014 10.2109 14.4204 9 14.4204C6.65591 14.4204 4.67182 12.8373 3.96409 10.71H0.957275V13.0418C2.43818 15.9832 5.48182 18 9 18Z" fill="#34A853"/>
+                            <path d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29V4.95818H0.957275C0.347727 6.17318 0 7.54773 0 9C0 10.4523 0.347727 11.8268 0.957275 13.0418L3.96409 10.71Z" fill="#FBBC05"/>
+                            <path d="M9 3.57955C10.3214 3.57955 11.5077 4.03364 12.4405 4.92545L15.0218 2.34409C13.4632 0.891818 11.4259 0 9 0C5.48182 0 2.43818 2.01682 0.957275 4.95818L3.96409 7.29C4.67182 5.16273 6.65591 3.57955 9 3.57955Z" fill="#EA4335"/>
+                        </svg>
+                        Google
+                    </button>
+                    <button type="submit" class="submit-btn">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div id="login-error" class="error-message"></div>
+                <div id="login-loading" class="loading" style="display: none;">Processing...</div>
+            </form>
+        </div>
+    </div>
+  </div>
+
+  <!-- 注册弹窗 -->
+  <div id="signup-modal" class="modal-wrapper signup-modal">
+    <div class="auth-overlay"></div>
+    <div class="auth-container signup-container">
+        <div class="auth-right signup-right">
+            <div class="auth-header">
+                <h2 class="login-title">Sign up</h2>
+            </div>
+            <form id="signup-form" class="login-form">
+                <div class="input-wrapper">
+                    <div class="prefix-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <input type="email" id="signup-email" class="input-field" placeholder="e-mail address" required>
+                </div>
+                <div class="input-wrapper">
+                    <div class="prefix-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7z"/>
+                        </svg>
+                    </div>
+                    <input type="password" id="signup-password" class="input-field" placeholder="password" required>
+                </div>
+                <div class="input-wrapper">
+                    <div class="prefix-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7z"/>
+                        </svg>
+                    </div>
+                    <input type="password" id="signup-confirm-password" class="input-field" placeholder="confirm password" required>
+                </div>
+                <div class="login-buttons">
+                    <button type="button" id="google-signup-btn" class="google-button">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M17.64 9.20419C17.64 8.56601 17.5827 7.95237 17.4764 7.36328H9V10.8446H13.8436C13.635 11.9696 13.0009 12.9228 12.0477 13.5614V15.8196H14.9564C16.6582 14.2524 17.64 11.9451 17.64 9.20419Z" fill="#4285F4"/>
+                            <path d="M9 18C11.43 18 13.4673 17.1941 14.9564 15.8196L12.0477 13.5614C11.2418 14.1014 10.2109 14.4204 9 14.4204C6.65591 14.4204 4.67182 12.8373 3.96409 10.71H0.957275V13.0418C2.43818 15.9832 5.48182 18 9 18Z" fill="#34A853"/>
+                            <path d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29V4.95818H0.957275C0.347727 6.17318 0 7.54773 0 9C0 10.4523 0.347727 11.8268 0.957275 13.0418L3.96409 10.71Z" fill="#FBBC05"/>
+                            <path d="M9 3.57955C10.3214 3.57955 11.5077 4.03364 12.4405 4.92545L15.0218 2.34409C13.4632 0.891818 11.4259 0 9 0C5.48182 0 2.43818 2.01682 0.957275 4.95818L3.96409 7.29C4.67182 5.16273 6.65591 3.57955 9 3.57955Z" fill="#EA4335"/>
+                        </svg>
+                        Google
+                    </button>
+                    <button type="submit" class="submit-btn">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div id="signup-error" class="error-message"></div>
+                <div id="signup-loading" class="loading" style="display: none;">Processing...</div>
+                <div class="login-link-wrapper">
+                    <span>Already have an account? </span>
+                    <a href="#" id="login-link" class="login-link">Log in</a>
+                </div>
+            </form>
+        </div>
+    </div>
+  </div>
+</body>
+</html>

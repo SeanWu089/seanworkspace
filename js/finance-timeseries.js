@@ -1,4 +1,5 @@
-// 将函数移到文件顶部，全局作用域
+import { API_BASE_URL, API_ENDPOINTS } from '/js/config.js';
+
 function showModelDescription(modelType) {
     console.log('showModelDescription called with:', modelType); // 添加调试日志
     
@@ -63,9 +64,6 @@ function showModelDescription(modelType) {
         modelInfos[modelType].style.display = autoMode?.checked ? 'block' : 'none';
     }
 }
-
-// 添加 Railway 的基础 URL
-const API_BASE_URL = 'https://seanholisticworkspace-production.up.railway.app';  // 你的 Railway URL
 
 // 添加全局变量
 let currentFileId = null;
@@ -311,6 +309,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // 添加预测点数输入验证
+    const forecastPointsInput = document.getElementById('forecastPointsInput');
+    if (forecastPointsInput) {
+        forecastPointsInput.addEventListener('input', function() {
+            let value = parseInt(this.value);
+            if (value < 1) {
+                this.value = 1;
+            } else if (value > 365) {
+                this.value = 365;
+            }
+        });
+    }
 });
 
 // 切换 Prophet 内容显示
@@ -412,7 +423,7 @@ async function selectVariable(variable) {
         // 添加到已选变量列表
         addSelectedVariable(variable);
         // 更新数据预览
-        updateDataPreview(variableData);
+        displayDataPreview(variableData);
     }
     searchInput.value = '';
     searchResults.classList.add('hidden');
@@ -635,7 +646,7 @@ async function handleDrop(e) {
         // 显示加载状态
         showLoading('Generating plot...');
         
-        const response = await fetch(`${API_BASE_URL}/finance/timeseries_plot`, {
+        const response = await fetch(API_ENDPOINTS.timeseriesPlot, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -732,7 +743,7 @@ async function processSelectedFile(fileId) {
         showLoading('Processing file...');
         
         const filePath = `${userId}/${fileId}`;
-        const response = await fetch(`${API_BASE_URL}/data_type`, {
+        const response = await fetch(API_ENDPOINTS.dataType, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -827,7 +838,9 @@ async function fitTimeSeriesModel(variableName) {
         
         const filePath = `${session.user.id}/${currentFileId}`;
         
-        const response = await fetch(`${API_BASE_URL}/finance/timeseries_model`, {
+        const forecastPoints = parseInt(document.getElementById('forecastPointsInput').value) || 30;
+        
+        const response = await fetch(API_ENDPOINTS.timeseriesModel, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -838,6 +851,7 @@ async function fitTimeSeriesModel(variableName) {
                 model_type: 'prophet',
                 auto_mode: isAutoMode,
                 model_params: modelParams,
+                forecast_points: forecastPoints,
                 user_id: session.user.id
             })
         });
@@ -861,72 +875,72 @@ async function fitTimeSeriesModel(variableName) {
     }
 }
 
-// 显示模型结果
+// 修改显示模型结果的函数
 function displayModelResults(result) {
-    // 更新模型信息
-    document.querySelector('.model-badge').textContent = result.model_type;
+    console.log("Received result:", JSON.stringify(result, null, 2));
     
-    // 更新参数值
-    if (result.parameters) {
-        // 季节性参数
-        document.getElementById('yearlyValue').textContent = 
-            result.parameters.yearly_seasonality;
-        document.getElementById('weeklyValue').textContent = 
-            result.parameters.weekly_seasonality;
-        document.getElementById('dailyValue').textContent = 
-            result.parameters.daily_seasonality;
+    // 显示评估指标
+    document.getElementById('rmseValue').textContent = result.metrics.rmse.toFixed(4);
+    document.getElementById('maeValue').textContent = result.metrics.mae.toFixed(4);
+    document.getElementById('mapeValue').textContent = result.metrics.mape.toFixed(2) + '%';
+    document.getElementById('r2Value').textContent = result.metrics.r2.toFixed(4);
+
+    // 显示预测相关指标
+    document.getElementById('changeValue').textContent = result.insights.change.toFixed(2) + '%';
+    document.getElementById('uncertaintyValue').textContent = result.insights.uncertainty.toFixed(2) + '%';
+    document.getElementById('minForecastValue').textContent = result.insights.min.toFixed(2);
+    document.getElementById('maxForecastValue').textContent = result.insights.max.toFixed(2);
+
+    // 显示图表 - 尝试直接使用整个plot对象
+    if (result.plot) {
+        console.log("Plot data structure:", result.plot);
         
-        // 先验尺度参数
-        document.getElementById('changepointValue').textContent = 
-            result.parameters.changepoint_prior_scale.toFixed(1);
-        document.getElementById('seasonalityValue').textContent = 
-            result.parameters.seasonality_prior_scale.toFixed(1);
-        document.getElementById('holidaysValue').textContent = 
-            result.parameters.holidays_prior_scale.toFixed(1);
+        // 尝试方法1: 直接使用整个plot对象
+        try {
+            Plotly.newPlot('forecastPlot', result.plot);
+            console.log("Method 1 succeeded");
+        } catch (e) {
+            console.error("Method 1 failed:", e);
+            
+            // 尝试方法2: 分离data和layout
+            try {
+                Plotly.newPlot('forecastPlot', result.plot.data, result.plot.layout);
+                console.log("Method 2 succeeded");
+            } catch (e) {
+                console.error("Method 2 failed:", e);
+                
+                // 尝试方法3: 解析JSON字符串
+                try {
+                    const plotData = typeof result.plot === 'string' ? 
+                        JSON.parse(result.plot) : result.plot;
+                    Plotly.newPlot('forecastPlot', plotData.data, plotData.layout);
+                    console.log("Method 3 succeeded");
+                } catch (e) {
+                    console.error("Method 3 failed:", e);
+                    document.getElementById('forecastPlot').innerHTML = 
+                        '<div class="error-message">Failed to display plot. See console for details.</div>';
+                }
+            }
+        }
+    }
+}
+
+// 更新格式化函数以处理不同格式的值
+function formatMetricValue(value, format) {
+    // 如果值已经是字符串（后端可能直接返回格式化的字符串）
+    if (typeof value === 'string') {
+        return value;
     }
     
-    // 更新评估指标
-    if (result.metrics) {
-        document.getElementById('rmseValue').textContent = 
-            result.metrics.rmse ? result.metrics.rmse.toFixed(4) : '-';
-        document.getElementById('maeValue').textContent = 
-            result.metrics.mae ? result.metrics.mae.toFixed(4) : '-';
-        document.getElementById('mapeValue').textContent = 
-            result.metrics.mape ? result.metrics.mape.toFixed(2) + '%' : '-';
-        document.getElementById('r2Value').textContent = 
-            result.metrics.r2 ? result.metrics.r2.toFixed(4) : '-';
+    // 数值格式化
+    if (format.includes('%')) {
+        // 如果值已经是百分比形式（大于1），不需要乘100
+        const percentage = Math.abs(value) > 1 ? value : value * 100;
+        return `${percentage.toFixed(2)}%`;
     }
     
-    // 显示图表
-    if (result.plots) {
-        // 拟合图
-        Plotly.newPlot('fitPlot', result.plots.data_plot.data, result.plots.data_plot.layout);
-        
-        // 残差图
-        Plotly.newPlot('residualsPlot', result.plots.residuals_plot.data, result.plots.residuals_plot.layout);
-        
-        // ACF和PACF图（这些是base64图像）
-        document.getElementById('acfPlot').innerHTML = `<img src="data:image/png;base64,${result.plots.acf_plot}" style="width:100%;height:100%;object-fit:contain;">`;
-        document.getElementById('pacfPlot').innerHTML = `<img src="data:image/png;base64,${result.plots.pacf_plot}" style="width:100%;height:100%;object-fit:contain;">`;
-    }
-    
-    // 更新预测表格
-    const tableBody = document.getElementById('forecastTableBody');
-    tableBody.innerHTML = '';
-    
-    if (result.forecast && result.forecast.dates && result.forecast.values) {
-        result.forecast.dates.forEach((date, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${date}</td>
-                <td>${result.forecast.values[index].toFixed(4)}</td>
-            `;
-            tableBody.appendChild(row);
-        });
-    }
-    
-    // 显示结果面板
-    document.getElementById('modelResults').style.display = 'flex';
+    const precision = parseInt(format.match(/\.(\d+)f/)[1]);
+    return value.toFixed(precision);
 }
 
 // 处理图表标签切换
@@ -941,4 +955,25 @@ document.querySelectorAll('.plot-tab').forEach(tab => {
         const plotId = this.dataset.plot + 'Plot';
         document.getElementById(plotId).classList.add('active');
     });
-}); 
+});
+
+// 在选择变量时显示预览图
+function displayDataPreview(data) {
+    // 创建简单的时间序列图
+    const trace = {
+        x: data.dates,
+        y: data.values,
+        type: 'scatter',
+        mode: 'lines',
+        name: 'Historical Data'
+    };
+
+    const layout = {
+        showlegend: false,
+        margin: {l: 40, r: 40, t: 40, b: 20, pad: 0},
+        height: 500,
+        width: 800
+    };
+
+    Plotly.newPlot('timeSeriesPreview', [trace], layout);
+} 

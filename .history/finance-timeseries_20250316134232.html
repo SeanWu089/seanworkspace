@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Time Series Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/finance-timeseries.css">
+    <link rel="stylesheet" href="css/sidebars.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 必要的脚本引用 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/sidebars.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.30.1.min.js"></script>
+    <script src="js/finance-timeseries.js"></script>
+</head>
+<body>
+    <!-- 左侧边栏 -->
+    <nav id="leftSidebar" class="sidebar">
+        <h2>Modules</h2>
+        <ul>
+            <li><a href="StatsTools.html">Statistic Tools</a></li>
+        </ul>
+    </nav>
+    <div id="leftToggle" class="sidebar-toggle" aria-label="Toggle left sidebar"></div>
+
+    <!-- 修改顶部导航和标题布局 -->
+    <div class="top-nav">
+        <div class="nav-left">
+            <a href="index.html" class="home-link">
+                <i class="fas fa-home"></i>
+            </a>
+            <a href="FinancialModels.html" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Models</span>
+            </a>
+        </div>
+        <div class="page-header">
+            <h1>Time Series Analysis</h1>
+            <p class="subtitle">Advanced time series modeling and forecasting tools</p>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="page-layout">
+        <!-- 上部分：数据选择和预览 -->
+        <div class="top-section">
+            <!-- 左侧：仅数据选择 -->
+            <div class="left-panel">
+                <div class="data-selection">
+                    <h2>Select Data</h2>
+                    <!-- 替换原来的文件选择框 -->
+                    <div class="custom-file-select" id="fileSelector">
+                        <div class="file-select-button" id="fileSelect">
+                            <span>Choose a file...</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="file-select-dropdown" id="fileSelectDropdown">
+                            <!-- 选项会通过JavaScript动态添加 -->
+                        </div>
+                    </div>
+
+                    <!-- 变量展示框 -->
+                    <div class="variables-container">
+                        <h3>Variables</h3>
+                        <div id="variablesList" class="variables-list">
+                            <!-- 变量列表将在这里显示，支持拖拽 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：数据预览 -->
+            <div class="right-panel">
+                <h2>Data Preview</h2>
+                <div id="dataPreviewPlaceholder" class="placeholder-stripes">
+                    <span>Please select data to preview</span>
+                </div>
+                <div id="timeSeriesPreview" class="plot-container"></div>
+            </div>
+        </div>
+
+        <!-- 下部分：模型选择和分析结果 -->
+        <div class="bottom-section">
+            <!-- 模型选择部分 -->
+            <div class="model-panel">
+                <h2>Select Model</h2>
+                <div class="model-select-group">
+                    <!-- 左侧模型选择 -->
+                    <div class="custom-model-select">
+                        <div class="model-select-button" id="modelSelect">
+                            <span>ARIMA</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="model-select-dropdown" id="modelSelectDropdown">
+                            <div class="model-option" data-value="arima">
+                                <span>ARIMA</span>
+                            </div>
+                            <div class="model-option" data-value="garch">
+                                <span>GARCH</span>
+                            </div>
+                            <div class="model-option" data-value="ewma">
+                                <span>EWMA</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧Auto Mode开关 -->
+                    <div class="auto-mode-toggle">
+                        <label class="auto-mode-label">
+                            <input type="checkbox" id="autoMode">
+                            <span class="toggle-track"></span>
+                            <span class="toggle-text">Auto Mode</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="model-info">
+                    <div id="autoDesc" class="model-info hidden">
+                        <h3>Auto Mode</h3>
+                        <p>Automatically selects the best model based on data characteristics.</p>
+                        <ul>
+                            <li>Evaluates multiple models and selects the best fit</li>
+                            <li>Optimizes parameters automatically</li>
+                            <li>Recommended for exploratory analysis</li>
+                        </ul>
+                    </div>
+                    <div id="arimaDesc" class="model-info hidden">
+                        <!-- <h3>ARIMA Model</h3> -->
+                        <p>Autoregressive Integrated Moving Average model for time series forecasting.</p>
+                        <ul>
+                            <li>Suitable for stationary or differenced stationary data</li>
+                            <li>Captures linear relationships in time series</li>
+                            <li>Parameters: (p,d,q) for AR, differencing, and MA orders</li>
+                        </ul>
+                    </div>
+
+                    <div id="garchDesc" class="model-info hidden">
+                        <h3>GARCH Model</h3>
+                        <p>Generalized Autoregressive Conditional Heteroskedasticity for volatility modeling.</p>
+                        <ul>
+                            <li>Models time-varying volatility</li>
+                            <li>Captures volatility clustering</li>
+                            <li>Suitable for financial returns data</li>
+                        </ul>
+                    </div>
+
+                    <div id="ewmaDesc" class="model-info hidden">
+                        <h3>EWMA Model</h3>
+                        <p>Exponentially Weighted Moving Average for adaptive forecasting.</p>
+                        <ul>
+                            <li>Gives more weight to recent observations</li>
+                            <li>Simple but effective for volatility estimation</li>
+                            <li>Single parameter (λ) controls decay rate</li>
+                        </ul>
+                    </div>
+
+                    <!-- 在model-info div中添加ARIMA参数设置面板 -->
+                    <div id="arimaParams" class="arima-params hidden">
+                        <div class="param-group">
+                            <div class="param-header">
+                                <div class="param-title">
+                                    AR Order (p)
+                                    <i class="fas fa-info-circle info-icon" title="Auto-regressive order: Number of lag observations"></i>
+                                </div>
+                                <span class="param-value">2</span>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" class="param-slider" id="arOrder" min="0" max="5" value="2" step="1">
+                                <div class="slider-ticks">
+                                    <div class="tick"><span class="tick-label">0</span></div>
+                                    <div class="tick"><span class="tick-label">1</span></div>
+                                    <div class="tick"><span class="tick-label">2</span></div>
+                                    <div class="tick"><span class="tick-label">3</span></div>
+                                    <div class="tick"><span class="tick-label">4</span></div>
+                                    <div class="tick"><span class="tick-label">5</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="param-group">
+                            <div class="param-header">
+                                <div class="param-title">
+                                    Differencing (d)
+                                    <i class="fas fa-info-circle info-icon" title="Number of times to difference the series"></i>
+                                </div>
+                            </div>
+                            <div class="diff-buttons">
+                                <button class="diff-button" data-value="0">None</button>
+                                <button class="diff-button active" data-value="1">First</button>
+                                <button class="diff-button" data-value="2">Second</button>
+                            </div>
+                        </div>
+
+                        <div class="param-group">
+                            <div class="param-header">
+                                <div class="param-title">
+                                    MA Order (q)
+                                    <i class="fas fa-info-circle info-icon" title="Moving average order: Size of the moving average window"></i>
+                                </div>
+                                <span class="param-value">2</span>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" class="param-slider" id="maOrder" min="0" max="5" value="2" step="1">
+                                <div class="slider-ticks">
+                                    <div class="tick"><span class="tick-label">0</span></div>
+                                    <div class="tick"><span class="tick-label">1</span></div>
+                                    <div class="tick"><span class="tick-label">2</span></div>
+                                    <div class="tick"><span class="tick-label">3</span></div>
+                                    <div class="tick"><span class="tick-label">4</span></div>
+                                    <div class="tick"><span class="tick-label">5</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分析结果部分 -->
+            <div class="results-panel">
+                <h2>Analysis Results</h2>
+                <!-- 分析结果将在这里显示 -->
+            </div>
+        </div>
+    </div>
+
+    <div id="plotConfigPanel" class="config-panel"></div>
+</body>
+</html> 

@@ -1,0 +1,272 @@
+/* 基础样式 */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+    
+    line-height: 1.6;
+}
+
+/* 顶部导航样式 */
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 3px;
+    background-color: #f8f9fa;
+    z-index: 1000;
+    padding: 20px;
+}
+
+/* 导航内容容器 */
+/* .top-nav > div {
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    padding-left: 60px; 
+} */
+
+/* 左侧导航组 - 只包含返回按钮 */
+.nav-left {
+    display: flex;
+    align-items: center;
+    margin-right: auto;
+    margin-left: 20px;  /* 与home按钮保持距离 */
+}
+
+/* 主页链接样式 */
+.home-link {
+    position: absolute;
+    left: 0;           /* 放置在容器最左侧 */
+    width: 40px;
+    height: 40px;
+    background-color: #2E72C6;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.home-link:hover {
+    background-color: #1e5da8;
+    transform: scale(1.1);
+}
+
+.home-link i {
+    font-size: 18px;
+}
+
+/* 返回按钮样式 */
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 20px;
+    background-color: #2E72C6;
+    color: white;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #1e5da8;
+    transform: translateX(-5px);
+}
+
+.back-button i {
+    font-size: 16px;
+}
+
+/* 页面标题样式 */
+.page-header {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    /* align-items: flex-end; */
+    right: 0;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    color: #2E72C6;
+    line-height: 1.2;
+    margin-bottom: 10px;
+}
+
+.page-header .subtitle {
+    font-size: 1rem;
+    color: #666;
+}
+
+/* >>>> 页面主要内容区域 */
+.page-layout {
+    max-width: 1300px;
+    margin: 160px auto 40px;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+}
+
+/* 左侧面板样式 */
+.left-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    height: fit-content;
+}
+
+/* 右侧面板样式 */
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* 模型选择器样式 */
+.model-selector select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #1e293b;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.model-selector select:hover {
+    border-color: #2E72C6;
+}
+
+.model-selector select:focus {
+    outline: none;
+    border-color: #2E72C6;
+    box-shadow: 0 0 0 3px rgba(46, 114, 198, 0.1);
+}
+
+/* 面板通用样式 */
+.data-panel, .results-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* 标题样式 */
+h2 {
+    color: #1e293b;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+/* 模型描述样式 */
+.model-description {
+    margin-top: 30px;
+}
+
+.model-info {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.model-info h3 {
+    color: #2E72C6;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.model-info p {
+    color: #4a5568;
+    margin-bottom: 15px;
+}
+
+.model-info ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.model-info ul li {
+    color: #4a5568;
+    padding: 8px 0;
+    padding-left: 20px;
+    position: relative;
+}
+
+.model-info ul li:before {
+    content: "•";
+    color: #2E72C6;
+    position: absolute;
+    left: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+    .page-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .top-nav {
+        padding: 15px 20px;
+    }
+
+    .home-link {
+        position: static;
+        left: auto;
+    }
+
+    .top-nav > div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .nav-left {
+        display: flex;
+        gap: 15px;
+        margin-right: 0;
+        width: 100%;
+    }
+
+    .page-header {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .back-button span {
+        display: none;
+    }
+
+    .back-button {
+        padding: 8px 15px;
+    }
+
+    .home-link {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+/* 工具类 */
+.hidden {
+    display: none;
+} 

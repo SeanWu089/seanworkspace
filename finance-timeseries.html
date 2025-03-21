@@ -14,7 +14,7 @@
     <script src="js/supabase-config.js"></script>
     <script src="js/sidebars.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.30.1.min.js"></script>
-    <script src="js/finance-timeseries.js"></script>
+    <script type="module" src="js/finance-timeseries.js"></script>
 </head>
 <body>
     <!-- 左侧边栏 -->
@@ -212,6 +212,26 @@
                         </div>
                     </div>
                 </div>
+                <div class="forecast-settings">
+                    <h4>Forecast Settings</h4>
+                    <div class="forecast-input-container">
+                        <div class="param-header">
+                            <div class="param-title">
+                                Forecast Points
+                                <i class="fas fa-info-circle info-icon" title="Number of future data points to predict (1-365)"></i>
+                            </div>
+                            <div class="forecast-input-wrapper">
+                                <input type="number" 
+                                       id="forecastPointsInput" 
+                                       class="forecast-points-input" 
+                                       value="30" 
+                                       min="1" 
+                                       max="365">
+                                <span class="forecast-points-label">points</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="model-action">
                     <button id="startModelingBtn" class="start-modeling-btn">
                         <i class="fas fa-play"></i>
@@ -270,6 +290,7 @@
                     <div class="metrics-section">
                         <h3>Model Metrics</h3>
                         <div class="metrics-grid">
+                            <!-- 模型评估指标 -->
                             <div class="metric-card">
                                 <span class="metric-title">RMSE</span>
                                 <span class="metric-value" id="rmseValue">-</span>
@@ -286,9 +307,47 @@
                                 <span class="metric-title">R²</span>
                                 <span class="metric-value" id="r2Value">-</span>
                             </div>
+                            
+                            <!-- 预测相关指标 -->
+                            <div class="metric-card forecast-metric">
+                                <span class="metric-title">Change</span>
+                                <span class="metric-value" id="changeValue">-</span>
+                            </div>
+                            <div class="metric-card forecast-metric">
+                                <span class="metric-title">Uncertainty</span>
+                                <span class="metric-value" id="uncertaintyValue">-</span>
+                            </div>
+                            <div class="metric-card forecast-metric">
+                                <span class="metric-title">Min Forecast</span>
+                                <span class="metric-value" id="minForecastValue">-</span>
+                            </div>
+                            <div class="metric-card forecast-metric">
+                                <span class="metric-title">Max Forecast</span>
+                                <span class="metric-value" id="maxForecastValue">-</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增：独立的图表容器部分 -->
+    <div class="full-width-plots-section">
+        <h2>Model Visualization</h2>
+        <div class="plots-container">
+            <!-- 图表切换标签 -->
+            <div class="plot-tabs">
+                <button class="plot-tab active" data-plot="forecast">Forecast Plot</button>
+                <button class="plot-tab" data-plot="Trend">Trend</button>
+                <!-- <button class="plot-tab" data-plot="diagnostics">Diagnostics</button> -->
+            </div>
+            
+            <!-- 图表显示区域 -->
+            <div class="plot-content">
+                <div id="forecastPlot" class="plot-panel active" style="height: 700px;"></div>
+                <div id="componentsPlot" class="plot-panel"></div>
+                <div id="diagnosticsPlot" class="plot-panel"></div>
             </div>
         </div>
     </div>

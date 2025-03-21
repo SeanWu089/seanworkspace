@@ -1,0 +1,536 @@
+/*  >>>> 全局基础  <<<< */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%; 
+  background-color: #f1f4fb; 
+}
+
+/* >>>> Login Button <<<< */
+.login-btn {
+  position: fixed;
+  display: flex;
+  top: 20px;
+  right: 20px;
+  background: #0d3064;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 12px 30px;
+  font-size: 22px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  width: 100px;
+  height: 48px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 添加登录后的按钮样式 */
+.login-btn.logged-in {
+  background: transparent;
+  color: #002fa7;  /* Klein Blue */
+  font-weight: 600;
+  width: auto;
+  padding: 12px 20px;
+  text-decoration: none;
+}
+
+.login-btn.logged-in:hover {
+  color: #1e4a7b;
+  transform: scale(1.05);
+}
+
+/* 添加 My Account 按钮特定样式 */
+#my-account-button {
+  background: white;  /* 白色背景 */
+  color: #5a7cca;    /* 使用与页面标题相同的蓝色 */
+  /* border: 2px solid #87A5E9;  */
+  width: auto;       /* 自适应内容宽度 */
+  padding: 7px 10px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  /* 添加轻微阴影 */
+  align-items: center;
+  justify-content: center;
+  }
+
+#my-account-button:hover {
+  background: #f8f9fa;  /* 悬停时略微改变背景色 */
+  transform: translateY(-2px);  /* 悬停时轻微上浮 */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* 悬停时加深阴影 */
+}
+
+/* >>>> 登录弹窗 >>>> */
+.auth-modal {
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  }
+
+.auth-modal #app {
+  background-color: #fff; /* 白色模块背景 */
+  max-width: 400px;
+  width: 90%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hidden {
+  display: none !important;
+}
+
+
+
+
+/* >>>> Main Content ############################## */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100vh;
+}
+
+.main-content h1 {
+  font-family: 'Raleway', sans-serif;
+  font-size: 5.5rem;
+  color: #87A5E9;
+  font-weight: 400;
+}
+
+.main-content h1 span {
+  font-family: 'Dancing Script', cursive;
+  color: #1e4a7b;
+  font-size: 6.5rem;
+  font-weight: 600;
+}
+
+/* >>>>Upload button<<<< */
+.upload-button {
+  background-color: transparent;
+  color: #fff;
+  border: 2px solid #ffffff; 
+  padding: 1rem 2rem; /* 确保默认 padding */
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 1rem;
+  display: inline-block;
+  transition: all 0.3s ease; /* 让所有动画更平滑 */
+}
+
+.upload-button:hover {
+  background-color: transparent;
+  color: #a5a4a4;
+  border: 2px solid #a5a4a4; /* 让 hover 状态边框颜色变浅 */
+  padding: 1rem 3rem; /* 确保 padding 变大不会影响高度 */
+  border-radius: 6px; /* 避免 hover 造成跳动 */
+  transition: all 2s ease; /* 让所有动画更顺滑 */
+}
+
+/* >>>> Authentication Modal Styles <<<< */
+.auth-dialog::part(base) {
+  --width: 800px;
+  border-radius: 12px;
+  padding: 0;
+}
+
+.modal-wrapper {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-wrapper.show {
+    display: flex;
+}
+
+.auth-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(106, 106, 106, 0.01);
+    backdrop-filter: blur(8px);
+    z-index: 999;
+}
+
+/* 弹窗容器样式 */
+.auth-container {
+    position: relative;
+    z-index: 1000;
+    width: 600px;
+    height: 380px;
+    display: flex;
+    flex-direction: row;
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(16px);
+    overflow: hidden;
+    background: transparent;
+}
+
+/* 左侧样式 */
+.auth-left {
+    flex: 0.8;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #bbbbbb2b;
+    text-align: center;
+}
+
+.auth-image {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 24px;
+}
+
+.auth-title {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 16px;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 600;
+}
+
+.auth-details {
+    color: #666;
+    font-size: 15px;
+    line-height: 1.5;
+    font-family: 'Raleway', sans-serif;
+}
+
+/* 右侧样式 */
+.auth-right {
+    flex: 1.2;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background: #dadada0d;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.login-title {
+    font-size: 32px;
+    color: #333;
+    margin-left: 6px;
+    font-family: 'Alice', serif;
+    margin-bottom: 20px;
+}
+
+/* 表单样式 */
+.login-form {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-group,
+.password-group {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.input-wrapper {
+    position: relative;
+    width: 280px;
+    margin-bottom: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-field {
+    width: 100%;  /* 改为100%来适应父容器宽度 */
+    box-sizing: border-box;  /* 确保padding不会增加总宽度 */
+    height: 48px;
+    border: none;
+    border-radius: 25px;
+    padding: 0 20px 0 60px;
+    font-size: 15px;
+    color: #262629;
+    background: rgba(255, 255, 255, 0.3);
+    /* font-family: '', sans-serif; */
+}
+
+.input-field::placeholder {
+    color: rgba(38, 38, 41, 0.5);
+    padding-left: 0;  /* 移除placeholder的左侧内边距 */
+}
+
+.prefix-icon {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255);
+    border-radius: 50%;
+}
+
+.prefix-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: #666;
+    stroke-width: 2;
+}
+
+/* 按钮样式 */
+.login-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 20px;
+    width: 280px;
+    position: relative;
+    margin-top: 40px;
+}
+
+.google-button {
+    position: absolute;
+    left: 0;
+    width: 130px;
+    height: 45px;
+    background: #fff;
+    color: #404e65;
+    border: none;
+    border-radius: 25px;
+    padding: 8px 10px;
+    font-size: 15px;
+    font-weight: 500;
+    display: flex;
+    gap: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+    margin-left: 3px;
+}
+
+.submit-btn {
+    background: #002fa7;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 3px;
+}
+
+.submit-btn svg {
+    width: 24px;
+    height: 24px;
+    stroke: white;
+    stroke-width: 3;
+}
+
+/* 其他链接样式 */
+.forgot-link {
+    position: absolute;
+    right: 3%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #fff;
+    border-radius: 50px;
+    color: #0d3064;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    width: 60px;    /* 添加 !important 确保样式被应用 */
+    padding: 3px 4px;
+}
+
+.forgot-link:hover {
+  background: #f8f8f8;    /* 悬停效果 */
+}
+
+.signup-link {
+    color: #666;
+    font-size: 20px;
+    font-weight: 500;
+    text-decoration: none;
+    background: transparent;
+    position: absolute;
+    right: 15px;
+    top: -20px;
+}
+
+#signup-view .form-group:first-child {
+  margin-top: 0;
+}
+
+/* 错误消息样式 */
+.error-message {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+  display: none;
+}
+
+.error-message.visible {
+  display: block;
+}
+
+/* 加载状态样式 */
+.loading {
+  color: #007bff;
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Sign up 特定样式 - 添加在文件末尾 */
+.signup-modal .auth-container {
+    width: 400px;
+    height: 500px;
+    align-items: center;
+    justify-content: center;
+}
+
+.signup-modal .auth-right {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    align-items: center;
+    justify-content: center;
+}
+
+.signup-modal .auth-header {
+    width: 100%;
+    text-align: center;
+    position: relative;
+    font-family: 'Raleway', sans-serif !important;
+    /* margin-bottom: 30px; */
+}
+
+.signup-modal .login-title {
+    font-size: 32px;
+    font-family: 'Raleway', sans-serif;  /* 使用 Alice 字体 */
+    color: #333;
+    margin: 0 auto;
+    padding-top: 10px;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+.signup-modal .login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* gap: 20px; */
+}
+
+.signup-modal .input-wrapper {
+    width: 100%;
+    max-width: 280px;
+    /* margin-bottom: 15px; */
+}
+
+.signup-modal .login-buttons {
+    width: 100%;
+    max-width: 280px;
+    display: flex;
+    justify-content: space-between;  /* 在两端分布 */
+    align-items: center;
+    margin-top: 20px;
+    position: relative;  /* 确保定位正确 */
+}
+
+.signup-modal .google-button {
+    position: static;  /* 覆盖原来的 absolute 定位 */
+    left: auto;  /* 移除左侧定位 */
+}
+
+.signup-modal .submit-btn {
+    position: static;  /* 覆盖原来的 absolute 定位 */
+    right: auto;  /* 移除右侧定位 */
+}
+
+.signup-modal .login-link-wrapper {
+    margin-top: 55px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+}
+
+.signup-modal .login-link {
+    color: #002fa7;  /* 使用与提交按钮相同的蓝色 */
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.signup-modal .login-link:hover {
+    color: #1e4a7b;  /* 悬停时的颜色 */
+}
+
+.auth-buttons {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 999; /* 确保按钮在侧边栏上面 */
+}
+
+
+
+
+.preview-close:hover::before,
+.preview-close:hover::after {
+    background-color: white;
+}
+
+/* 确保标题在边栏显示时正确显示 */
+.sidebar.show h2 {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+

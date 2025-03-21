@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sean's Holistic Workspace - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Raleway:wght@300;400;700&family=Alice:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/workspace.css"/>
+</head>
+<body>
+
+  <!-- 顶部标题导航 -->
+  <nav id="Title" class="title">
+    <h1>Workspace</h1>
+    <h2>SEM</h2>
+  </nav>
+
+  <!-- 左侧侧边栏 -->
+  <nav id="leftSidebar" class="sidebar hidden">
+    <h2>Modules</h2>
+    <ul>
+      <li><a href="StatsTools.html">Statistic Tools</a></li>
+      <li><a href="statsmodel.html#visual">Visualization</a></li>
+    </ul>
+  </nav>
+
+  <!-- 右侧数据预览边栏 -->
+  <nav id="rightSidebar" class="sidebar hidden">
+    <h2>Data Preview</h2>
+    <table id="preview-table">
+      <thead>
+        <tr>
+          <th>Variables</th>
+          <th>DataType</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- JS 将在这里插入数据行 -->
+      </tbody>
+    </table>
+  </nav>
+
+  <!-- 左右折叠按钮 -->
+  <div id="leftToggle"></div>
+  <div id="rightToggle"></div>
+
+  <!-- 主体脚本 -->
+  <script src="js/workspace.js"></script>
+  <a href="HomePage.html" class="quarter-home"></a>
+
+  <!-- 工作区容器 -->
+  <div id="workspaceContainer">
+    <!-- 左侧：变量选择区域 -->
+    <div id="variableSelector">
+      <div id="searchContainer">
+        <button id="addNewVarBtn">＋</button>
+        <input id="searchInput" type="text" placeholder="Select Variables">
+      </div>
+      <div id="searchResults"></div>
+      <div id="selectedVariables">
+        <!-- 双击搜索结果后，变量将显示在这里 -->
+      </div>
+      <button id="shazamBtn">SHAZAM!</button>
+    </div>
+    
+    <!-- 右侧：Canvas 画布 -->
+    <div id="canvas" style="position: relative"></div>
+  </div>
+  
+  <section id="resultsSection">
+    <div id="resultsContainer">
+      
+      <!-- 左侧结果区（表格和指标） -->
+      <div id="resultsLeft">
+        <h2>Pathway Analysis Results</h2>
+        <table id="pathResultsTable">
+          <thead>
+            <tr>
+              <th>Pathway</th>
+              <th>Adjusted Coefficient</th>
+              <th>P</th>
+              <th>SIgnificance</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS动态填充 -->
+          </tbody>
+        </table>
+  
+        <h2>Model Fitting Indices</h2>
+        <div id="modelFitIndices">
+          <!-- JS动态填充 -->
+        </div>
+      </div>
+      
+      <!-- 右侧留白区（可视化） -->
+      <div id="resultsRight">
+        <h2>zhanweifu</h2>
+        <div id="visualPlaceholder">
+          <!-- 这里后续可以放图表或其他可视化内容 -->
+        </div>
+      </div>
+  
+    </div>
+  </section>
+
+  <!-- 反馈组件容器 -->
+<div class="feedback-container">
+  <!-- 初始状态下触发器在面板左侧 -->
+  <div class="feedback-trigger" id="feedbackTrigger">
+    <div class="new-arrow"></div>
+  </div>
+  
+  <!-- 反馈面板（默认隐藏） -->
+  <div class="feedback-panel" id="feedbackPanel">
+    <textarea 
+      id="feedbackInput"
+      placeholder="You type, we listen..."
+      rows="4"
+    ></textarea>
+    <button id="submitBtn">SUBMIT</button>
+    <!-- 当面板滑出时，触发器会移动到这里并转变为右侧线段 -->
+  </div>
+</div>
+
+  
+  
+</body>
+</html>

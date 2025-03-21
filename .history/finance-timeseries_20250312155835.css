@@ -1,0 +1,98 @@
+/* 顶部导航样式 */
+.top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* width: 100%; */
+    z-index: 1000;
+}
+
+/* 按钮容器 */
+.buttons-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 1001;  /* 确保按钮在标题之上 */
+    width: fit-content;
+}
+
+/* header容器 */
+.header-container {
+    background-color: #f8f9fa;
+    padding: 20px;
+    width: 100%;
+    position: relative;
+    text-align: right;
+}
+
+/* 左侧导航组 - 只包含返回按钮 */
+.nav-left {
+    display: flex;
+    align-items: center;
+    margin-left: 20px;  /* 与home按钮保持距离 */
+}
+
+/* 主页链接样式 */
+.home-link {
+    width: 40px;
+    height: 40px;
+    background-color: #2E72C6;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+/* 页面标题样式 */
+.page-header {
+    display: inline-flex;  /* 改为 inline-flex */
+    flex-direction: column;
+    align-items: flex-end;
+    padding-right: 40px;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    color: #2E72C6;
+    line-height: 1.2;
+    margin-bottom: 10px;
+    text-align: right;
+}
+
+.page-header .subtitle {
+    font-size: 1rem;
+    color: #666;
+    text-align: right;
+}
+
+/* 导航内容容器 */
+.top-nav > div {
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    padding-left: 60px;  /* 为home按钮留出空间 */
+}
+
+/* 响应式设计中的修改 */
+@media (max-width: 768px) {
+    .buttons-container {
+        width: 100%;
+        padding: 15px 20px;
+    }
+
+    .header-container {
+        padding: 15px 20px;
+        top: -15px;
+    }
+
+    .page-header {
+        padding-right: 20px;
+    }
+} 

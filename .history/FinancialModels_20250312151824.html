@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Financial Models</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Tinos:wght@300;400;700&family=Asap:wght@300;400;700&family=Raleway:wght@300;400;700&family=Alice:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/financial-models.css">
+  <link rel="stylesheet" href="css/sidebars.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- 必要的脚本引用 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Supabase配置 -->
+  <script src="js/supabase-config.js"></script>
+  <!-- 侧边栏功能 -->
+  <script src="js/sidebars.js"></script>
+  <!-- 页面特定的脚本 -->
+  <script src="js/financial-models.js"></script>
+</head>
+<body>
+  <!-- 左侧边栏 -->
+  <nav id="leftSidebar" class="sidebar">
+    <h2>Modules</h2>
+    <ul>
+      <li><a href="StatsTools.html">Statistic Tools</a></li>
+      <li><a href="statsmodel.html#visual">Visualization</a></li>
+    </ul>
+  </nav>
+  <div id="leftToggle" class="sidebar-toggle" aria-label="Toggle left sidebar"></div>
+
+  <!-- 主页图标链接 -->
+  <a href="index.html" class="home-button">
+    <i class="fas fa-home"></i>
+  </a>
+
+  <!-- 页面标题 -->
+  <div class="page-header">
+    <h1>Financial Models</h1>
+    <p class="subtitle">Select models for quantitative analysis, risk management, and trading strategies</p>
+  </div>
+
+  <!-- 模型分类区域 -->
+  <div class="models-container">
+    <!-- 基础统计与时间序列模型 -->
+    <section class="model-category">
+      <h2 class="category-title">Statistical & Time Series Models</h2>
+      <div class="model-grid">
+        <div class="model-card" data-model="arima" data-category="time-series" onclick="window.location.href='finance-timeseries.html?model=arima'">
+          <div class="model-icon"><i class="fas fa-chart-line"></i></div>
+          <h3>ARIMA</h3>
+          <p>Autoregressive Integrated Moving Average</p>
+          <div class="model-tags">
+            <span class="tag">Time Series</span>
+            <span class="tag">Forecasting</span>
+          </div>
+        </div>
+        
+        <div class="model-card" data-model="garch" onclick="window.location.href='finance-timeseries.html?model=garch'">
+          <div class="model-icon"><i class="fas fa-chart-bar"></i></div>
+          <h3>GARCH</h3>
+          <p>Generalized Autoregressive Conditional Heteroskedasticity</p>
+          <div class="model-tags">
+            <span class="tag">Volatility</span>
+            <span class="tag">Time Series</span>
+          </div>
+        </div>
+        
+        <div class="model-card" data-model="ewma" onclick="window.location.href='finance-timeseries.html?model=ewma'">
+          <div class="model-icon"><i class="fas fa-wave-square"></i></div>
+          <h3>EWMA</h3>
+          <p>Exponentially Weighted Moving Average</p>
+          <div class="model-tags">
+            <span class="tag">Volatility</span>
+            <span class="tag">Weighting</span>
+          </div>
+        </div>
+        
+        <div class="model-card" data-model="markov">
+          <div class="model-icon"><i class="fas fa-project-diagram"></i></div>
+          <h3>Markov Chain</h3>
+          <p>State transition modeling</p>
+          <div class="model-tags">
+            <span class="tag">Probability</span>
+            <span class="tag">States</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 风险管理模型 -->
+    <section class="model-category">
+      <h2 class="category-title">Risk Management Models</h2>
+      <div class="model-grid">
+        <div class="model-card" data-model="var">
+          <div class="model-icon"><i class="fas fa-exclamation-triangle"></i></div>
+          <h3>VaR</h3>
+          <p>Value at Risk</p>
+          <div class="model-tags">
+            <span class="tag">Risk</span>
+            <span class="tag">Loss Estimation</span>
+          </div>
+        </div>
+        
+        <div class="model-card" data-model="monte-carlo">
+          <div class="model-icon"><i class="fas fa-random"></i></div>
+          <h3>Monte Carlo Simulation</h3>
+          <p>Random sampling for complex financial products</p>
+          <div class="model-tags">
+            <span class="tag">Simulation</span>
+            <span class="tag">Pricing</span>
+          </div>
+        </div>
+        
+        <div class="model-card" data-model="copula">
+          <div class="model-icon"><i class="fas fa-link"></i></div>
+          <h3>Copula Functions</h3>
+          <p>Model dependency structures between variables</p>
+          <div class="model-tags">
+            <span class="tag">Dependency</span>
+            <span class="tag">Tail Risk</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 资产定价与投资组合管理 -->
+    <section class="model-category">
+      <h2 class="category-title">Asset Pricing & Portfolio Management</h2>
+      <div class="model-grid">
+        <div class="model-card" data-model="capm">
+          <div class="model-icon"><i class="fas fa-balance-scale"></i></div>
+          <h3>CAPM</h3>
+          <p>Capital Asset Pricing Model</p>
+          <div class="model-tags">
+            <span class="tag">Pricing</span>
+            <span class="tag">Beta</span>
+          </div>
+        </div>
+        
+        <div class="model-card" data-model="black-scholes">
+          <div class="model-icon"><i class="fas fa-exchange-alt"></i></div>
+          <h3>Black-Scholes Model</h3>
+          <p>Options pricing model</p>
+          <div class="model-tags">
+            <span class="tag">Options</span>
+            <span class="tag">Pricing</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 波动率模型 -->
+    <section class="model-category">
+      <h2 class="category-title">Volatility Models</h2>
+      <div class="model-grid">
+        <div class="model-card" data-model="implied-vol">
+          <div class="model-icon"><i class="fas fa-tachometer-alt"></i></div>
+          <h3>Implied Volatility Models</h3>
+          <p>Extract market expected volatility from option prices</p>
+          <div class="model-tags">
+            <span class="tag">Options</span>
+            <span class="tag">Volatility</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 信用风险模型 -->
+    <section class="model-category">
+      <h2 class="category-title">Credit Risk Models</h2>
+      <div class="model-grid">
+        <div class="model-card" data-model="structural">
+          <div class="model-icon"><i class="fas fa-building"></i></div>
+          <h3>Structural Models</h3>
+          <p>Merton model and extensions</p>
+          <div class="model-tags">
+            <span class="tag">Default Risk</span>
+            <span class="tag">Company Value</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 集成模型按钮 -->
+  <div class="integrated-models-section">
+    <a href="IntegratedModels.html" class="integrated-models-button">
+      <i class="fas fa-puzzle-piece"></i>
+      <span>Explore Integrated Models</span>
+    </a>
+  </div>
+</body>
+</html> 

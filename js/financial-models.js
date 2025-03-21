@@ -185,4 +185,91 @@ document.addEventListener('DOMContentLoaded', async function() {
       this.innerHTML = '<i class="fas fa-magic"></i> Generate Analysis Results';
     }
   });
+
+  async function runTimeSeriesModel(fileId, variableName, modelType, options = {}) {
+    try {
+      const { data: { session } } = await window.supabaseClient.auth.getSession();
+      if (!session?.user?.id) {
+        throw new Error('User not authenticated');
+      }
+
+      const filePath = `${session.user.id}/${fileId}`;
+      
+      // 获取 auto_mode 状态
+      const autoMode = document.getElementById('autoMode')?.checked ?? true;
+      
+      // 构建基础请求体
+      const requestBody = {
+        file_path: filePath,
+        variable_name: variableName,
+        model_type: modelType,
+        user_id: session.user.id,
+        forecast_days: options.forecast_days || 30,
+        auto_mode: autoMode
+      };
+
+      // 如果是手动模式，收集用户设置的参数
+      if (!autoMode) {
+        const modelParams = {
+          // Prophet 模型参数
+          yearly_seasonality: document.getElementById('yearlySeasonality')?.checked ?? true,
+          weekly_seasonality: document.getElementById('weeklySeasonality')?.checked ?? true,
+          daily_seasonality: document.getElementById('dailySeasonality')?.checked ?? false,
+          changepoint_prior_scale: parseFloat(document.getElementById('changepointScaleSlider')?.value ?? 0.5),
+          seasonality_prior_scale: parseFloat(document.getElementById('seasonalityScaleSlider')?.value ?? 10.0),
+          holidays_prior_scale: parseFloat(document.getElementById('holidaysScaleSlider')?.value ?? 10.0),
+          
+          // 其他模型特定参数可以在这里添加
+          ...options.params
+        };
+        
+        requestBody.model_params = modelParams;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/finance/timeseries_model`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Request failed with status ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        displayModelResults(result, modelType);
+      } else {
+        throw new Error(result.message || 'Model fitting failed');
+      }
+    } catch (error) {
+      console.error('Modeling error:', error);
+      showError(`Modeling failed: ${error.message}`);
+    }
+  }
+
+  function displayModelResults(result, modelType) {
+    // 显示预测图表
+    const plotData = JSON.parse(result.plot.figure);
+    Plotly.newPlot('modelPlot', plotData.data, plotData.layout, result.plot.config);
+
+    // 显示洞察
+    const insightsContainer = document.getElementById('modelInsights');
+    if (insightsContainer) {
+      insightsContainer.innerHTML = `
+        <h3>${modelType.toUpperCase()} Model Insights</h3>
+        <ul>
+          ${result.insights.map(insight => `<li>${insight}</li>`).join('')}
+        </ul>
+        <div class="metrics">
+          ${Object.entries(result.metrics).map(([key, value]) => 
+            `<div>${key.toUpperCase()}: ${typeof value === 'number' ? value.toFixed(4) : value}</div>`
+          ).join('')}
+        </div>
+      `;
+    }
+  }
 }); 

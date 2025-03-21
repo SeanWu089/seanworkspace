@@ -1,0 +1,10 @@
+/* 页面标题样式 */
+.page-header {
+    /* 删除 text-align: center，因为它可能会影响对齐 */
+    /* 删除第一个 margin-left: 20px，因为有重复 */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-left: auto;  /* 这个保留，用于将整个header推到右侧 */
+    margin-right: 20px; /* 添加右侧边距 */
+} 

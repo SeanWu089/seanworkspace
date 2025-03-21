@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Integrated Financial Models</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Tinos:wght@300;400;700&family=Asap:wght@300;400;700&family=Raleway:wght@300;400;700&family=Alice:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/integrated-models.css">
+  <link rel="stylesheet" href="css/sidebars.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <!-- 主页图标链接 -->
+  <a href="index.html" class="home-button">
+    <i class="fas fa-home"></i>
+  </a>
+  
+  <!-- 返回按钮 -->
+  <a href="FinancialModels.html" class="back-button">
+    <i class="fas fa-arrow-left"></i>
+    <span>Back to Models</span>
+  </a>
+
+  <!-- 页面标题 -->
+  <header class="page-header">
+    <h1>Integrated Financial Models</h1>
+    <p>Explore combinations of models for comprehensive financial analysis</p>
+  </header>
+
+  <!-- 选中模型展示区域 -->
+  <section class="selected-models">
+    <h2>Your Selected Models</h2>
+    <div class="model-chips" id="selectedModelChips">
+      <!-- JavaScript will populate this area -->
+    </div>
+  </section>
+
+  <!-- 集成模型展示区域 -->
+  <div class="integrated-container">
+    <!-- 左侧：模型组合 -->
+    <section class="integration-panel">
+      <h2>Recommended Integrations</h2>
+      <div class="integration-list" id="integrationList">
+        <!-- JavaScript will populate this area -->
+      </div>
+    </section>
+
+    <!-- 右侧：可视化和结果 -->
+    <section class="visualization-panel">
+      <div class="tabs">
+        <button class="tab-button active" data-tab="overview">Overview</button>
+        <button class="tab-button" data-tab="charts">Charts</button>
+        <button class="tab-button" data-tab="results">Results</button>
+        <button class="tab-button" data-tab="code">Code</button>
+      </div>
+      
+      <div class="tab-content">
+        <!-- 概览标签页 -->
+        <div class="tab-pane active" id="overview">
+          <div class="overview-container">
+            <div class="overview-header">
+              <h3>Risk-Return Analysis</h3>
+              <p>Comprehensive view of selected models and their interactions</p>
+            </div>
+            
+            <div class="overview-grid">
+              <div class="overview-card">
+                <div class="card-header">
+                  <i class="fas fa-chart-line"></i>
+                  <h4>Time Series Forecasting</h4>
+                </div>
+                <div class="card-content">
+                  <p>ARIMA models provide time series forecasting capabilities, while GARCH models capture volatility clustering.</p>
+                  <div class="model-synergy">
+                    <span class="synergy-label">Synergy:</span>
+                    <div class="synergy-meter high">
+                      <span>High</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="overview-card">
+                <div class="card-header">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <h4>Risk Assessment</h4>
+                </div>
+                <div class="card-content">
+                  <p>VaR and CVaR provide complementary risk metrics, with CVaR focusing on tail risk beyond VaR threshold.</p>
+                  <div class="model-synergy">
+                    <span class="synergy-label">Synergy:</span>
+                    <div class="synergy-meter high">
+                      <span>High</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="overview-card">
+                <div class="card-header">
+                  <i class="fas fa-random"></i>
+                  <h4>Simulation & Stress Testing</h4>
+                </div>
+                <div class="card-content">
+                  <p>Monte Carlo simulations can be used to generate scenarios for stress testing extreme market conditions.</p>
+                  <div class="model-synergy">
+                    <span class="synergy-label">Synergy:</span>
+                    <div class="synergy-meter medium">
+                      <span>Medium</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="overview-card">
+                <div class="card-header">
+                  <i class="fas fa-briefcase"></i>
+                  <h4>Portfolio Optimization</h4>
+                </div>
+                <div class="card-content">
+                  <p>Modern Portfolio Theory combined with CAPM provides a framework for risk-adjusted portfolio construction.</p>
+                  <div class="model-synergy">
+                    <span class="synergy-label">Synergy:</span>
+                    <div class="synergy-meter high">
+                      <span>High</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 图表标签页 -->
+        <div class="tab-pane" id="charts">
+          <div class="charts-container">
+            <div class="chart-row">
+              <div class="chart-card">
+                <h3>Risk-Return Profile</h3>
+                <div class="chart-wrapper">
+                  <canvas id="riskReturnChart"></canvas>
+                </div>
+              </div>
+              
+              <div class="chart-card">
+                <h3>Time Series Forecast</h3>
+                <div class="chart-wrapper">
+                  <canvas id="timeSeriesChart"></canvas>
+                </div>
+              </div>
+            </div>
+            
+            <div class="chart-row">
+              <div class="chart-card">
+                <h3>Value at Risk Distribution</h3>
+                <div class="chart-wrapper">
+                  <canvas id="varDistributionChart"></canvas>
+                </div>
+              </div>
+              
+              <div class="chart-card">
+                <h3>Model Correlation Matrix</h3>
+                <div class="chart-wrapper">
+                  <canvas id="correlationChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 结果标签页 -->
+        <div class="tab-pane" id="results">
+          <div class="results-container">
+            <div class="results-header">
+              <h3>Model Integration Results</h3>
+              <div class="results-actions">
+                <button class="action-button"><i class="fas fa-download"></i> Export</button>
+                <button class="action-button"><i class="fas fa-sync"></i> Refresh</button>
+              </div>
+            </div>
+            
+            <div class="results-table-wrapper">
+              <table class="results-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                    <th>Change</th>
+                    <th>Source Model</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Expected Return</td>
+                    <td>8.45%</td>
+                    <td class="positive">+0.32%</td>
+                    <td>CAPM</td>
+                  </tr>
+                  <tr>
+                    <td>Volatility (1-month)</td>
+                    <td>12.67%</td>
+                    <td class="negative">+1.23%</td>
+                    <td>GARCH</td>
+                  </tr>
+                  <tr>
+                    <td>Value at Risk (95%)</td>
+                    <td>$24,560</td>
+                    <td class="negative">+$1,250</td>
+                    <td>VaR</td>
+                  </tr>
+                  <tr>
+                    <td>Expected Shortfall</td>
+                    <td>$31,780</td>
+                    <td class="negative">+$2,100</td>
+                    <td>CVaR</td>
+                  </tr>
+                  <tr>
+                    <td>Sharpe Ratio</td>
+                    <td>0.67</td>
+                    <td class="positive">+0.05</td>
+                    <td>MPT</td>
+                  </tr>
+                  <tr>
+                    <td>Beta</td>
+                    <td>1.12</td>
+                    <td class="negative">+0.08</td>
+                    <td>CAPM</td>
+                  </tr>
+                  <tr>
+                    <td>Forecast Accuracy</td>
+                    <td>83.2%</td>
+                    <td class="positive">+4.7%</td>
+                    <td>ARIMA</td>
+                  </tr>
+                  <tr>
+                    <td>Stress Test Loss</td>
+                    <td>$42,350</td>
+                    <td class="neutral">$0</td>
+                    <td>Monte Carlo</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 代码标签页 -->
+        <div class="tab-pane" id="code">
+          <div class="code-container">
+            <div class="code-header">
+              <h3>Implementation Code</h3>
+              <div class="code-actions">
+                <button class="action-button"><i class="fas fa-copy"></i> Copy</button>
+                <select class="language-selector">
+                  <option value="python">Python</option>
+                  <option value="r">R</option>
+                  <option value="matlab">MATLAB</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="code-editor">
+              <pre><code class="language-python">
+# Integrated Financial Models Example
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from statsmodels.tsa.arima.model import ARIMA
+from arch import arch_model
+import scipy.stats as stats
+
+# Load market data
+data = pd.read_csv('market_data.csv', index_col='Date', parse_dates=True)
+returns = data['Close'].pct_change().dropna()
+
+# 1. ARIMA Model for Time Series Forecasting
+arima_model = ARIMA(returns, order=(2, 0, 1))
+arima_result = arima_model.fit()
+forecast = arima_result.forecast(steps=30)
+
+# 2. GARCH Model for Volatility
+garch_model = arch_model(returns, vol='GARCH', p=1, q=1)
+garch_result = garch_model.fit(disp='off')
+forecast_vol = np.sqrt(garch_result.forecast(horizon=30).variance.values[-1, :])
+
+# 3. Value at Risk (VaR) Calculation
+def calculate_var(returns, confidence_level=0.95):
+    return np.percentile(returns, 100 * (1 - confidence_level))
+
+# 4. Conditional Value at Risk (CVaR)
+def calculate_cvar(returns, confidence_level=0.95):
+    var = calculate_var(returns, confidence_level)
+    return returns[returns <= var].mean()
+
+# Combine models for risk assessment
+portfolio_value = 1000000  # $1M portfolio
+var_95 = calculate_var(returns, 0.95) * portfolio_value
+cvar_95 = calculate_cvar(returns, 0.95) * portfolio_value
+
+print(f"Portfolio Value: ${portfolio_value:,.2f}")
+print(f"95% VaR: ${-var_95:,.2f}")
+print(f"95% CVaR: ${-cvar_95:,.2f}")
+
+# Monte Carlo Simulation for Stress Testing
+def monte_carlo_simulation(returns, forecast_mean, forecast_vol, num_simulations=10000, horizon=30):
+    simulations = np.random.normal(
+        loc=forecast_mean,
+        scale=forecast_vol.reshape(-1, 1),
+        size=(horizon, num_simulations)
+    )
+    return simulations
+
+# Run simulation
+simulations = monte_carlo_simulation(returns, forecast, forecast_vol)
+
+# Calculate stress test results
+stress_test_var = calculate_var(simulations.flatten(), 0.99) * portfolio_value
+print(f"Stress Test (99% VaR): ${-stress_test_var:,.2f}")
+
+# Visualize results
+plt.figure(figsize=(12, 8))
+plt.subplot(2, 2, 1)
+plt.plot(returns.index[-252:], returns[-252:])
+plt.title('Historical Returns')
+
+plt.subplot(2, 2, 2)
+plt.plot(forecast)
+plt.title('ARIMA Forecast')
+
+plt.subplot(2, 2, 3)
+plt.plot(forecast_vol)
+plt.title('GARCH Volatility Forecast')
+
+plt.subplot(2, 2, 4)
+plt.hist(simulations.flatten(), bins=50)
+plt.axvline(calculate_var(simulations.flatten(), 0.95), color='r')
+plt.axvline(calculate_var(simulations.flatten(), 0.99), color='darkred')
+plt.title('Monte Carlo Simulation Distribution')
+
+plt.tight_layout()
+plt.show()
+              </code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="js/integrated-models.js"></script>
+</body>
+</html> 

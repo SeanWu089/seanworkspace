@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sean's Holistic Workspace - Volatility Analysis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Raleway:wght@300;400;700&family=Alice:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/workspace.css"/>
+  <link rel="stylesheet" href="css/volatility.css"/>
+</head>
+<body>
+
+  <!-- 顶部标题导航 -->
+  <nav id="Title" class="title">
+    <h1>Workspace</h1>
+    <h2>Volatility Analysis</h2>
+  </nav>
+
+  <!-- 左侧侧边栏 -->
+  <nav id="leftSidebar" class="sidebar hidden">
+    <h2>Modules</h2>
+    <ul>
+      <li><a href="Workspace.html">SEM Modeling</a></li>
+      <li><a href="VolatilityTools.html">Volatility Analysis</a></li>
+      <li><a href="statsmodel.html#visual">Visualization</a></li>
+    </ul>
+  </nav>
+
+  <!-- 右侧数据预览边栏 -->
+  <nav id="rightSidebar" class="sidebar hidden">
+    <h2>Data Preview</h2>
+    <table id="preview-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Price</th>
+          <th>Return</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- JS 将在这里插入数据行 -->
+      </tbody>
+    </table>
+  </nav>
+
+  <!-- 左右折叠按钮 -->
+  <div id="leftToggle"></div>
+  <div id="rightToggle"></div>
+
+  <!-- 工作区容器 -->
+  <div id="workspaceContainer">
+    <!-- 左侧：参数选择区域 -->
+    <div id="paramSelector">
+      <h3>Volatility Analysis Parameters</h3>
+      
+      <!-- 股票选择区域 -->
+      <div class="param-group">
+        <label for="tickerInput">Stock Ticker:</label>
+        <div class="ticker-input-container">
+          <input id="tickerInput" type="text" placeholder="Enter ticker symbol (e.g., AAPL)">
+          <button id="addTickerBtn">+</button>
+        </div>
+        <div id="selectedTickers"></div>
+      </div>
+      
+      <!-- 日期范围选择 -->
+      <div class="param-group">
+        <label for="startDate">Date Range:</label>
+        <div class="date-range-container">
+          <input id="startDate" type="date" value="2020-01-01">
+          <span>to</span>
+          <input id="endDate" type="date" value="2023-01-01">
+        </div>
+      </div>
+      
+      <!-- 模型选择 -->
+      <div class="param-group">
+        <label>Model Selection:</label>
+        <div class="model-options">
+          <div class="model-option">
+            <input type="radio" id="garchModel" name="volatilityModel" value="GARCH" checked>
+            <label for="garchModel">GARCH</label>
+          </div>
+          <div class="model-option">
+            <input type="radio" id="egarchModel" name="volatilityModel" value="EGARCH">
+            <label for="egarchModel">EGARCH</label>
+          </div>
+          <div class="model-option">
+            <input type="radio" id="gjrModel" name="volatilityModel" value="GJR-GARCH">
+            <label for="gjrModel">GJR-GARCH</label>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 置信区间选择 -->
+      <div class="param-group">
+        <label for="confidenceLevel">Confidence Level:</label>
+        <select id="confidenceLevel">
+          <option value="0.95">95%</option>
+          <option value="0.99">99%</option>
+          <option value="0.90">90%</option>
+        </select>
+      </div>
+      
+      <!-- 分析按钮 -->
+      <button id="analyzeBtn">ANALYZE</button>
+    </div>
+    
+    <!-- 右侧：可视化区域 -->
+    <div id="visualizationArea">
+      <div id="chartContainer">
+        <div id="loadingOverlay" class="hidden">
+          <div class="spinner"></div>
+          <p>Calculating volatility...</p>
+        </div>
+        <div id="placeholderMessage">
+          Select parameters and click ANALYZE to view results
+        </div>
+        <!-- 图表将在这里动态生成 -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- 结果部分 -->
+  <section id="resultsSection" class="hidden">
+    <div id="resultsContainer">
+      
+      <!-- 左侧结果区（模型参数） -->
+      <div id="resultsLeft">
+        <h2>Model Parameters</h2>
+        <div id="modelParameters">
+          <!-- JS动态填充 -->
+        </div>
+  
+        <h2>Statistical Tests</h2>
+        <div id="statisticalTests">
+          <!-- JS动态填充 -->
+        </div>
+      </div>
+      
+      <!-- 右侧结果区（风险指标） -->
+      <div id="resultsRight">
+        <h2>Risk Metrics</h2>
+        <div id="riskMetrics">
+          <!-- JS动态填充 -->
+        </div>
+        
+        <h2>Forecast</h2>
+        <div id="forecastResults">
+          <!-- JS动态填充 -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 反馈组件容器 -->
+  <div class="feedback-container">
+    <div class="feedback-trigger" id="feedbackTrigger">
+      <div class="new-arrow"></div>
+    </div>
+    
+    <div class="feedback-panel" id="feedbackPanel">
+      <textarea 
+        id="feedbackInput"
+        placeholder="You type, we listen..."
+        rows="4"
+      ></textarea>
+      <button id="submitBtn">SUBMIT</button>
+    </div>
+  </div>
+
+  <a href="index.html" class="quarter-home"></a>
+  
+  <!-- 主体脚本 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/volatility.js"></script>
+</body>
+</html> 
