@@ -390,14 +390,34 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Done 按钮点击事件
+  // 添加错误提示函数
+  function showFilesError(message) {
+    let errorDiv = filesPanel.querySelector('.files-error');
+    if (!errorDiv) {
+      errorDiv = document.createElement('div');
+      errorDiv.className = 'files-error';
+      filesPanel.insertBefore(errorDiv, filesPanel.firstChild);
+    }
+    
+    errorDiv.textContent = message;
+    errorDiv.classList.add('show');
+    
+    // 3秒后自动隐藏
+    setTimeout(() => {
+      errorDiv.classList.remove('show');
+    }, 3000);
+  }
+
+  // 修改 Done 按钮的事件监听器
   if (filesDone) {
     filesDone.addEventListener('click', () => {
+      if (currentMode === 'rag' && selectedFiles.length === 0) {
+        showFilesError('Please select at least one file for RAG mode');
+        return;
+      }
+
       if (filesPanel) {
-        // 先隐藏面板
         filesPanel.classList.remove('show');
-        
-        // 等待面板收起动画完成后显示触发器
         setTimeout(() => {
           filesTrigger.classList.remove('hide');
         }, 300);
@@ -421,13 +441,20 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // 修改聊天表单提交处理
+  // 修改表单提交处理
   chatForm.addEventListener('submit', function(event) {
     event.preventDefault();
     event.stopPropagation();
     
     const message = userInput.value.trim();
     if (!message) return;
+    
+    // 在 RAG 模式下检查是否选择了文件
+    if (currentMode === 'rag' && selectedFiles.length === 0) {
+      // 显示错误消息在聊天历史中
+      addMessage('Error: Please select at least one file for RAG mode by clicking the file selector button', 'error');
+      return;
+    }
     
     addMessage(message, 'user');
     userInput.value = '';
