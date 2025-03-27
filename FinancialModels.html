@@ -211,6 +211,19 @@
           <div class="message assistant">Hola! I'm Sean, your helpful statistics assistant. Can't wait to fill in some models!</div>
         </div>
         <form id="chat-form" class="chat-form">
+          <div class="model-selector">
+            <button type="button" class="model-toggle">
+              <i class="fas fa-caret-down"></i>
+            </button>
+            <div class="model-dropdown">
+              <div class="model-option" data-model="qwen2.5:0.5b">Qwen 2.5 (0.5B)</div>
+              <div class="model-option" data-model="qwen2.5:14b">Qwen 2.5 (14B)</div>
+              <div class="model-option" data-model="qwen2.5:32b">Qwen 2.5 (32B)</div>
+              <div class="model-option" data-model="deepseek-r1:1.5b">DeepSeek R1 (1.5B)</div>
+              <div class="model-option" data-model="deepseek-r1:4b">DeepSeek R1 (4B)</div>
+              <div class="model-option" data-model="deepseek-r1:32b">DeepSeek R1 (32B)</div>
+            </div>
+          </div>
           <input type="text" id="user-input" placeholder="Input here..." autocomplete="off">
           <button type="submit">Send</button>
         </form>

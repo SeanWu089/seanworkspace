@@ -119,8 +119,73 @@
   text-align: center;
 }
 
+/* 模型选择器样式 */
+.model-selector {
+  position: relative;
+  margin-right: 8px;
+}
+
+.model-toggle {
+  background: none;
+  border: none;
+  color: #6794d7;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.model-toggle:hover {
+  color: #3b68aa;
+}
+
+.model-dropdown {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 180px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.model-dropdown.show {
+  max-height: 300px;
+  opacity: 1;
+  margin-bottom: 8px;
+}
+
+.model-option {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #4a5568;
+  font-size: 14px;
+}
+
+.model-option:hover {
+  background-color: #f7fafc;
+  color: #2d3748;
+}
+
+.model-option.selected {
+  background-color: #ebf5ff;
+  color: #3b68aa;
+}
+
+/* 修改chat-form的样式以适应新的布局 */
 .chat-form {
   display: flex;
+  align-items: center;
   padding: 12px;
   border-top: 1px solid #e2e8f0;
   background-color: white;

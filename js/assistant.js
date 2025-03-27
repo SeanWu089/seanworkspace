@@ -21,6 +21,12 @@ document.addEventListener('DOMContentLoaded', function () {
   let currentMode = 'chat'; // 默认模式
   let isRagMode = false;
   
+  // 模型选择器功能
+  const modelToggle = document.querySelector('.model-toggle');
+  const modelDropdown = document.querySelector('.model-dropdown');
+  const modelOptions = document.querySelectorAll('.model-option');
+  let currentModel = 'qwen2.5:14b'; // 默认模型
+  
   // 打开聊天窗口
   function openChatWindow() {
     const iconRect = assistantContainer.getBoundingClientRect();
@@ -271,11 +277,15 @@ document.addEventListener('DOMContentLoaded', function () {
     
     const requestData = currentMode === 'rag'
       ? {
-          user_id: 'user123', // 需要从实际用户会话中获取
+          user_id: 'user123',
           question: message,
-          files_info: [] // 需要从文档上传功能中获取
+          files_info: [],
+          model: currentModel
         }
-      : { message: message };
+      : { 
+          message: message,
+          model: currentModel
+        };
     
     fetch(apiUrl, {
       method: 'POST',
@@ -452,6 +462,34 @@ document.addEventListener('DOMContentLoaded', function () {
       switchMode(isRagMode ? 'rag' : 'chat');
     });
   }
+
+  // 切换下拉菜单
+  modelToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    modelDropdown.classList.toggle('show');
+  });
+
+  // 选择模型
+  modelOptions.forEach(option => {
+    option.addEventListener('click', (e) => {
+      const selectedModel = e.target.dataset.model;
+      currentModel = selectedModel;
+      
+      // 更新选中状态
+      modelOptions.forEach(opt => opt.classList.remove('selected'));
+      e.target.classList.add('selected');
+      
+      // 关闭下拉菜单
+      modelDropdown.classList.remove('show');
+    });
+  });
+
+  // 点击其他地方关闭下拉菜单
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.model-selector')) {
+      modelDropdown.classList.remove('show');
+    }
+  });
 
   // 在DOMContentLoaded事件监听器中调用初始化
   initializeLever();
