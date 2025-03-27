@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const modelToggle = document.querySelector('.model-toggle');
   const modelDropdown = document.querySelector('.model-dropdown');
   const modelOptions = document.querySelectorAll('.model-option');
-  let currentModel = 'qwen2.5:14b'; // 默认模型
+  let currentModel = 'qwen2.5:7b'; // 默认模型
   
   // 使用新的类名获取元素
   const filesTrigger = document.querySelector('.files-trigger');
@@ -344,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
       item.className = 'file-item';
       item.innerHTML = `
         <input type="checkbox" value="${file.name}" 
-          ${selectedFiles.includes(file.name) ? 'checked' : ''}>
+          ${selectedFiles.some(f => f.filename === file.name) ? 'checked' : ''}>
         <span class="file-name">${displayName}</span>
       `;
       
@@ -357,10 +357,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         
         if (checkbox.checked) {
-          selectedFiles.push(file.name);
+          selectedFiles.push({
+            filename: file.name,
+            created_at: file.created_at,
+            updated_at: file.updated_at
+          });
           console.log('File selected:', file.name);
         } else {
-          selectedFiles = selectedFiles.filter(f => f !== file.name);
+          selectedFiles = selectedFiles.filter(f => f.filename !== file.name);
           console.log('File deselected:', file.name);
         }
         console.log('Current selected files:', selectedFiles);
@@ -441,8 +445,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  // 修改模型映射关系
+  const MODEL_MAPPING = {
+    'deepseek-r1:4b': 'deepseek-r1:latest',
+    // 'qwen2.5:14b': 'qwen2.5:14b',
+    // 'qwen2.5:32b': 'qwen2.5:32b'
+  };
+
   // 修改表单提交处理
-  chatForm.addEventListener('submit', function(event) {
+  chatForm.addEventListener('submit', async function(event) {
     event.preventDefault();
     event.stopPropagation();
     
@@ -451,9 +462,8 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // 在 RAG 模式下检查是否选择了文件
     if (currentMode === 'rag' && selectedFiles.length === 0) {
-      // 显示错误消息在聊天历史中
-      addMessage('Error: Please select at least one file for RAG mode by clicking the file selector button', 'error');
-      return;
+        addMessage('Error: Please select at least one file for RAG mode by clicking the file selector button', 'error');
+        return;
     }
     
     addMessage(message, 'user');
@@ -465,60 +475,89 @@ document.addEventListener('DOMContentLoaded', function () {
     chatHistory.appendChild(loadingMessage);
     chatHistory.scrollTop = chatHistory.scrollHeight;
     
-    const apiUrl = currentMode === 'rag' 
-      ? 'https://seanholisticworkspace-production.up.railway.app/rag/query'
-      : 'https://seanholisticworkspace-production.up.railway.app/chat';
-    
-    const requestData = currentMode === 'rag'
-      ? {
-          user_id: 'user123',
-          question: message,
-          files_info: selectedFiles,
-          model: currentModel
+    try {
+        // 获取用户会话信息
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        if (!session?.user) {
+            throw new Error('No user session found');
         }
-      : { 
-          message: message,
-          model: currentModel
-        };
-    
-    fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(requestData)
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`服务器返回错误状态码: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      const loadingElement = document.querySelector('.message.loading');
-      if (loadingElement) {
-        chatHistory.removeChild(loadingElement);
-      }
-      
-      if (data && data.response) {
-        addMessage(data.response, 'assistant');
-      } else if (data && data.error) {
-        addMessage('错误：' + data.error, 'assistant');
-      } else {
-        addMessage('收到了无效的响应格式', 'assistant');
-      }
-    })
-    .catch(error => {
-      console.error('API请求错误:', error);
-      
-      const loadingElement = document.querySelector('.message.loading');
-      if (loadingElement) {
-        chatHistory.removeChild(loadingElement);
-      }
-      
-      addMessage('请求出错：' + error.message, 'assistant');
-    });
+
+        // 获取实际使用的模型名称
+        const actualModel = MODEL_MAPPING[currentModel] || currentModel;
+        
+        // 如果是RAG模式，先处理文档
+        if (currentMode === 'rag') {
+            const processResponse = await fetch('http://localhost:1201/rag/process_documents', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: session.user.id,
+                    files_info: selectedFiles  // 现在发送的是包含完整文件信息的数组
+                })
+            });
+
+            if (!processResponse.ok) {
+                throw new Error('Failed to process documents');
+            }
+        }
+
+        const apiUrl = currentMode === 'rag' 
+            ? 'http://localhost:1201/rag/query'
+            : 'http://localhost:1201/chat';
+        
+        const requestData = currentMode === 'rag'
+            ? {
+                user_id: session.user.id,
+                question: message,
+                files_info: selectedFiles,  // 现在发送的是包含完整文件信息的数组
+                model: actualModel
+            }
+            : { 
+                message: message,
+                model: actualModel
+            };
+        
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server returned error status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        // 移除加载消息
+        const loadingElement = document.querySelector('.message.loading');
+        if (loadingElement) {
+            chatHistory.removeChild(loadingElement);
+        }
+        
+        // RAG模式下返回answer，Chat模式下返回response
+        const responseText = currentMode === 'rag' ? data.answer : data.response;
+        if (responseText) {
+            addMessage(responseText, 'assistant');
+        } else {
+            addMessage('Received invalid response format', 'assistant');
+        }
+        
+    } catch (error) {
+        console.error('API request error:', error);
+        
+        const loadingElement = document.querySelector('.message.loading');
+        if (loadingElement) {
+            chatHistory.removeChild(loadingElement);
+        }
+        
+        addMessage('Request error: ' + error.message, 'assistant');
+    }
   });
 
   // 初始化
