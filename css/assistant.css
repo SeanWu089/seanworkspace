@@ -368,3 +368,241 @@
 .mode-labels {
   display: none;
 }
+
+/* 文件选择器容器 - 修改显示逻辑 */
+.file-selector-container {
+  position: absolute;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* RAG 模式时显示文件选择器 */
+.chat-window.rag-mode .file-selector-container {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 文件选择面板 - 修改显示逻辑 */
+.file-selector-panel {
+  position: absolute;
+  left: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 250px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 1002;
+}
+
+.file-selector-panel.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 修改文件选择触发器样式 */
+.files-trigger {
+  position: absolute;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 40px;
+  background: #6794d7;
+  clip-path: polygon(0 0, 100% 15%, 100% 85%, 0 100%);
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: 1001;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* 修改文件面板样式 */
+.files-panel {
+  position: absolute;
+  left: -280px; /* 默认位置在对话框左侧外部 */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 250px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1002;
+  transition: all 0.3s ease;
+}
+
+/* 面板显示状态 */
+.files-panel.show {
+  left: -265px; /* 靠近对话框左侧 */
+  opacity: 1;
+  visibility: visible;
+}
+
+/* RAG 模式时显示触发器 */
+.chat-window.rag-mode .files-trigger {
+  display: flex;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 触发器隐藏状态 */
+.files-trigger.hide {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* 文件列表样式 */
+.file-list {
+  margin-bottom: 12px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.file-item:hover {
+  background-color: #f5f7fa;
+}
+
+.file-item input[type="checkbox"] {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #6794d7;
+  appearance: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.file-item input[type="checkbox"]:checked {
+  background-color: #6794d7;
+}
+
+.file-item input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+}
+
+.file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+/* Done 按钮样式 */
+.done-btn {
+  width: 100%;
+  padding: 8px;
+  background: #6794d7;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.done-btn:hover {
+  background: #3b68aa;
+}
+
+/* 文件面板 */
+.files-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.file-item:hover {
+  background-color: #f5f7fa;
+}
+
+.file-item input[type="checkbox"] {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #6794d7;
+  appearance: none;
+  cursor: pointer;
+}
+
+.file-item input[type="checkbox"]:checked {
+  background-color: #6794d7;
+  position: relative;
+}
+
+.file-item input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+}
+
+.file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+/* Done 按钮 */
+.files-done {
+  width: 100%;
+  padding: 8px;
+  background: #6794d7;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.files-done:hover {
+  background: #3b68aa;
+}

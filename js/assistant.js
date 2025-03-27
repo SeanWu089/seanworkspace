@@ -27,6 +27,20 @@ document.addEventListener('DOMContentLoaded', function () {
   const modelOptions = document.querySelectorAll('.model-option');
   let currentModel = 'qwen2.5:14b'; // 默认模型
   
+  // 使用新的类名获取元素
+  const filesTrigger = document.querySelector('.files-trigger');
+  const filesPanel = document.querySelector('.files-panel');
+  const filesList = document.querySelector('.files-list');
+  const filesDone = document.querySelector('.files-done');
+  let selectedFiles = [];
+  
+  console.log('Files elements:', {
+    filesTrigger,
+    filesPanel,
+    filesList,
+    filesDone
+  });
+  
   // 打开聊天窗口
   function openChatWindow() {
     const iconRect = assistantContainer.getBoundingClientRect();
@@ -254,7 +268,160 @@ document.addEventListener('DOMContentLoaded', function () {
     assistantContainer.style.top = `${topPosition}px`;
   }
 
-  // 处理聊天表单提交
+  // 切换模式时更新文件选择器显示状态
+  function switchMode(mode) {
+    console.log('Switching mode to:', mode);
+    currentMode = mode;
+    
+    const chatWindow = document.querySelector('.chat-window');
+    if (!chatWindow) {
+      console.error('Chat window not found');
+      return;
+    }
+    
+    if (mode === 'rag') {
+      chatWindow.classList.add('rag-mode');
+      // 确保触发器可见，面板隐藏
+      if (filesTrigger) {
+        filesTrigger.classList.remove('hide');
+      }
+      if (filesPanel) {
+        filesPanel.classList.remove('show');
+      }
+      console.log('RAG mode enabled');
+    } else {
+      chatWindow.classList.remove('rag-mode');
+      selectedFiles = [];
+      if (filesPanel) {
+        filesPanel.classList.remove('show');
+      }
+      console.log('RAG mode disabled');
+    }
+  }
+
+  // 获取用户文件列表
+  async function fetchUserFiles() {
+    console.log('Fetching user files...');
+    try {
+      const { data: { session } } = await window.supabaseClient.auth.getSession();
+      if (!session?.user) {
+        console.log('No user logged in');
+        return;
+      }
+
+      console.log('User session found:', session.user.id);
+
+      const { data, error } = await window.supabaseClient
+        .storage
+        .from('user_files')
+        .list(session.user.id + '/');
+
+      if (error) {
+        console.error('Error fetching files:', error);
+        return;
+      }
+
+      console.log('Files fetched:', data);
+      updateFileList(data);
+    } catch (error) {
+      console.error('Error in fetchUserFiles:', error);
+    }
+  }
+
+  // 更新文件列表显示
+  function updateFileList(files) {
+    console.log('Updating file list with:', files);
+    if (!filesList) {
+      console.error('File list element not found');
+      return;
+    }
+
+    filesList.innerHTML = '';
+    
+    files.forEach(file => {
+      const displayName = file.name.replace(/^\d+_/, '');
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      item.innerHTML = `
+        <input type="checkbox" value="${file.name}" 
+          ${selectedFiles.includes(file.name) ? 'checked' : ''}>
+        <span class="file-name">${displayName}</span>
+      `;
+      
+      const checkbox = item.querySelector('input');
+      checkbox.addEventListener('change', () => {
+        if (checkbox.checked && selectedFiles.length >= 6) {
+          checkbox.checked = false;
+          alert('You can select up to 6 files');
+          return;
+        }
+        
+        if (checkbox.checked) {
+          selectedFiles.push(file.name);
+          console.log('File selected:', file.name);
+        } else {
+          selectedFiles = selectedFiles.filter(f => f !== file.name);
+          console.log('File deselected:', file.name);
+        }
+        console.log('Current selected files:', selectedFiles);
+      });
+      
+      filesList.appendChild(item);
+    });
+  }
+
+  // 文件选择器点击事件
+  if (filesTrigger) {
+    filesTrigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Files trigger clicked');
+      
+      if (filesPanel) {
+        // 隐藏触发器
+        filesTrigger.classList.add('hide');
+        
+        // 显示面板
+        filesPanel.classList.add('show');
+        
+        // 获取文件列表
+        fetchUserFiles();
+      }
+    });
+  }
+
+  // Done 按钮点击事件
+  if (filesDone) {
+    filesDone.addEventListener('click', () => {
+      if (filesPanel) {
+        // 先隐藏面板
+        filesPanel.classList.remove('show');
+        
+        // 等待面板收起动画完成后显示触发器
+        setTimeout(() => {
+          filesTrigger.classList.remove('hide');
+        }, 300);
+      }
+    });
+  }
+
+  // 点击外部关闭面板
+  document.addEventListener('click', (e) => {
+    if (filesPanel && 
+        filesPanel.classList.contains('show') && 
+        !filesTrigger?.contains(e.target) && 
+        !filesPanel?.contains(e.target)) {
+      // 隐藏面板
+      filesPanel.classList.remove('show');
+      
+      // 等待面板收起动画完成后显示触发器
+      setTimeout(() => {
+        filesTrigger.classList.remove('hide');
+      }, 300);
+    }
+  });
+
+  // 修改聊天表单提交处理
   chatForm.addEventListener('submit', function(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -279,7 +446,7 @@ document.addEventListener('DOMContentLoaded', function () {
       ? {
           user_id: 'user123',
           question: message,
-          files_info: [],
+          files_info: selectedFiles,
           model: currentModel
         }
       : { 
@@ -418,19 +585,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.addEventListener('mouseup', handleDragEnd);
     document.addEventListener('touchmove', handleDrag);
     document.addEventListener('touchend', handleDragEnd);
-  }
-
-  function switchMode(mode) {
-    currentMode = mode;
-    
-    // 更新API请求逻辑
-    if (mode === 'rag') {
-      // RAG模式相关逻辑
-      console.log('Switched to RAG mode');
-    } else {
-      // Chat模式相关逻辑
-      console.log('Switched to Chat mode');
-    }
   }
 
   function initializeLever() {
