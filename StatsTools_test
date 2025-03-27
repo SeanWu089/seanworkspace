@@ -78,5 +78,7 @@
   <footer>
     <p>&copy; 2025 Sean's Holistic Workspace</p>
   </footer>
+
+  <script src="js/stats-tools.js"></script>
 </body>
 </html>

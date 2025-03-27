@@ -1,0 +1,458 @@
+document.addEventListener('DOMContentLoaded', function () {
+  // 获取DOM元素
+  const assistantContainer = document.getElementById('assistant-container');
+  const assistantIcon = document.querySelector('.assistant-icon');
+  const chatWindow = document.querySelector('.chat-window');
+  const closeBtn = document.querySelector('.close-btn');
+  const chatForm = document.getElementById('chat-form');
+  const userInput = document.getElementById('user-input');
+  const chatHistory = document.getElementById('chat-history');
+  
+  // 记录拖动状态
+  let isDragging = false;
+  let startX, startY;
+  let initialLeft, initialTop;
+  let hasMoved = false;
+  let mouseDownTime = 0;
+  
+  // 添加新的变量
+  const leverHandle = document.querySelector('.lever-handle');
+  const modeLabels = document.querySelectorAll('.mode-label');
+  let currentMode = 'chat'; // 默认模式
+  let isRagMode = false;
+  
+  // 打开聊天窗口
+  function openChatWindow() {
+    const iconRect = assistantContainer.getBoundingClientRect();
+    assistantContainer.dataset.lastLeft = assistantContainer.style.left;
+    assistantContainer.dataset.lastTop = assistantContainer.style.top;
+    
+    assistantIcon.style.display = 'none';
+    assistantContainer.classList.add('active');
+    adjustChatWindowPosition();
+  }
+  
+  // 调整聊天窗口位置
+  function adjustChatWindowPosition() {
+    setTimeout(() => {
+      const containerRect = assistantContainer.getBoundingClientRect();
+      const chatWindowRect = chatWindow.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      
+      let newLeft = parseFloat(assistantContainer.style.left) || containerRect.left;
+      let newTop = parseFloat(assistantContainer.style.top) || containerRect.top;
+      
+      if (newLeft + chatWindowRect.width > viewportWidth - 20) {
+        newLeft = viewportWidth - chatWindowRect.width - 20;
+      }
+      if (newTop + chatWindowRect.height > viewportHeight - 20) {
+        newTop = viewportHeight - chatWindowRect.height - 20;
+      }
+      if (newLeft < 20) {
+        newLeft = 20;
+      }
+      if (newTop < 20) {
+        newTop = 20;
+      }
+      
+      assistantContainer.style.left = `${newLeft}px`;
+      assistantContainer.style.top = `${newTop}px`;
+    }, 10);
+  }
+  
+  // 关闭聊天窗口
+  function closeChatWindow() {
+    assistantContainer.classList.remove('active');
+    assistantIcon.style.display = 'block';
+    
+    const windowWidth = window.innerWidth;
+    const iconWidth = assistantIcon.offsetWidth;
+    const rect = assistantContainer.getBoundingClientRect();
+    const topPosition = rect.top;
+    
+    let leftPosition;
+    let animationStartX;
+    
+    if (rect.left + rect.width / 2 < windowWidth / 2) {
+      leftPosition = 20;
+      animationStartX = -100;
+    } else {
+      leftPosition = windowWidth - iconWidth - 20;
+      animationStartX = 100;
+    }
+    
+    assistantContainer.style.transition = 'none';
+    assistantContainer.style.left = `${leftPosition}px`;
+    assistantContainer.style.top = `${topPosition}px`;
+    
+    assistantContainer.offsetHeight;
+    assistantContainer.style.transition = '';
+    
+    assistantContainer.animate([
+      { transform: `translateX(${animationStartX}px)`, opacity: 0 },
+      { transform: 'translateX(0)', opacity: 1 }
+    ], {
+      duration: 400,
+      easing: 'ease-out'
+    });
+  }
+
+  // 添加消息到聊天历史
+  function addMessage(content, sender) {
+    if (!chatHistory) {
+      console.error('找不到聊天历史元素');
+      return;
+    }
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message', sender);
+    
+    const safeContent = String(content)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    
+    messageDiv.innerHTML = safeContent.replace(/\n/g, '<br>');
+    chatHistory.appendChild(messageDiv);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+  }
+
+  // 初始化位置
+  function initPosition() {
+    if (!assistantContainer.style.left && !assistantContainer.style.top) {
+      assistantContainer.style.right = '20px';
+      assistantContainer.style.top = '80px';
+      assistantContainer.style.left = 'auto';
+      assistantContainer.style.bottom = 'auto';
+    }
+  }
+
+  // 启用拖拽功能
+  function enableDraggingAndClick() {
+    assistantContainer.style.position = 'fixed';
+    initPosition();
+    
+    assistantIcon.addEventListener('mousedown', startPotentialDrag);
+    assistantIcon.addEventListener('touchstart', startPotentialDrag);
+
+    const chatHeader = document.querySelector('.chat-header');
+    chatHeader.addEventListener('mousedown', startPotentialDrag);
+    chatHeader.addEventListener('touchstart', startPotentialDrag);
+  }
+
+  // 处理拖拽开始
+  function startPotentialDrag(e) {
+    e.preventDefault();
+    mouseDownTime = new Date().getTime();
+    hasMoved = false;
+    isDragging = true;
+    
+    if (e.type === 'mousedown') {
+      startX = e.clientX;
+      startY = e.clientY;
+    } else if (e.type === 'touchstart') {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }
+    
+    const rect = assistantContainer.getBoundingClientRect();
+    initialLeft = rect.left;
+    initialTop = rect.top;
+    
+    if (!assistantContainer.style.left || assistantContainer.style.left === 'auto') {
+      assistantContainer.style.right = 'auto';
+      assistantContainer.style.bottom = 'auto';
+      assistantContainer.style.left = `${initialLeft}px`;
+      assistantContainer.style.top = `${initialTop}px`;
+    }
+    
+    assistantContainer.style.transition = 'none';
+    
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('touchmove', drag, { passive: false });
+    document.addEventListener('mouseup', stopDrag);
+    document.addEventListener('touchend', stopDrag);
+  }
+
+  // 处理拖拽过程
+  function drag(e) {
+    if (!isDragging) return;
+    
+    let moveX, moveY;
+    
+    if (e.type === 'mousemove') {
+      moveX = e.clientX;
+      moveY = e.clientY;
+    } else if (e.type === 'touchmove') {
+      moveX = e.touches[0].clientX;
+      moveY = e.touches[0].clientY;
+    }
+    
+    if (Math.abs(moveX - startX) > 5 || Math.abs(moveY - startY) > 5) {
+      hasMoved = true;
+    }
+    
+    const deltaX = moveX - startX;
+    const deltaY = moveY - startY;
+    
+    assistantContainer.style.right = 'auto';
+    assistantContainer.style.bottom = 'auto';
+    assistantContainer.style.left = `${initialLeft + deltaX}px`;
+    assistantContainer.style.top = `${initialTop + deltaY}px`;
+  }
+
+  // 处理拖拽结束
+  function stopDrag(e) {
+    if (!isDragging) return;
+    
+    isDragging = false;
+    assistantContainer.style.transition = 'all 1s ease';
+    
+    document.removeEventListener('mousemove', drag);
+    document.removeEventListener('touchmove', drag);
+    document.removeEventListener('mouseup', stopDrag);
+    document.removeEventListener('touchend', stopDrag);
+    
+    const releaseTime = new Date().getTime();
+    const clickDuration = releaseTime - mouseDownTime;
+    
+    if (!hasMoved && clickDuration < 200) {
+      if (!assistantContainer.classList.contains('active') && e.target.closest('.assistant-icon')) {
+        openChatWindow();
+      }
+    } else {
+      snapToEdge();
+      
+      if (assistantContainer.classList.contains('active')) {
+        adjustChatWindowPosition();
+      }
+    }
+  }
+
+  // 吸附到边缘
+  function snapToEdge() {
+    const rect = assistantContainer.getBoundingClientRect();
+    const iconWidth = assistantIcon.offsetWidth;
+    const windowWidth = window.innerWidth;
+    const topPosition = rect.top;
+    
+    let leftPosition;
+    if (rect.left + rect.width / 2 < windowWidth / 2) {
+      leftPosition = 20;
+    } else {
+      leftPosition = windowWidth - iconWidth - 20;
+    }
+    
+    assistantContainer.style.left = `${leftPosition}px`;
+    assistantContainer.style.top = `${topPosition}px`;
+  }
+
+  // 处理聊天表单提交
+  chatForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const message = userInput.value.trim();
+    if (!message) return;
+    
+    addMessage(message, 'user');
+    userInput.value = '';
+    
+    const loadingMessage = document.createElement('div');
+    loadingMessage.classList.add('message', 'assistant', 'loading');
+    loadingMessage.textContent = 'Im thinking...';
+    chatHistory.appendChild(loadingMessage);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+    
+    const apiUrl = currentMode === 'rag' 
+      ? 'https://seanholisticworkspace-production.up.railway.app/rag/query'
+      : 'https://seanholisticworkspace-production.up.railway.app/chat';
+    
+    const requestData = currentMode === 'rag'
+      ? {
+          user_id: 'user123', // 需要从实际用户会话中获取
+          question: message,
+          files_info: [] // 需要从文档上传功能中获取
+        }
+      : { message: message };
+    
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(requestData)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`服务器返回错误状态码: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      const loadingElement = document.querySelector('.message.loading');
+      if (loadingElement) {
+        chatHistory.removeChild(loadingElement);
+      }
+      
+      if (data && data.response) {
+        addMessage(data.response, 'assistant');
+      } else if (data && data.error) {
+        addMessage('错误：' + data.error, 'assistant');
+      } else {
+        addMessage('收到了无效的响应格式', 'assistant');
+      }
+    })
+    .catch(error => {
+      console.error('API请求错误:', error);
+      
+      const loadingElement = document.querySelector('.message.loading');
+      if (loadingElement) {
+        chatHistory.removeChild(loadingElement);
+      }
+      
+      addMessage('请求出错：' + error.message, 'assistant');
+    });
+  });
+
+  // 初始化
+  closeBtn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    closeChatWindow();
+  });
+
+  enableDraggingAndClick();
+
+  // 窗口大小变化处理
+  window.addEventListener('resize', () => {
+    if (assistantContainer.classList.contains('active')) {
+      adjustChatWindowPosition();
+    } else {
+      const rect = assistantContainer.getBoundingClientRect();
+      const iconWidth = assistantIcon.offsetWidth;
+      const windowWidth = window.innerWidth;
+      
+      if (rect.right > windowWidth) {
+        assistantContainer.style.left = `${windowWidth - iconWidth - 20}px`;
+      }
+      if (rect.left < 0) {
+        assistantContainer.style.left = '20px';
+      }
+    }
+  });
+
+  // 点击页面空白处关闭聊天窗口
+  document.addEventListener('click', (event) => {
+    if (!assistantContainer.contains(event.target) && 
+        assistantContainer.classList.contains('active')) {
+      closeChatWindow();
+    }
+  });
+
+  // 防止拖动过程中文本被选中
+  assistantContainer.addEventListener('selectstart', (event) => {
+    if (isDragging) {
+      event.preventDefault();
+    }
+  });
+
+  // 添加拉杆事件监听器
+  if (leverHandle) {
+    leverHandle.addEventListener('mousedown', startLeverDrag);
+    leverHandle.addEventListener('touchstart', startLeverDrag);
+  }
+
+  function startLeverDrag(e) {
+    e.preventDefault();
+    const isTouch = e.type === 'touchstart';
+    const startX = isTouch ? e.touches[0].clientX : e.clientX;
+    const leverRect = leverHandle.getBoundingClientRect();
+    const baseRect = document.querySelector('.lever-base').getBoundingClientRect();
+    const maxMove = baseRect.width - leverHandle.offsetWidth;
+
+    function handleDrag(e) {
+      const currentX = isTouch ? e.touches[0].clientX : e.clientX;
+      const deltaX = currentX - startX;
+      const newPosition = Math.min(Math.max(0, deltaX), maxMove);
+      leverHandle.style.left = `${newPosition}px`;
+    }
+
+    function handleDragEnd() {
+      const position = parseFloat(leverHandle.style.left) || 0;
+      const maxMove = document.querySelector('.lever-base').offsetWidth - leverHandle.offsetWidth;
+      
+      if (position > maxMove / 2) {
+        // 切换到 RAG 模式
+        leverHandle.style.left = `${maxMove}px`;
+        switchMode('rag');
+      } else {
+        // 保持/返回到 Chat 模式
+        leverHandle.style.left = '0px';
+        switchMode('chat');
+      }
+
+      leverHandle.style.transition = 'left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+      setTimeout(() => {
+        leverHandle.style.transition = '';
+      }, 300);
+
+      document.removeEventListener('mousemove', handleDrag);
+      document.removeEventListener('mouseup', handleDragEnd);
+      document.removeEventListener('touchmove', handleDrag);
+      document.removeEventListener('touchend', handleDragEnd);
+    }
+
+    document.addEventListener('mousemove', handleDrag);
+    document.addEventListener('mouseup', handleDragEnd);
+    document.addEventListener('touchmove', handleDrag);
+    document.addEventListener('touchend', handleDragEnd);
+  }
+
+  function switchMode(mode) {
+    currentMode = mode;
+    
+    // 更新API请求逻辑
+    if (mode === 'rag') {
+      // RAG模式相关逻辑
+      console.log('Switched to RAG mode');
+    } else {
+      // Chat模式相关逻辑
+      console.log('Switched to Chat mode');
+    }
+  }
+
+  function initializeLever() {
+    const leverHandle = document.querySelector('.lever-handle');
+    if (!leverHandle) return;
+
+    // 创建提示泡泡并添加到chat-window中
+    const tooltip = document.createElement('div');
+    tooltip.className = 'mode-tooltip';
+    tooltip.textContent = 'Chat mode';
+    document.querySelector('.chat-window').appendChild(tooltip);
+
+    leverHandle.addEventListener('click', () => {
+      isRagMode = !isRagMode;
+      
+      // 使用类来控制旋转
+      leverHandle.classList.toggle('active');
+      
+      // 显示提示泡泡
+      tooltip.textContent = `${isRagMode ? 'RAG' : 'Chat'} mode`;
+      tooltip.classList.add('show');
+      
+      // 1秒后隐藏提示
+      setTimeout(() => {
+        tooltip.classList.remove('show');
+      }, 1000);
+
+      // 更新当前模式
+      switchMode(isRagMode ? 'rag' : 'chat');
+    });
+  }
+
+  // 在DOMContentLoaded事件监听器中调用初始化
+  initializeLever();
+});
