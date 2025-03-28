@@ -629,3 +629,38 @@
   opacity: 1;
   visibility: visible;
 }
+
+/* 添加进度条容器样式 */
+.progress-container {
+  display: none;  /* 初始状态隐藏 */
+  padding: 8px 16px;
+  background-color: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;  /* 添加底部边框 */
+}
+
+.progress-container.show {
+  display: block !important;  /* 使用 !important 确保显示 */
+}
+
+.progress-text {
+  font-size: 14px;
+  color: #4a5568;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 4px;
+  background-color: #e2e8f0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #6794d7;
+  width: 0;
+  transition: width 0.3s ease;
+}

@@ -476,33 +476,28 @@ document.addEventListener('DOMContentLoaded', function () {
     chatHistory.scrollTop = chatHistory.scrollHeight;
     
     try {
-        // 获取用户会话信息
         const { data: { session } } = await window.supabaseClient.auth.getSession();
         if (!session?.user) {
             throw new Error('No user session found');
         }
 
-        // 获取实际使用的模型名称
-        const actualModel = MODEL_MAPPING[currentModel] || currentModel;
-        
         // 如果是RAG模式，先处理文档
         if (currentMode === 'rag') {
-            const processResponse = await fetch('http://localhost:1201/rag/process_documents', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    user_id: session.user.id,
-                    files_info: selectedFiles  // 现在发送的是包含完整文件信息的数组
-                })
-            });
-
-            if (!processResponse.ok) {
-                throw new Error('Failed to process documents');
+            showProgress(); // 显示进度条
+            
+            try {
+                await handleFileSelection(selectedFiles);
+            } catch (error) {
+                console.error('Error processing files:', error);
+                hideProgress();
+                addMessage('Error processing files: ' + error.message, 'error');
+                return;
             }
         }
 
+        // 获取实际使用的模型名称
+        const actualModel = MODEL_MAPPING[currentModel] || currentModel;
+        
         const apiUrl = currentMode === 'rag' 
             ? 'http://localhost:1201/rag/query'
             : 'http://localhost:1201/chat';
@@ -550,6 +545,7 @@ document.addEventListener('DOMContentLoaded', function () {
         
     } catch (error) {
         console.error('API request error:', error);
+        hideProgress(); // 确保在出错时隐藏进度条
         
         const loadingElement = document.querySelector('.message.loading');
         if (loadingElement) {
@@ -713,4 +709,139 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // 在DOMContentLoaded事件监听器中调用初始化
   initializeLever();
+
+  // 修改进度条控制函数
+  function showProgress() {
+    console.log('Showing progress bar');
+    const container = document.querySelector('.progress-container');
+    if (!container) {
+        console.error('Progress container not found');
+        return;
+    }
+    container.style.display = 'block';  // 直接设置display
+    container.classList.add('show');
+    console.log('Progress container display:', getComputedStyle(container).display);
+  }
+
+  function hideProgress() {
+    const container = document.querySelector('.progress-container');
+    if (!container) {
+        console.error('Progress container not found');
+        return;
+    }
+    container.classList.remove('show');
+    setTimeout(() => {
+        container.style.display = 'none';
+    }, 300);
+  }
+
+  function updateProgress(files, trunks) {
+    console.log('Updating progress:', files, trunks);
+    const progressText = document.querySelector('.progress-text');
+    const progressBar = document.querySelector('.progress-bar');
+    
+    if (!progressText || !progressBar) {
+        console.error('Progress elements not found');
+        return;
+    }
+    
+    progressText.textContent = `Processing: Files ${files} Trunks ${trunks}`;
+    
+    // 计算总体进度
+    const [currentFile, totalFiles] = files.split('/').map(Number);
+    const [currentTrunk, totalTrunks] = trunks.split('/').map(Number);
+    
+    let totalProgress = 0;
+    if (totalFiles > 0) {
+        // 如果只有一个文件，进度完全由trunk决定
+        if (totalFiles === 1) {
+            totalProgress = (currentTrunk / totalTrunks) * 100;
+        } else {
+            // 多个文件时，文件进度权重0.3，段落进度权重0.7
+            const fileProgress = (currentFile / totalFiles) * 30;
+            const trunkProgress = (currentTrunk / totalTrunks) * 70;
+            totalProgress = fileProgress + trunkProgress;
+        }
+    }
+    
+    console.log('Progress calculated:', totalProgress);
+    progressBar.style.width = `${Math.min(totalProgress, 100)}%`;
+  }
+
+  // 修改文件处理函数
+  async function handleFileSelection(files) {
+    try {
+        // 获取用户会话
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        if (!session?.user) {
+            throw new Error('No user session found');
+        }
+        
+        showProgress();
+        console.log('Progress bar should be visible now');
+        
+        // 开始检查进度
+        const progressInterval = setInterval(async () => {
+            try {
+                // 修改为GET请求，并正确传递user_id
+                const response = await fetch(`http://localhost:1201/rag/progress?user_id=${session.user.id}`);
+                const data = await response.json();
+                console.log('Progress data:', data);
+                
+                if (data.status === 'timeout') {
+                    clearInterval(progressInterval);
+                    hideProgress();
+                    return;
+                }
+                
+                if (data.status === 'processing') {
+                    updateProgress(
+                        `${data.progress.current_file}/${data.progress.total_files}`,
+                        `${data.progress.current_trunk}/${data.progress.total_trunks}`
+                    );
+                }
+            } catch (error) {
+                console.error('Error checking progress:', error);
+            }
+        }, 1000);
+        
+        // 处理文件
+        const result = await processDocuments(files, session.user.id);
+        
+        // 清理
+        clearInterval(progressInterval);
+        hideProgress();
+        
+        return result;
+    } catch (error) {
+        console.error('Error processing files:', error);
+        hideProgress();
+        throw error;
+    }
+  }
+
+  // 修改文档处理函数
+  async function processDocuments(files, userId) {
+    try {
+        const response = await fetch('http://localhost:1201/rag/process_documents', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                files_info: files
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Error in processDocuments:', error);
+        throw error;
+    }
+  }
 });
