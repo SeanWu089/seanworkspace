@@ -306,17 +306,14 @@ document.addEventListener('DOMContentLoaded', function () {
         let defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
         let marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
         marker.setAttribute('id', 'arrowhead');
-        marker.setAttribute('markerWidth', '10');
-        marker.setAttribute('markerHeight', '7');
-        marker.setAttribute('refX', '10');
-        marker.setAttribute('refY', '3.5');
+        marker.setAttribute('markerWidth', '12');   // 更大的箭头
+        marker.setAttribute('markerHeight', '8');
+        marker.setAttribute('refX', '12');
+        marker.setAttribute('refY', '4');
         marker.setAttribute('orient', 'auto');
-        let markerPath = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'path'
-        );
-        markerPath.setAttribute('d', 'M0,0 L0,7 L10,3.5 z');
-        markerPath.setAttribute('fill', 'grey');
+        let markerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        markerPath.setAttribute('d', 'M0,0 L0,8 L12,4 z');
+        markerPath.setAttribute('fill', '#002FA7');  // 主题蓝色箭头
         marker.appendChild(markerPath);
         defs.appendChild(marker);
         arrowSVG.appendChild(defs);
@@ -430,13 +427,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const newElem = document.createElement('div');
         newElem.textContent = variableName;
         newElem.style.position = 'absolute';
-        // 默认样式为自变量 independent（深蓝背景、白色字体）
-        newElem.style.backgroundColor = 'darkblue';
+        // 修改变量元素的默认样式
+        newElem.style.backgroundColor = '#002FA7';  // 使用主题蓝色
         newElem.style.color = 'white';
-        newElem.style.padding = '4px 8px';
-        newElem.style.border = 'none';
-        newElem.style.borderRadius = '4px';
+        newElem.style.padding = '8px 15px';        // 更大的内边距
+        newElem.style.borderRadius = '8px';        // 更大的圆角
         newElem.style.cursor = 'move';
+        newElem.style.transition = 'all 0.3s ease'; // 平滑过渡效果
+        newElem.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.1)'; // 添加阴影
         newElem.dataset.property = 'independent';
         // 【新增】赋予唯一标识（直接使用变量名称，防止重复添加）
         newElem.dataset.id = variableName;
@@ -461,28 +459,65 @@ document.addEventListener('DOMContentLoaded', function () {
         // 右键点击用于弹出属性菜单，不进行拖拽
         if (e.button === 2) return;
         e.preventDefault();
+        
+        // 暂时移除过渡效果，使移动更加流畅
+        newElem.style.transition = 'none';
+        
         const canvasRect = canvas.getBoundingClientRect();
-        // 计算鼠标在 canvasContent 内的坐标（逆转当前平移与缩放）
         const startContentX = (e.clientX - canvasRect.left - panX) / scale;
         const startContentY = (e.clientY - canvasRect.top - panY) / scale;
         const elemLeft = parseFloat(newElem.style.left) || 0;
         const elemTop = parseFloat(newElem.style.top) || 0;
         const shiftX = startContentX - elemLeft;
         const shiftY = startContentY - elemTop;
+
+        // 使用 requestAnimationFrame 优化性能
+        let animationFrameId = null;
+        let lastX = null;
+        let lastY = null;
     
         function onMouseMove(e) {
             const currentContentX = (e.clientX - canvasRect.left - panX) / scale;
             const currentContentY = (e.clientY - canvasRect.top - panY) / scale;
-            newElem.style.left = currentContentX - shiftX + 'px';
-            newElem.style.top = currentContentY - shiftY + 'px';
+            
+            // 如果位置没有改变，不更新
+            if (lastX === currentContentX && lastY === currentContentY) {
+    return;
+  }
+
+            lastX = currentContentX;
+            lastY = currentContentY;
+
+            // 使用 requestAnimationFrame 进行位置更新
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            
+            animationFrameId = requestAnimationFrame(() => {
+                newElem.style.left = (currentContentX - shiftX) + 'px';
+                newElem.style.top = (currentContentY - shiftY) + 'px';
+                updateArrows();
+            });
+        }
+
+        function onMouseUp() {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            
+            // 拖拽结束后恢复过渡效果
+            newElem.style.transition = 'all 0.3s ease';
+            
+            // 取消可能未执行的动画帧
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            
+            // 最后更新一次箭头位置
             updateArrows();
         }
+
         document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', function mouseUpHandler() {
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', mouseUpHandler);
-            updateArrows();
-        });
+        document.addEventListener('mouseup', onMouseUp);
         });
     
         // ---------------- 新增功能：右键弹出属性菜单 ----------------
@@ -578,87 +613,98 @@ document.addEventListener('DOMContentLoaded', function () {
     contextMenu.id = 'contextMenu';
     contextMenu.style.position = 'absolute';
     contextMenu.style.backgroundColor = 'white';
-    contextMenu.style.border = '1px solid #ccc';
-    contextMenu.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
-    contextMenu.style.padding = '5px';
+    contextMenu.style.border = '1px solid #E0E0E0';
+    contextMenu.style.borderRadius = '8px';
+    contextMenu.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+    contextMenu.style.padding = '8px 0';
     contextMenu.style.display = 'none';
     contextMenu.style.zIndex = 1000;
     document.body.appendChild(contextMenu);
     
     // 定义不同变量属性对应的样式
     const styleMapping = {
-    independent: {
-        backgroundColor: 'darkblue',
-        color: 'white',
-        border: 'none'
-    },
-    dependent: {
-        backgroundColor: 'purple',
-        color: 'white',
-        border: 'none'
-    },
-    mediator: {
-        backgroundColor: 'peachpuff', // 淡橙色背景
-        color: 'black',
-        border: 'none'
-    },
-    moderator: {
-        backgroundColor: 'lightgreen', // 淡绿色背景
-        color: 'black',
-        border: 'none'
-    },
-    manifest: {
-        backgroundColor: 'white',
-        color: 'darkblue',
-        border: '2px solid darkblue'
-    }
+        independent: {
+            backgroundColor: '#002FA7',    // 主题蓝色
+            color: 'white',
+            border: 'none',
+            boxShadow: '0 2px 6px rgba(0, 47, 167, 0.2)'
+        },
+        dependent: {
+            backgroundColor: '#FF69B4',    // 粉色
+            color: 'white',
+            border: 'none',
+            boxShadow: '0 2px 6px rgba(255, 105, 180, 0.2)'
+        },
+        mediator: {
+            backgroundColor: '#FFA500',    // 标准橙色
+            color: 'white',                
+            border: 'none',                
+            boxShadow: '0 2px 6px rgba(255, 165, 0, 0.2)'
+        },
+        moderator: {
+            backgroundColor: '#90EE90',    // 淡绿色
+            color: 'white',                
+            border: 'none',                
+            boxShadow: '0 2px 6px rgba(0, 47, 167, 0.1)'
+        },
+        manifest: {
+            backgroundColor: 'white',
+            color: '#002FA7',              // 主题蓝色文字
+            border: '2px solid #002FA7',
+            boxShadow: '0 2px 6px rgba(0, 47, 167, 0.1)'
+        }
     };
     
     // 右键菜单中的选项
     const properties = [
-    'independent',
-    'dependent',
-    'mediator',
-    'moderator',
-    'manifest'
+        'independent',
+        'dependent',
+        'mediator',
+        'moderator',
+        'manifest'
     ];
     
     // 显示右键菜单的函数
     function showContextMenu(x, y) {
-    // 清空菜单内容
-    contextMenu.innerHTML = '';
-    properties.forEach(function (prop) {
-        const item = document.createElement('div');
-        item.textContent = prop;
-        item.style.padding = '4px 8px';
-        item.style.cursor = 'pointer';
-        // 简单的悬停效果
-        item.addEventListener('mouseover', function () {
-        item.style.backgroundColor = '#f0f0f0';
+        // 清空菜单内容
+        contextMenu.innerHTML = '';
+        properties.forEach(function (prop) {
+            const item = document.createElement('div');
+            item.textContent = prop;
+            item.style.padding = '8px 16px';
+            item.style.cursor = 'pointer';
+            item.style.transition = 'all 0.2s ease';
+            item.style.color = '#002FA7';
+
+            // 添加悬停效果
+            item.addEventListener('mouseover', function() {
+                this.style.backgroundColor = '#F0F7FF';  // 淡蓝色背景
+            });
+
+            item.addEventListener('mouseout', function() {
+                this.style.backgroundColor = 'white';
+            });
+
+            item.addEventListener('click', function (e) {
+                if (currentContextElement) {
+                    const currentProp = currentContextElement.dataset.property;
+                    if (currentProp !== prop) {
+                        // 更新 data-property 以及元素的样式
+                        currentContextElement.dataset.property = prop;
+                        const styleObj = styleMapping[prop];
+                        for (let key in styleObj) {
+                            currentContextElement.style[key] = styleObj[key];
+                        }
+                        updateArrows();
+                    }
+                }
+                hideContextMenu();
+            });
+            contextMenu.appendChild(item);
         });
-        item.addEventListener('mouseout', function () {
-        item.style.backgroundColor = 'white';
-        });
-        item.addEventListener('click', function (e) {
-        if (currentContextElement) {
-            const currentProp = currentContextElement.dataset.property;
-            if (currentProp !== prop) {
-            // 更新 data-property 以及元素的样式
-            currentContextElement.dataset.property = prop;
-            const styleObj = styleMapping[prop];
-            for (let key in styleObj) {
-                currentContextElement.style[key] = styleObj[key];
-            }
-            updateArrows();
-            }
-        }
-        hideContextMenu();
-        });
-        contextMenu.appendChild(item);
-    });
-    contextMenu.style.left = x + 'px';
-    contextMenu.style.top = y + 'px';
-    contextMenu.style.display = 'block';
+        contextMenu.style.left = x + 'px';
+        contextMenu.style.top = y + 'px';
+        contextMenu.style.display = 'block';
     }
     
     // 隐藏右键菜单的函数
@@ -737,8 +783,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 line.setAttribute('y1', sourceAnchor.y);
                 line.setAttribute('x2', targetAnchor.x);
                 line.setAttribute('y2', targetAnchor.y);
-                line.setAttribute('stroke', 'grey');
-                line.setAttribute('stroke-width', '1');
+                line.setAttribute('stroke', '#002FA7');     // 主题蓝色线条
+                line.setAttribute('stroke-width', '2');     // 更粗的线条
                 line.setAttribute('marker-end', 'url(#arrowhead)');
                 line.dataset.rule = arrowInfo.rule;
                 // 使该线条能接收鼠标事件（覆盖父级 pointer-events:none）
