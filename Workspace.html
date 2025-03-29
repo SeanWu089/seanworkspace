@@ -6,11 +6,17 @@
   <title>Sean's Holistic Workspace - Home</title>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Raleway:wght@300;400;700&family=Alice:wght@300;400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/workspace.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="js/supabase-config.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
   <!-- 顶部标题导航 -->
   <nav id="Title">
+    <a href="index.html" class="title-home-button">
+        <i class="fas fa-home"></i>
+    </a>
     <h1>Workspace</h1>
     <h2>SEM</h2>
   </nav>
@@ -21,21 +27,29 @@
     <div class="top-section">
       <!-- 左侧：模型和数据选择 -->
       <div class="selection-panel">
-        <div class="model-selector">
-          <h3>Select Model</h3>
-          <select id="modelSelect">
-            <option value="ARIMA">ARIMA</option>
-          </select>
-        </div>
-
         <div class="data-selector">
           <h3>Select Data</h3>
-          <div id="searchContainer">
-            <button id="addNewVarBtn">＋</button>
-            <input id="searchInput" type="text" placeholder="Select Variables">
+          
+          <!-- 文件选择下拉框 -->
+          <div class="file-dropdown">
+            <div class="dropdown-header" id="fileDropdownHeader">
+              <span>Select a data file...</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="dropdown-content" id="fileDropdownContent">
+              <!-- 文件列表将通过 JavaScript 动态填充 -->
+            </div>
           </div>
-          <div id="searchResults"></div>
-          <div id="selectedVariables"></div>
+
+          <!-- 变量选择区域 -->
+          <div class="variable-selector">
+            <div id="searchContainer">
+              <button id="addNewVarBtn">＋</button>
+              <input id="searchInput" type="text" placeholder="Select Variables" disabled>
+            </div>
+            <div id="searchResults"></div>
+            <div id="selectedVariables"></div>
+          </div>
         </div>
       </div>
 

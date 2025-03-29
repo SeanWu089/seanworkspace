@@ -117,9 +117,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (searchResults.classList.contains('active')) {
         const resultsHeight = searchResults.scrollHeight;
         searchResults.style.maxHeight = `${Math.min(resultsHeight, 200)}px`;
-        selectedVariables.style.transform = `translateY(${resultsHeight + 5}px)`;
       } else {
-        selectedVariables.style.transform = 'translateY(0)';
+        searchResults.style.maxHeight = '0';
       }
     };
   
@@ -134,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
   
-      // 安全过滤逻辑
       const filteredColumns = window.dataColumns.filter((col) => {
         const name = (col?.name || '').toLowerCase();
         return name.includes(keyword);
@@ -143,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (filteredColumns.length) {
         searchResults.classList.add('active');
   
-        // 渲染搜索结果
+        // 修改搜索结果的渲染方式
         filteredColumns.forEach((col) => {
           const resultItem = document.createElement('div');
           resultItem.className = 'search-result-item';
@@ -151,57 +149,51 @@ document.addEventListener('DOMContentLoaded', function () {
   
           // 双击事件处理
           resultItem.addEventListener('dblclick', () => {
-            // 防止重复添加
             const itemText = col.name || 'Unnamed Column';
-            if (
-              [...selectedVariables.children].some(
-                (el) => el.querySelector('span').textContent === itemText
-              )
-            )
-              return;
+            if ([...selectedVariables.children].some(
+              (el) => el.querySelector('span').textContent === itemText
+            )) return;
   
-            // 添加选中项（带删除按钮）
+            // 创建并添加新变量
             const selectedItem = document.createElement('div');
             selectedItem.className = 'selected-variable';
-  
-            // 文本容器
-            const textSpan = document.createElement('span');
-            textSpan.textContent = itemText;
-            selectedItem.appendChild(textSpan);
             selectedItem.setAttribute('draggable', 'true');
-            // 设置拖拽时传递变量名称（用于canvas识别）
             selectedItem.addEventListener('dragstart', function (e) {
               e.dataTransfer.setData('text/plain', itemText);
             });
   
-            // 删除按钮
-            const deleteBtn = document.createElement('div');
+            const textSpan = document.createElement('span');
+            textSpan.textContent = itemText;
+            
+            const deleteBtn = document.createElement('button');
             deleteBtn.className = 'delete-variable';
             deleteBtn.innerHTML = '×';
-  
             deleteBtn.addEventListener('click', (e) => {
               e.stopPropagation();
               selectedItem.remove();
             });
   
+            selectedItem.appendChild(textSpan);
             selectedItem.appendChild(deleteBtn);
             selectedVariables.appendChild(selectedItem);
   
-            // 视觉反馈
+            // 添加选中反馈
             resultItem.classList.add('selected-feedback');
-            void resultItem.offsetWidth;
             setTimeout(() => {
               resultItem.classList.remove('selected-feedback');
             }, 300);
+  
+            // 选中后关闭搜索结果
+            searchResults.classList.remove('active');
+            searchInput.value = '';
+            updateLayout();
           });
   
           searchResults.appendChild(resultItem);
         });
   
-        // 延迟计算确保渲染完成
         requestAnimationFrame(() => {
           updateLayout();
-          console.log('搜索结果高度:', searchResults.scrollHeight);
         });
       } else {
         searchResults.classList.remove('active');
@@ -945,7 +937,7 @@ function extractVariablesFromCanvas() {
     .then(data => {
         console.log("Backend response: ", data);
       
-        // 1. 填充“路径结果汇总表”
+        // 1. 填充"路径结果汇总表"
         const pathTableBody = document.querySelector('#pathResultsTable tbody');
         if (!pathTableBody) return;
         pathTableBody.innerHTML = ''; // 先清空表格内容
@@ -970,7 +962,7 @@ function extractVariablesFromCanvas() {
             if (typeof row.p_value === 'number') {
               tdPValue.textContent = row.p_value.toFixed(3);
             } else {
-              // 如果 p_value 是字符串或者 “-”
+              // 如果 p_value 是字符串或者 "
               tdPValue.textContent = row.p_value || '';
             }
             tr.appendChild(tdPValue);
@@ -989,7 +981,7 @@ function extractVariablesFromCanvas() {
           });
         }
       
-        // 2. 填充“模型拟合指标”
+        // 2. 填充"模型拟合指标"
         const modelFitDiv = document.getElementById('modelFitIndices');
         if (modelFitDiv) {
           modelFitDiv.innerHTML = ''; // 先清空
@@ -1114,3 +1106,194 @@ document.getElementById('submitBtn').addEventListener('click', function(event) {
 
   
 });
+
+// 初始化文件下拉选择器
+function initializeFileDropdown() {
+    const dropdownHeader = document.getElementById('fileDropdownHeader');
+    const dropdownContent = document.getElementById('fileDropdownContent');
+    
+    // 切换文件列表的显示/隐藏
+    dropdownHeader.addEventListener('click', (e) => {
+        e.stopPropagation(); // 阻止事件冒泡
+        const isVisible = dropdownContent.style.display === 'block';
+        dropdownContent.style.display = isVisible ? 'none' : 'block';
+    });
+
+    // 点击外部时关闭下拉框
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.file-dropdown')) {
+            dropdownContent.style.display = 'none';
+        }
+    });
+
+    // 阻止下拉内容的点击事件冒泡
+    dropdownContent.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+}
+
+// 文件选择处理函数
+async function selectDataFile(element) {
+    try {
+        // 更新选中状态
+        document.querySelectorAll('.file-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        element.classList.add('selected');
+
+        // 获取文件名和路径
+        const fileName = element.querySelector('.file-name').textContent;
+        const filePath = element.dataset.filePath;
+        
+        // 更新下拉框显示
+        const dropdownHeader = document.getElementById('fileDropdownHeader');
+        dropdownHeader.querySelector('span').textContent = fileName;
+        
+        // 关闭下拉框
+        document.getElementById('fileDropdownContent').style.display = 'none';
+        
+        // 启用搜索输入框
+        document.getElementById('searchInput').disabled = false;
+
+        // 存储文件路径到 localStorage（用于后续操作）
+        localStorage.setItem('uploadedFilePath', filePath);
+        
+        // 从 Supabase 加载文件内容
+        const { data, error } = await window.supabaseClient
+            .storage
+            .from('user_files')
+            .download(filePath);
+            
+        if (error) throw error;
+
+        // 处理文件内容
+        const fileContent = await data.text();
+        processFileContent(fileContent, fileName);
+    } catch (error) {
+        console.error('Error loading file:', error);
+        alert('Failed to load file. Please try again.');
+    }
+}
+
+// 处理文件内容
+function processFileContent(content, fileName) {
+    if (fileName.endsWith('.csv')) {
+        const lines = content.split('\n');
+        const headers = lines[0].split(',').map(h => h.trim());
+        
+        // 创建列信息
+        const columns = headers.map(name => ({
+            name: name,
+            type: 'numeric' // 或添加类型检测逻辑
+        }));
+
+        // 更新全局数据变量
+        window.dataColumns = columns;
+        
+        // 更新预览表格
+        updatePreviewTable(columns);
+    }
+}
+
+// 更新预览表格函数
+function updatePreviewTable(columns) {
+    const previewTable = document.querySelector('#preview-table tbody');
+    if (!previewTable) return;
+
+    previewTable.innerHTML = columns.map(col => `
+        <tr>
+            <td>${col.name || 'Unnamed Column'}</td>
+            <td>${col.type}</td>
+        </tr>
+    `).join('');
+}
+
+// 加载文件列表
+async function loadDataFiles() {
+    try {
+        // 获取当前用户
+        const { data: { user }, error: userError } = await window.supabaseClient.auth.getUser();
+        
+        if (userError || !user) {
+            throw new Error('No user found');
+        }
+        
+        // 直接从 Supabase 获取文件列表
+        const { data: files, error } = await window.supabaseClient
+            .storage
+            .from('user_files')
+            .list(`${user.id}/`);
+            
+        if (error) throw error;
+        
+        const dropdownContent = document.getElementById('fileDropdownContent');
+        
+        // 如果没有文件，显示提示信息
+        if (!files || files.length === 0) {
+            dropdownContent.innerHTML = `
+                <div class="empty-state">
+                    <p>No data files available</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // 过滤支持的文件类型
+        const supportedFiles = files.filter(file => 
+            file.name.endsWith('.csv') || 
+            file.name.endsWith('.xlsx') || 
+            file.name.endsWith('.xls')
+        );
+        
+        // 生成文件列表
+        dropdownContent.innerHTML = supportedFiles.map(file => {
+            const fileIcon = file.name.endsWith('.csv') ? 'fa-file-csv' : 'fa-file-excel';
+            const fileSize = formatFileSize(file.metadata?.size || 0);
+            const uploadDate = new Date(file.created_at).toLocaleDateString();
+            
+            return `
+                <div class="file-item" data-file-path="${user.id}/${file.name}" onclick="selectDataFile(this)">
+                    <i class="file-icon fas ${fileIcon}"></i>
+                    <div class="file-details">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-meta">${fileSize} • ${uploadDate}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+    } catch (error) {
+        console.error('Error loading data files:', error);
+        document.getElementById('fileDropdownContent').innerHTML = `
+            <div class="error-message">
+                <p>Error loading files</p>
+            </div>
+        `;
+    }
+}
+
+// 格式化文件大小的辅助函数
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// 在页面加载时初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // ... 现有的初始化代码 ...
+    
+    // 初始化文件下拉选择器
+    initializeFileDropdown();
+    
+    // 加载文件列表
+    loadDataFiles();
+    
+    // 初始状态下禁用搜索输入框
+    document.getElementById('searchInput').disabled = true;
+});
+
