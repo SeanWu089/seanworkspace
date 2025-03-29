@@ -22,11 +22,49 @@ body {
 /* 顶部布局 */
 .top-section {
     display: grid;
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: 380px 1fr;
     gap: 60px;
-    height: calc(100vh - 180px);
+    height: calc(100vh - 240px);
     margin-top: 20px;
-    align-items: stretch;
+    align-items: start;
+}
+
+/* Shazam按钮容器 */
+.shazam-container {
+    position: relative;
+    width: 400px;
+    padding: 0 15px;
+    box-sizing: border-box;
+    margin-top: 5px;
+    height: 45px;
+}
+
+#shazamBtn {
+    width: 380px;
+    height: 100%;
+    background-color: #002FA7;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    position: absolute;
+    left: 15px;
+    right: 15px;
+}
+
+#shazamBtn:hover {
+    background-color: #001f7a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    scale: 1.1;
+}
+
+#shazamBtn:active {
+    transform: translateY(0);
 }
 
 /* ====================== 3. 标题栏样式 ====================== */
@@ -80,7 +118,7 @@ body {
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 100%;
+    height: calc(100vh - 240px - 20px);
     min-height: 0;
     overflow-y: auto;
 }
@@ -212,7 +250,7 @@ body {
     background: #fafafa;
     border-radius: 12px;
     padding: 25px;
-    height: 100%;
+    height: calc(100vh - 210px);
     min-height: 0;
     position: relative;
     overflow: hidden;
@@ -671,7 +709,7 @@ body {
 #selectedVariables {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 3px;
     padding-top: 8px;
     width: 100%;
     flex: 1;
@@ -683,8 +721,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px;
-    background-color: #f8f9fa;
+    padding: 3px 8px;
+    background-color: transparent;
     border-radius: 6px;
     border: 1px solid #e0e0e0;
     transition: all 0.3s ease;
@@ -695,15 +733,15 @@ body {
 /* 变量文本样式 */
 .selected-variable span {
     color: #002FA7;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 500;
     flex: 1;
 }
 
 /* 删除按钮样式 */
 .delete-variable {
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
     padding: 0;
     display: flex;
     align-items: center;
@@ -713,8 +751,9 @@ body {
     color: #002FA7;
     cursor: pointer;
     font-size: 1.2rem;
+    font-weight: 500;
     transition: all 0.3s ease;
-    border: 1px solid #002FA7;
+    border: 1.3px solid #002FA7;
     margin-left: 10px;
 }
 
