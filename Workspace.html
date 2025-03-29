@@ -10,12 +10,77 @@
 <body>
 
   <!-- 顶部标题导航 -->
-  <nav id="Title" class="title">
+  <nav id="Title">
     <h1>Workspace</h1>
     <h2>SEM</h2>
   </nav>
 
-  <!-- 左侧侧边栏 -->
+  <!-- 主体内容区域 -->
+  <div class="page-layout">
+    <!-- 顶部区域：模型选择和数据预览 -->
+    <div class="top-section">
+      <!-- 左侧：模型和数据选择 -->
+      <div class="selection-panel">
+        <div class="model-selector">
+          <h3>Select Model</h3>
+          <select id="modelSelect">
+            <option value="ARIMA">ARIMA</option>
+          </select>
+        </div>
+
+        <div class="data-selector">
+          <h3>Select Data</h3>
+          <div id="searchContainer">
+            <button id="addNewVarBtn">＋</button>
+            <input id="searchInput" type="text" placeholder="Select Variables">
+          </div>
+          <div id="searchResults"></div>
+          <div id="selectedVariables"></div>
+        </div>
+      </div>
+
+      <!-- 右侧：Canvas区域 -->
+      <div id="canvas"></div>
+    </div>
+
+    <!-- SHAZAM按钮 -->
+    <button id="shazamBtn">SHAZAM!</button>
+
+    <!-- 底部区域：分析结果 -->
+    <div class="bottom-section">
+      <!-- 左侧：分析结果 -->
+      <div class="results-panel">
+        <h3>Analysis Results</h3>
+        <div class="table-results">
+          <h4>Pathway Analysis</h4>
+          <table id="pathResultsTable">
+            <thead>
+              <tr>
+                <th>Path</th>
+                <th>Estimate</th>
+                <th>P-value</th>
+                <th>Significance</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="model-fit">
+          <h4>Model Fitting Indices</h4>
+          <div id="modelFitIndices"></div>
+        </div>
+      </div>
+
+      <!-- 右侧：可视化 -->
+      <div class="visual-panel">
+        <h3>Visual Analysis</h3>
+        <div id="visualPlaceholder"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 侧边栏和其他组件 -->
   <nav id="leftSidebar" class="sidebar hidden">
     <h2>Modules</h2>
     <ul>
@@ -23,8 +88,6 @@
       <li><a href="statsmodel.html#visual">Visualization</a></li>
     </ul>
   </nav>
-
-  <!-- 右侧数据预览边栏 -->
   <nav id="rightSidebar" class="sidebar hidden">
     <h2>Data Preview</h2>
     <table id="preview-table">
@@ -39,95 +102,8 @@
       </tbody>
     </table>
   </nav>
-
-  <!-- 左右折叠按钮 -->
   <div id="leftToggle"></div>
   <div id="rightToggle"></div>
-
-  <!-- 主体脚本 -->
-  <script src="js/workspace.js"></script>
-  <a href="index.html" class="quarter-home"></a>
-
-  <!-- 主体内容区域 -->
-  <div class="page-layout">
-    <!-- 顶部区域：模型选择和数据预览 -->
-    <div class="top-section">
-      <!-- 左侧：模型和数据选择 -->
-      <div class="selection-panel">
-        <!-- 模型选择 -->
-        <div class="model-selector">
-          <h2>Select Model</h2>
-          <select>
-            <option value="ARIMA">ARIMA</option>
-            <!-- 其他模型选项 -->
-          </select>
-          <div class="model-info">
-            <!-- 模型描述内容 -->
-          </div>
-        </div>
-
-        <!-- 数据选择 -->
-        <div class="data-selector">
-          <h2>Select Data</h2>
-          <div id="searchContainer">
-            <button id="addNewVarBtn">＋</button>
-            <input id="searchInput" type="text" placeholder="Select Variables">
-          </div>
-          <div id="searchResults"></div>
-          <div id="selectedVariables">
-            <!-- 选中的变量将显示在这里 -->
-          </div>
-        </div>
-      </div>
-
-      <!-- 右侧：数据预览 -->
-      <div class="preview-panel">
-        <h2>Data Preview</h2>
-        <div id="dataPreviewPlaceholder" class="placeholder-stripes">
-          <!-- 未选择数据时显示条纹占位图 -->
-          <span>Please select data to preview</span>
-        </div>
-        <div id="timeSeriesPreview" class="hidden">
-          <!-- 选择数据后显示时间序列预览 -->
-        </div>
-      </div>
-    </div>
-
-    <!-- 底部区域：分析结果 -->
-    <div class="bottom-section">
-      <!-- 分析结果面板 -->
-      <div class="results-panel">
-        <h2>Analysis Results</h2>
-        <div class="results-content">
-          <!-- 表格结果 -->
-          <div class="table-results">
-            <h3>Pathway Analysis</h3>
-            <table id="pathResultsTable">
-              <!-- 表格内容 -->
-            </table>
-          </div>
-          
-          <!-- 模型拟合指标 -->
-          <div class="model-fit">
-            <h3>Model Fitting Indices</h3>
-            <div id="modelFitIndices">
-              <!-- 指标内容 -->
-            </div>
-          </div>
-
-          <!-- 可视化结果 -->
-          <div class="visual-results">
-            <h3>Visual Analysis</h3>
-            <div id="visualPlaceholder">
-              <!-- 可视化内容 -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 反馈组件容器 -->
   <div class="feedback-container">
     <!-- 初始状态下触发器在面板左侧 -->
     <div class="feedback-trigger" id="feedbackTrigger">
@@ -145,7 +121,12 @@
       <!-- 当面板滑出时，触发器会移动到这里并转变为右侧线段 -->
     </div>
   </div>
+  <a href="index.html" class="quarter-home"></a>
 
+  <!-- 状态消息显示区域 -->
+  <div id="statusMessage"></div>
+
+  <!-- 主体脚本 -->
   <script src="js/workspace.js"></script>
 </body>
 </html>
