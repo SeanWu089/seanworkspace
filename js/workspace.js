@@ -872,15 +872,12 @@ function extractVariablesFromCanvas() {
     
     const filePath = localStorage.getItem('uploadedFilePath');
     if (!filePath) {
-      console.error("没有找到上传文件的路径，请先上传文件！");
+    console.error("没有找到上传文件的路径，请先上传文件！");
       alert("请先上传数据文件");
-      return;
+        return;
     }
-    console.log("找到文件路径:", filePath);
 
     try {
-        // 获取当前用户
-        console.log("正在获取用户信息...");
         const { data: { user }, error } = await window.supabaseClient.auth.getUser();
         
         if (error || !user) {
@@ -888,206 +885,187 @@ function extractVariablesFromCanvas() {
             alert("请先登录");
             return;
         }
-        console.log("已获取用户ID:", user.id);
 
-        const payload = {
-            sem_data: semData,
+    const payload = {
+        sem_data: semData,
             file_path: filePath,
             user_id: user.id
-        };
-        
+    };
+    
         console.log("准备发送数据到后端:", payload);
         
-        // 发送请求到后端
-        console.log("发送请求到 http://localhost:1201/sem");
-        fetch('http://localhost:1201/sem', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        })
-        .then(response => {
-            console.log("收到后端响应:", response.status);
+        const response = await fetch('http://localhost:1201/sem', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+        });
+
             if (!response.ok) {
                 throw new Error(`服务器响应错误: ${response.status}`);
             }
-            return response.json();
-        })
-        .then(data => {
-            console.log("Backend response data:", data);
-            
-            // 为测试目的，如果后端没有返回paths，就添加一些模拟数据
-            if (!data.paths || data.paths.length === 0) {
-                console.log("没有找到路径数据，添加测试数据");
-                data.paths = [
-                    { source: "Variable1", target: "Variable2", estimate: 0.75, p_value: 0.001, significance: "***" },
-                    { source: "Variable2", target: "Variable3", estimate: 0.45, p_value: 0.02, significance: "*" }
-                ];
-            }
-            
-            // 更新结果显示
-            updateResults(data);
-        })
-        .catch(err => {
-            console.error("Error sending SEM data: ", err);
-            alert("发送数据失败: " + err.message);
-            
-            // 为测试目的，创建一些模拟数据
-            console.log("生成测试数据用于调试可视化");
-            const testData = {
-                paths: [
-                    { source: "TestVar1", target: "TestVar2", estimate: 0.75, p_value: 0.001, significance: "***" },
-                    { source: "TestVar2", target: "TestVar3", estimate: 0.45, p_value: 0.02, significance: "*" }
-                ],
-                fit_indices: {
-                    "CFI": 0.98,
-                    "RMSEA": 0.03
-                }
-            };
-            updateResults(testData);
-        });
-    } catch (err) {
-        console.error("Error getting user: ", err);
-        alert("获取用户信息失败: " + err.message);
-    }
-  }
-  
-  // 添加一个更新结果的函数
-  function updateResults(data) {
-    // 添加调试日志
-    console.log("Received data from backend:", data);
-    
-    const pathTableBody = document.querySelector('#pathResultsTable tbody');
-    const modelFitDiv = document.getElementById('modelFitIndices');
-    const resultVisualization = document.getElementById('resultVisualization');
+
+        const data = await response.json();
+        console.log("后端返回的数据:", data);
     
     // 更新路径分析表格
-    if (pathTableBody) {
-        pathTableBody.innerHTML = ''; // 清空现有内容
-      
-        if (data.paths && Array.isArray(data.paths)) {
-            data.paths.forEach(row => {
-                const tr = document.createElement('tr');
-      
-                // 添加各列数据
-                const columns = [
-                    { key: 'path_description', format: v => v || '' },
-                    { key: 'estimate', format: v => v !== undefined ? v.toFixed(3) : '' },
-                    { key: 'p_value', format: v => typeof v === 'number' ? v.toFixed(3) : v || '' },
-                    { key: 'significance', format: v => v || '' },
-                    { key: 'notes', format: v => v || '' }
-                ];
-                
-                columns.forEach(col => {
-                    const td = document.createElement('td');
-                    td.textContent = col.format(row[col.key]);
-                    tr.appendChild(td);
-                });
-                
-                pathTableBody.appendChild(tr);
-            });
-        }
-    }
-    
-    // 更新模型拟合指标
-    if (modelFitDiv) {
-        modelFitDiv.innerHTML = ''; // 清空现有内容
+        updatePathTable(data.paths);
         
-        // 使用 fit_indices 而不是 model_fit
-        const fitIndices = data.fit_indices || {};
-        console.log("Fit indices:", fitIndices);
+        // 更新拟合指标
+        updateFitIndices(data.fit_indices);
         
-        if (Object.keys(fitIndices).length === 0) {
-            modelFitDiv.innerHTML = '<p class="no-data">No model fit indices available</p>';
-            return;
-        }
-        
-        Object.entries(fitIndices).forEach(([key, value]) => {
-            const indexDiv = document.createElement('div');
-            indexDiv.className = 'fit-index';
-            
-            const nameDiv = document.createElement('div');
-            nameDiv.className = 'fit-index-name';
-            nameDiv.textContent = key;
-            
-            const valueDiv = document.createElement('div');
-            valueDiv.className = 'fit-index-value';
-            valueDiv.textContent = typeof value === 'number' ? value.toFixed(3) : value;
-            
-            indexDiv.appendChild(nameDiv);
-            indexDiv.appendChild(valueDiv);
-            modelFitDiv.appendChild(indexDiv);
-        });
-    } else {
-        console.error("Model fit indices container not found!");
-    }
+        // 更新可视化图表
+        updateVisualization(data.paths);
 
-    // 完全硬编码一个超级简单的可视化测试
-    if (resultVisualization) {
-        console.log("Testing basic HTML rendering instead of SVG...");
-        
-        // 清空容器
-        resultVisualization.innerHTML = '';
-        
-        // 强制设置样式，确保容器可见
-        resultVisualization.style.width = '100%';
-        resultVisualization.style.height = '400px';
-        resultVisualization.style.border = '3px solid red';
-        resultVisualization.style.background = '#f0f0f0';
-        resultVisualization.style.position = 'relative';
-        resultVisualization.style.overflow = 'visible';
-        
-        // 使用纯HTML和CSS创建节点和连线
-        resultVisualization.innerHTML = `
-            <div style="position:absolute; width:100%; height:100%; padding:20px;">
-                <!-- 节点A -->
-                <div style="position:absolute; left:100px; top:150px; width:80px; height:80px; background:white; 
-                            border:2px solid black; border-radius:50%; display:flex; align-items:center; 
-                            justify-content:center; font-weight:bold;">
-                    Node A
-                </div>
-                
-                <!-- 节点B -->
-                <div style="position:absolute; left:300px; top:150px; width:80px; height:80px; background:white; 
-                            border:2px solid black; border-radius:50%; display:flex; align-items:center; 
-                            justify-content:center; font-weight:bold;">
-                    Node B
-                </div>
-                
-                <!-- 连线 (简化版本) -->
-                <div style="position:absolute; left:180px; top:190px; width:120px; height:2px; background:black;"></div>
-                
-                <!-- 系数标签 -->
-                <div style="position:absolute; left:220px; top:170px; background:white; padding:2px 5px; 
-                            font-size:12px; border:1px solid #ddd;">
-                    0.75
-                </div>
-                
-                <!-- 箭头 (简化版本) -->
-                <div style="position:absolute; left:290px; top:183px; width:0; height:0; 
-                            border-top:8px solid transparent; border-bottom:8px solid transparent;
-                            border-left:12px solid black;"></div>
-            </div>
-        `;
-        
-        console.log("Added HTML-based diagram");
-    } else {
-        console.error("Result visualization container not found!");
-    }
-    
-    // 修改滚动逻辑：使用 .bottom-section 而不是 resultsSection
-    const bottomSection = document.querySelector('.bottom-section');
-    if (bottomSection) {
-        bottomSection.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
-        });
-    } else {
-        console.warn("Bottom section not found in the DOM");
+    } catch (err) {
+        console.error("Error:", err);
+        alert("处理失败: " + err.message);
     }
   }
   
+  function updatePathTable(paths) {
+    const tbody = document.querySelector('#pathResultsTable tbody');
+    if (!tbody) return;
+    
+    // 修改表格容器样式
+    const table = document.querySelector('#pathResultsTable');
+    table.style.fontSize = '14px';     // 减小字体
+    table.style.width = '90%';         // 稍微收窄表格
+    table.style.margin = '10px auto';  // 居中对齐
+    
+    tbody.innerHTML = paths.map(path => `
+        <tr>
+            <td style="padding: 6px 10px;">${path.path_description}</td>
+            <td style="padding: 6px 10px;">${path.estimate.toFixed(3)}</td>
+            <td style="padding: 6px 10px;">${path.p_value.toFixed(3)}</td>
+            <td style="padding: 6px 10px;">${path.significance}</td>
+            <td style="padding: 6px 10px;">${path.notes || ''}</td>
+        </tr>
+    `).join('');
+  }
+  
+  function updateFitIndices(indices) {
+    const container = document.getElementById('modelFitIndices');
+    if (!container) return;
+    
+    container.style.fontSize = '14px';  // 减小字体
+    container.style.padding = '10px';   // 减小内边距
+    
+    container.innerHTML = Object.entries(indices).map(([key, value]) => `
+        <div class="fit-index" style="margin: 5px 0;">
+            <div class="fit-index-name" style="display: inline-block; width: 80px;">${key}</div>
+            <div class="fit-index-value" style="display: inline-block;">
+                ${typeof value === 'number' ? value.toFixed(3) : value}
+            </div>
+        </div>
+    `).join('');
+  }
+  
+  function updateVisualization(paths) {
+    const container = document.getElementById('resultVisualization');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    container.style.position = 'relative';
+    container.style.height = '500px';
+
+    // 获取 canvas 元素信息
+    const canvasElements = getCanvasElements();
+    
+    // 确保有变量才继续
+    if (!canvasElements.variables.length) {
+        console.warn('No variables found in canvas');
+        return;
+    }
+
+    // 计算最小位置（添加安全检查）
+    const minLeft = Math.min(...canvasElements.variables.map(v => v.position.left || 0));
+    const minTop = Math.min(...canvasElements.variables.map(v => v.position.top || 0));
+
+    // 创建 SVG 容器
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('id', 'visualizationSVG');
+    svg.setAttribute('style', 'position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;');
+    container.appendChild(svg);
+
+    // 添加箭头定义
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+    marker.setAttribute('id', 'visualization-arrowhead');
+    marker.setAttribute('markerWidth', '12');
+    marker.setAttribute('markerHeight', '8');
+    marker.setAttribute('refX', '12');
+    marker.setAttribute('refY', '4');
+    marker.setAttribute('orient', 'auto');
+    const markerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    markerPath.setAttribute('d', 'M0,0 L0,8 L12,4 z');
+    markerPath.setAttribute('fill', '#002FA7');
+    marker.appendChild(markerPath);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+
+    // 创建节点
+    canvasElements.variables.forEach(variable => {
+        console.log('Creating node:', variable);  // 调试日志
+        const left = (variable.position.left - minLeft) + 50;
+        const top = (variable.position.top - minTop) + 50;
+        
+        const node = document.createElement('div');
+        node.className = 'visualization-node';
+        node.dataset.property = variable.property;
+        node.dataset.id = variable.id;
+        node.textContent = variable.id;
+        node.style.left = `${left}px`;
+        node.style.top = `${top}px`;
+        container.appendChild(node);
+    });
+
+    // 直接使用 canvas 中的连接信息
+    canvasElements.connections.forEach(conn => {
+        console.log('Processing connection:', conn);  // 调试日志
+        const sourceNode = container.querySelector(`[data-id="${conn.sourceId}"]`);
+        const targetNode = container.querySelector(`[data-id="${conn.targetId}"]`);
+        
+        if (!sourceNode || !targetNode) {
+            console.warn('Could not find nodes for connection:', conn);
+            return;
+        }
+
+        // 计算连接点
+        const sourceCenter = getElementCenter(sourceNode);
+        const targetCenter = getElementCenter(targetNode);
+        const sourceAnchor = getAnchorPoint(sourceNode, targetCenter);
+        const targetAnchor = getAnchorPoint(targetNode, sourceCenter);
+
+        // 创建连接线
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', sourceAnchor.x);
+        line.setAttribute('y1', sourceAnchor.y);
+        line.setAttribute('x2', targetAnchor.x);
+        line.setAttribute('y2', targetAnchor.y);
+        line.setAttribute('stroke', '#002FA7');
+        line.setAttribute('stroke-width', '2');
+        line.setAttribute('marker-end', 'url(#visualization-arrowhead)');
+        svg.appendChild(line);
+
+        // 添加系数标签
+        if (conn.estimate !== undefined) {
+            const labelX = (sourceAnchor.x + targetAnchor.x) / 2;
+            const labelY = (sourceAnchor.y + targetAnchor.y) / 2 - 15;
+            
+            const label = document.createElement('div');
+            label.className = 'connection-coefficient';
+            label.style.left = `${labelX}px`;
+            label.style.top = `${labelY}px`;
+            label.textContent = typeof conn.estimate === 'number' 
+                ? conn.estimate.toFixed(3) 
+                : conn.estimate;
+            container.appendChild(label);
+        }
+    });
+}
+
   const shazamBtn = document.getElementById('shazamBtn');
   if (shazamBtn) {
     shazamBtn.addEventListener('click', function() {
@@ -1556,8 +1534,7 @@ function renderCanvasElementsToVisualization(canvasElements, container) {
     // 设置容器样式
     container.style.position = 'relative';
     container.style.overflow = 'hidden';
-    container.style.background = '#f8f8f8';
-    container.style.border = '2px dashed #ccc';
+    // 删除背景和边框样式，统一在CSS中定义
     
     // 节点尺寸设置
     const nodeWidth = 160;
@@ -1608,11 +1585,11 @@ function renderCanvasElementsToVisualization(canvasElements, container) {
         
         // 目标节点交点计算
         if (Math.abs(dx) * nodeHeight > Math.abs(dy) * nodeWidth) {
-            endX = targetX + (dx > 0 ? -nodeWidth/2 : nodeWidth/2);
+            endX = targetX + (dx > 0 ? -nodeWidth/2 - 6 : nodeWidth/2 + 6); // 增加偏移量，让箭头停在边框外
             endY = targetY + (-dy * nodeWidth/2) / Math.abs(dx);
         } else {
             endX = targetX + (-dx * nodeHeight/2) / Math.abs(dy);
-            endY = targetY + (dy > 0 ? -nodeHeight/2 : nodeHeight/2);
+            endY = targetY + (dy > 0 ? -nodeHeight/2 - 6 : nodeHeight/2 + 6); // 增加偏移量，让箭头停在边框外
         }
         
         console.log(`连接线 #${index} 计算结果: 起点(${startX}, ${startY}), 终点(${endX}, ${endY})`);
@@ -1655,11 +1632,10 @@ function renderCanvasElementsToVisualization(canvasElements, container) {
         // 如果有系数，添加标签
         if (conn.estimate !== undefined) {
             const labelX = (startX + endX) / 2;
-            const labelY = (startY + endY) / 2 - 10;
+            const labelY = (startY + endY) / 2;
             
             const label = document.createElement('div');
-            label.className = 'connection-label';
-            label.style.position = 'absolute';
+            label.className = 'connection-coefficient';
             label.style.left = `${labelX}px`;
             label.style.top = `${labelY}px`;
             label.style.transform = 'translate(-50%, -50%)';
@@ -1726,6 +1702,62 @@ function renderCanvasElementsToVisualization(canvasElements, container) {
     }, 100);
     
     console.log('可视化渲染完成');
+
+    // 渲染连接线和系数
+    canvasElements.connections.forEach(connection => {
+        const sourceNode = document.querySelector(`[data-id="${connection.source}"]`);
+        const targetNode = document.querySelector(`[data-id="${connection.target}"]`);
+        
+        if (sourceNode && targetNode) {
+            // 创建连接线
+            const line = document.createElement('div');
+            line.className = 'connection-line';
+            
+            // 计算连接线位置和角度
+            const sourceRect = sourceNode.getBoundingClientRect();
+            const targetRect = targetNode.getBoundingClientRect();
+            const startX = sourceRect.left + sourceRect.width / 2;
+            const startY = sourceRect.top + sourceRect.height / 2;
+            const endX = targetRect.left + targetRect.width / 2;
+            const endY = targetRect.top + targetRect.height / 2;
+            
+            // 创建系数标签
+            const label = document.createElement('div');
+            label.className = 'connection-coefficient';
+            
+            // 从connection.estimate获取系数值和显著性
+            const estimate = connection.estimate || 0;
+            const pValue = connection.pValue;
+            
+            // 添加显著性标记
+            let significance = '';
+            if (pValue < 0.001) significance = '***';
+            else if (pValue < 0.01) significance = '**';
+            else if (pValue < 0.05) significance = '*';
+            
+            // 格式化系数显示
+            label.textContent = `${estimate.toFixed(3)}${significance}`;
+            
+            // 设置标签位置 - 在线段中间偏上
+            const midX = (startX + endX) / 2;
+            const midY = (startY + endY) / 2 - 15; // 向上偏移15px
+            
+            label.style.left = `${midX}px`;
+            label.style.top = `${midY}px`;
+            
+            // 设置样式
+            label.style.position = 'absolute';
+            label.style.transform = 'translate(-50%, -50%)';
+            label.style.backgroundColor = 'white';
+            label.style.padding = '2px 4px';
+            label.style.fontSize = '12px';
+            label.style.fontFamily = 'Arial';
+            label.style.zIndex = '4';
+            
+            container.appendChild(line);
+            container.appendChild(label);
+        }
+    });
 }
 
 // 新增函数：打印canvas中所有元素的位置信息
@@ -1796,24 +1828,20 @@ function printCanvasElementPositions() {
             console.log(`变量元素 #${index + 1}:`, {
                 id: elem.dataset.id || '未知ID',
                 property: elem.dataset.property || '未知类型',
-                // 元素在页面中的绝对位置
                 absolutePosition: {
                     left: elemRect.left,
                     top: elemRect.top,
                     width: elemRect.width,
                     height: elemRect.height
                 },
-                // 元素在style中定义的位置
                 stylePosition: {
                     left: elemLeft,
                     top: elemTop
                 },
-                // 考虑平移和缩放后的相对位置
                 canvasPosition: {
                     x: canvasRelativeX,
                     y: canvasRelativeY
                 },
-                // 原始位置
                 originalPosition: {
                     x: elemLeft,
                     y: elemTop
