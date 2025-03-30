@@ -218,14 +218,14 @@ document.addEventListener('DOMContentLoaded', function () {
         let defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
         let marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
         marker.setAttribute('id', 'arrowhead');
-        marker.setAttribute('markerWidth', '12');   // 更大的箭头
-        marker.setAttribute('markerHeight', '8');
-        marker.setAttribute('refX', '12');
-        marker.setAttribute('refY', '4');
+        marker.setAttribute('markerWidth', '8');   // 改小箭头
+        marker.setAttribute('markerHeight', '6');   // 改小箭头
+        marker.setAttribute('refX', '8');          // 调整参考点
+        marker.setAttribute('refY', '3');          // 调整参考点
         marker.setAttribute('orient', 'auto');
         let markerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        markerPath.setAttribute('d', 'M0,0 L0,8 L12,4 z');
-        markerPath.setAttribute('fill', '#002FA7');  // 主题蓝色箭头
+        markerPath.setAttribute('d', 'M0,0 L0,6 L8,3 z');  // 调整箭头路径
+        markerPath.setAttribute('fill', '#000000');  // 改为黑色
         marker.appendChild(markerPath);
         defs.appendChild(marker);
         arrowSVG.appendChild(defs);
@@ -235,11 +235,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 辅助函数：获取元素中心
     function getElementCenter(elem) {
-        const left = parseFloat(elem.style.left) || 0;
-        const top = parseFloat(elem.style.top) || 0;
-        const width = elem.offsetWidth;
-        const height = elem.offsetHeight;
-        return { x: left + width / 2, y: top + height / 2 };
+        try {
+            if (!elem) {
+                throw new Error('Element is null or undefined');
+            }
+            
+            const rect = elem.getBoundingClientRect();
+            const containerRect = elem.parentElement.getBoundingClientRect();
+            
+            return {
+                x: rect.left - containerRect.left + rect.width / 2,
+                y: rect.top - containerRect.top + rect.height / 2
+            };
+        } catch (error) {
+            logError('Failed to get element center', error);
+            return { x: 0, y: 0 }; // 返回默认值而不是抛出错误
+        }
     }
     // 辅助函数：计算两点之间的欧几里得距离
     function distance(a, b) {
@@ -247,20 +258,52 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     // 新增辅助函数：计算元素边框上最靠近另一元素的点
     function getAnchorPoint(elem, otherCenter) {
-        const left = parseFloat(elem.style.left) || 0;
-        const top = parseFloat(elem.style.top) || 0;
-        const width = elem.offsetWidth;
-        const height = elem.offsetHeight;
-        const cx = left + width / 2;
-        const cy = top + height / 2;
-        const dx = otherCenter.x - cx;
-        const dy = otherCenter.y - cy;
-        const hw = width / 2;
-        const hh = height / 2;
-        let scaleX = dx !== 0 ? hw / Math.abs(dx) : Infinity;
-        let scaleY = dy !== 0 ? hh / Math.abs(dy) : Infinity;
-        let scale = Math.min(scaleX, scaleY);
-        return { x: cx + dx * scale, y: cy + dy * scale };
+        try {
+            if (!elem || !otherCenter) {
+                throw new Error('Missing required parameters');
+            }
+            
+            const rect = elem.getBoundingClientRect();
+            const containerRect = elem.parentElement.getBoundingClientRect();
+            
+            // 计算元素中心点（相对于容器）
+            const cx = rect.left - containerRect.left + rect.width / 2;
+            const cy = rect.top - containerRect.top + rect.height / 2;
+            
+            // 计算方向向量
+            const dx = otherCenter.x - cx;
+            const dy = otherCenter.y - cy;
+            
+            // 防止除以零
+            if (dx === 0 && dy === 0) {
+                return { x: cx, y: cy };
+            }
+            
+            // 计算与边界的交点
+            const angle = Math.atan2(dy, dx);
+            const hw = rect.width / 2;
+            const hh = rect.height / 2;
+            
+            // 计算交点
+            let x, y;
+            const absCosTh = Math.abs(Math.cos(angle));
+            const absSinTh = Math.abs(Math.sin(angle));
+            
+            if (hw * absSinTh <= hh * absCosTh) {
+                // 与垂直边界相交
+                x = cx + (dx >= 0 ? hw : -hw);
+                y = cy + dy * (hw / Math.abs(dx));
+            } else {
+                // 与水平边界相交
+                x = cx + dx * (hh / Math.abs(dy));
+                y = cy + (dy >= 0 ? hh : -hh);
+            }
+            
+            return { x, y };
+        } catch (error) {
+            logError('Failed to get anchor point', error);
+            return { x: 0, y: 0 }; // 返回默认值而不是抛出错误
+        }
     }
     
     // 根据变量属性规则确定箭头方向（返回 source、target 及 rule 信息），不满足条件返回 null
@@ -695,8 +738,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 line.setAttribute('y1', sourceAnchor.y);
                 line.setAttribute('x2', targetAnchor.x);
                 line.setAttribute('y2', targetAnchor.y);
-                line.setAttribute('stroke', '#002FA7');     // 主题蓝色线条
-                line.setAttribute('stroke-width', '2');     // 更粗的线条
+                line.setAttribute('stroke', '#000000');     // 改为黑色
+                line.setAttribute('stroke-width', '2');     // 保持线宽不变
                 line.setAttribute('marker-end', 'url(#arrowhead)');
                 line.dataset.rule = arrowInfo.rule;
                 // 使该线条能接收鼠标事件（覆盖父级 pointer-events:none）
@@ -962,109 +1005,191 @@ function extractVariablesFromCanvas() {
     `).join('');
   }
   
+  // 添加错误处理和日志记录函数
+  function logError(message, error = null) {
+      console.error(`[SEM Visualization Error] ${message}`, error);
+  }
+
+  function logWarning(message) {
+      console.warn(`[SEM Visualization Warning] ${message}`);
+  }
+
+  function logInfo(message) {
+      console.log(`[SEM Visualization Info] ${message}`);
+  }
+
+  // 修改 updateVisualization 函数开头添加错误处理
   function updateVisualization(paths) {
-    const container = document.getElementById('resultVisualization');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    container.style.position = 'relative';
-    container.style.height = '500px';
+      try {
+          const container = document.getElementById('resultVisualization');
+          if (!container) {
+              throw new Error('Visualization container not found');
+          }
+          
+          logInfo('Starting visualization update');
+          container.innerHTML = '';
+          container.style.position = 'relative';
+          container.style.height = '500px';
 
-    // 获取 canvas 元素信息
-    const canvasElements = getCanvasElements();
-    
-    // 确保有变量才继续
-    if (!canvasElements.variables.length) {
-        console.warn('No variables found in canvas');
-        return;
-    }
+          // 获取 canvas 中的元素信息
+          const canvasElements = getCanvasElements();
+          if (!canvasElements.variables.length) {
+              logWarning('No variables found in canvas');
+              container.innerHTML = '<div class="empty-state"><p>No variables to visualize</p></div>';
+              return;
+          }
 
-    // 计算最小位置（添加安全检查）
-    const minLeft = Math.min(...canvasElements.variables.map(v => v.position.left || 0));
-    const minTop = Math.min(...canvasElements.variables.map(v => v.position.top || 0));
+          logInfo(`Found ${canvasElements.variables.length} variables and ${canvasElements.connections.length} connections`);
 
-    // 创建 SVG 容器
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('id', 'visualizationSVG');
-    svg.setAttribute('style', 'position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;');
-    container.appendChild(svg);
+          // 创建 SVG 容器
+          const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          svg.setAttribute('id', 'visualizationSVG');
+          svg.setAttribute('style', 'position:absolute; top:0; left:0; width:100%; height:100%;');
+          container.appendChild(svg);
 
-    // 添加箭头定义
-    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-    const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
-    marker.setAttribute('id', 'visualization-arrowhead');
-    marker.setAttribute('markerWidth', '12');
-    marker.setAttribute('markerHeight', '8');
-    marker.setAttribute('refX', '12');
-    marker.setAttribute('refY', '4');
-    marker.setAttribute('orient', 'auto');
-    const markerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    markerPath.setAttribute('d', 'M0,0 L0,8 L12,4 z');
-    markerPath.setAttribute('fill', '#002FA7');
-    marker.appendChild(markerPath);
-    defs.appendChild(marker);
-    svg.appendChild(defs);
+          // 添加箭头定义
+          const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+          const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+          marker.setAttribute('id', 'visualization-arrowhead');
+          marker.setAttribute('markerWidth', '8');
+          marker.setAttribute('markerHeight', '6');
+          marker.setAttribute('refX', '8');
+          marker.setAttribute('refY', '3');
+          marker.setAttribute('orient', 'auto');
+          const markerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          markerPath.setAttribute('d', 'M0,0 L0,6 L8,3 z');
+          markerPath.setAttribute('fill', '#000000');
+          marker.appendChild(markerPath);
+          defs.appendChild(marker);
+          svg.appendChild(defs);
 
-    // 创建节点
-    canvasElements.variables.forEach(variable => {
-        console.log('Creating node:', variable);  // 调试日志
-        const left = (variable.position.left - minLeft) + 50;
-        const top = (variable.position.top - minTop) + 50;
-        
-        const node = document.createElement('div');
-        node.className = 'visualization-node';
-        node.dataset.property = variable.property;
-        node.dataset.id = variable.id;
-        node.textContent = variable.id;
-        node.style.left = `${left}px`;
-        node.style.top = `${top}px`;
-        container.appendChild(node);
-    });
+          // 计算布局位置
+          const minLeft = Math.min(...canvasElements.variables.map(v => v.position.left || 0));
+          const minTop = Math.min(...canvasElements.variables.map(v => v.position.top || 0));
+          const padding = 50; // 添加一些内边距
 
-    // 直接使用 canvas 中的连接信息
-    canvasElements.connections.forEach(conn => {
-        console.log('Processing connection:', conn);  // 调试日志
-        const sourceNode = container.querySelector(`[data-id="${conn.sourceId}"]`);
-        const targetNode = container.querySelector(`[data-id="${conn.targetId}"]`);
-        
-        if (!sourceNode || !targetNode) {
-            console.warn('Could not find nodes for connection:', conn);
-            return;
-        }
+          // 创建节点
+          const nodes = new Map(); // 用于存储节点引用
+          canvasElements.variables.forEach(variable => {
+              const left = (variable.position.left - minLeft) + padding;
+              const top = (variable.position.top - minTop) + padding;
+              
+              const node = document.createElement('div');
+              node.className = 'visualization-node';
+              node.dataset.id = variable.id;
+              node.dataset.property = variable.property;
+              node.textContent = variable.id;
+              node.style.left = `${left}px`;
+              node.style.top = `${top}px`;
+              container.appendChild(node);
+              nodes.set(variable.id, node); // 存储节点引用
+          });
 
-        // 计算连接点
-        const sourceCenter = getElementCenter(sourceNode);
-        const targetCenter = getElementCenter(targetNode);
-        const sourceAnchor = getAnchorPoint(sourceNode, targetCenter);
-        const targetAnchor = getAnchorPoint(targetNode, sourceCenter);
+          // 创建连接
+          canvasElements.connections.forEach(conn => {
+              const sourceNode = nodes.get(conn.sourceId);
+              const targetNode = nodes.get(conn.targetId);
+              
+              if (!sourceNode || !targetNode) {
+                  console.warn(`Could not find nodes for connection: ${conn.sourceId} -> ${conn.targetId}`);
+                  return;
+              }
 
-        // 创建连接线
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', sourceAnchor.x);
-        line.setAttribute('y1', sourceAnchor.y);
-        line.setAttribute('x2', targetAnchor.x);
-        line.setAttribute('y2', targetAnchor.y);
-        line.setAttribute('stroke', '#002FA7');
-        line.setAttribute('stroke-width', '2');
-        line.setAttribute('marker-end', 'url(#visualization-arrowhead)');
-        svg.appendChild(line);
+              // 获取节点位置和尺寸
+              const sourceRect = sourceNode.getBoundingClientRect();
+              const targetRect = targetNode.getBoundingClientRect();
+              const containerRect = container.getBoundingClientRect();
 
-        // 添加系数标签
-        if (conn.estimate !== undefined) {
-            const labelX = (sourceAnchor.x + targetAnchor.x) / 2;
-            const labelY = (sourceAnchor.y + targetAnchor.y) / 2 - 15;
-            
-            const label = document.createElement('div');
-            label.className = 'connection-coefficient';
-            label.style.left = `${labelX}px`;
-            label.style.top = `${labelY}px`;
-            label.textContent = typeof conn.estimate === 'number' 
-                ? conn.estimate.toFixed(3) 
-                : conn.estimate;
-            container.appendChild(label);
-        }
-    });
-}
+              // 计算相对于容器的位置
+              const sourceCenter = {
+                  x: sourceRect.left - containerRect.left + sourceRect.width / 2,
+                  y: sourceRect.top - containerRect.top + sourceRect.height / 2
+              };
+              const targetCenter = {
+                  x: targetRect.left - containerRect.left + targetRect.width / 2,
+                  y: targetRect.top - containerRect.top + targetRect.height / 2
+              };
+
+              // 计算连接点
+              const sourceAnchor = getAnchorPoint(sourceNode, targetCenter);
+              const targetAnchor = getAnchorPoint(targetNode, sourceCenter);
+
+              // 创建连接线
+              const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+              line.setAttribute('x1', sourceAnchor.x);
+              line.setAttribute('y1', sourceAnchor.y);
+              line.setAttribute('x2', targetAnchor.x);
+              line.setAttribute('y2', targetAnchor.y);
+              line.setAttribute('stroke', '#000000');
+              line.setAttribute('stroke-width', '2');
+              line.setAttribute('marker-end', 'url(#visualization-arrowhead)');
+              svg.appendChild(line);
+
+              // 如果有路径信息，添加系数标签
+              if (paths) {
+                  const pathInfo = paths.find(p => 
+                      p.path_description.includes(conn.sourceId) && 
+                      p.path_description.includes(conn.targetId)
+                  );
+                  
+                  if (pathInfo) {
+                      // 计算箭头的角度
+                      const dx = targetAnchor.x - sourceAnchor.x;
+                      const dy = targetAnchor.y - sourceAnchor.y;
+                      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                      
+                      // 计算垂直偏移量，根据箭头角度动态调整
+                      // 当箭头接近水平时使用较小的偏移，当箭头较倾斜时使用较大的偏移
+                      const baseOffset = 15;  // 基础偏移量
+                      const angleAbs = Math.abs(angle);
+                      const dynamicOffset = baseOffset + (angleAbs > 30 ? 10 : 0);  // 当角度大于30度时增加偏移
+                      
+                      // 计算标签位置，使用动态偏移
+                      const labelX = (sourceAnchor.x + targetAnchor.x) / 2;
+                      const labelY = (sourceAnchor.y + targetAnchor.y) / 2;
+                      
+                      // 根据箭头方向计算垂直偏移
+                      const perpX = -dy / Math.sqrt(dx * dx + dy * dy) * dynamicOffset;
+                      const perpY = dx / Math.sqrt(dx * dx + dy * dy) * dynamicOffset;
+                      
+                      const label = document.createElement('div');
+                      label.className = 'connection-coefficient';
+                      label.style.position = 'absolute';
+                      label.style.left = `${labelX + perpX}px`;
+                      label.style.top = `${labelY + perpY}px`;
+                      label.style.transform = 'translate(-50%, -50%)';
+                      label.style.backgroundColor = 'transparent';  // 设置背景为透明
+                      label.style.padding = '2px 4px';
+                      label.style.borderRadius = '3px';
+                      label.style.fontSize = '12px';
+                      label.style.fontFamily = 'Arial';
+                      label.style.whiteSpace = 'nowrap';  // 防止数字换行
+                      label.style.textShadow = '1px 1px 2px white, -1px -1px 2px white, 1px -1px 2px white, -1px 1px 2px white';  // 添加白色文字阴影来增加可读性
+                      
+                      // 添加系数和显著性标记
+                      let significance = '';
+                      if (pathInfo.p_value < 0.001) significance = '***';
+                      else if (pathInfo.p_value < 0.01) significance = '**';
+                      else if (pathInfo.p_value < 0.05) significance = '*';
+                      
+                      label.textContent = `${pathInfo.estimate.toFixed(3)}${significance}`;
+                      container.appendChild(label);
+                  }
+              }
+          });
+      } catch (error) {
+          logError('Failed to update visualization', error);
+          const container = document.getElementById('resultVisualization');
+          if (container) {
+              container.innerHTML = `
+                  <div class="error-state">
+                      <p>Failed to create visualization</p>
+                      <p class="error-details">${error.message}</p>
+                  </div>
+              `;
+          }
+      }
+  }
 
   const shazamBtn = document.getElementById('shazamBtn');
   if (shazamBtn) {
@@ -1704,58 +1829,63 @@ function renderCanvasElementsToVisualization(canvasElements, container) {
     console.log('可视化渲染完成');
 
     // 渲染连接线和系数
-    canvasElements.connections.forEach(connection => {
-        const sourceNode = document.querySelector(`[data-id="${connection.source}"]`);
-        const targetNode = document.querySelector(`[data-id="${connection.target}"]`);
+    canvasElements.connections.forEach(conn => {
+        const sourceNode = container.querySelector(`[data-id="${conn.sourceId}"]`);
+        const targetNode = container.querySelector(`[data-id="${conn.targetId}"]`);
         
         if (sourceNode && targetNode) {
+            // 计算源节点和目标节点的中心点
+            const sourceCenter = getElementCenter(sourceNode);
+            const targetCenter = getElementCenter(targetNode);
+            
+            // 计算连接点
+            const sourceAnchor = getAnchorPoint(sourceNode, targetCenter);
+            const targetAnchor = getAnchorPoint(targetNode, sourceCenter);
+
             // 创建连接线
-            const line = document.createElement('div');
-            line.className = 'connection-line';
-            
-            // 计算连接线位置和角度
-            const sourceRect = sourceNode.getBoundingClientRect();
-            const targetRect = targetNode.getBoundingClientRect();
-            const startX = sourceRect.left + sourceRect.width / 2;
-            const startY = sourceRect.top + sourceRect.height / 2;
-            const endX = targetRect.left + targetRect.width / 2;
-            const endY = targetRect.top + targetRect.height / 2;
-            
-            // 创建系数标签
-            const label = document.createElement('div');
-            label.className = 'connection-coefficient';
-            
-            // 从connection.estimate获取系数值和显著性
-            const estimate = connection.estimate || 0;
-            const pValue = connection.pValue;
-            
-            // 添加显著性标记
-            let significance = '';
-            if (pValue < 0.001) significance = '***';
-            else if (pValue < 0.01) significance = '**';
-            else if (pValue < 0.05) significance = '*';
-            
-            // 格式化系数显示
-            label.textContent = `${estimate.toFixed(3)}${significance}`;
-            
-            // 设置标签位置 - 在线段中间偏上
-            const midX = (startX + endX) / 2;
-            const midY = (startY + endY) / 2 - 15; // 向上偏移15px
-            
-            label.style.left = `${midX}px`;
-            label.style.top = `${midY}px`;
-            
-            // 设置样式
-            label.style.position = 'absolute';
-            label.style.transform = 'translate(-50%, -50%)';
-            label.style.backgroundColor = 'white';
-            label.style.padding = '2px 4px';
-            label.style.fontSize = '12px';
-            label.style.fontFamily = 'Arial';
-            label.style.zIndex = '4';
-            
-            container.appendChild(line);
-            container.appendChild(label);
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', sourceAnchor.x);
+            line.setAttribute('y1', sourceAnchor.y);
+            line.setAttribute('x2', targetAnchor.x);
+            line.setAttribute('y2', targetAnchor.y);
+            line.setAttribute('stroke', '#000000');
+            line.setAttribute('stroke-width', '2');
+            line.setAttribute('marker-end', 'url(#visualization-arrowhead)');
+            svg.appendChild(line);
+
+            // 添加系数标签
+            if (conn.estimate !== undefined) {
+                const labelX = (sourceAnchor.x + targetAnchor.x) / 2;
+                const labelY = (sourceAnchor.y + targetAnchor.y) / 2 - 15;
+                
+                const label = document.createElement('div');
+                label.className = 'connection-coefficient';
+                label.style.position = 'absolute';
+                label.style.left = `${labelX}px`;
+                label.style.top = `${labelY}px`;
+                label.style.transform = 'translate(-50%, -50%)';
+                label.style.backgroundColor = 'white';
+                label.style.padding = '2px 4px';
+                label.style.borderRadius = '3px';
+                label.style.fontSize = '12px';
+                label.style.fontFamily = 'Arial';
+                
+                // 从连接对象中获取系数值
+                const estimate = typeof conn.estimate === 'number' 
+                    ? conn.estimate.toFixed(3) 
+                    : conn.estimate;
+                
+                // 如果有 p 值，添加显著性标记
+                let significance = '';
+                if (conn.p_value) {
+                    if (conn.p_value < 0.001) significance = '***';
+                    else if (conn.p_value < 0.01) significance = '**';
+                    else if (conn.p_value < 0.05) significance = '*';
+                }
+                
+                label.textContent = `${estimate}${significance}`;
+                container.appendChild(label);
+            }
         }
     });
 }
