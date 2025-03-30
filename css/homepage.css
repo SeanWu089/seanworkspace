@@ -1,4 +1,10 @@
 /*  >>>> 全局基础  <<<< */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -16,17 +22,19 @@ html, body {
   color: white;
   border: none;
   border-radius: 15px;
-  padding: 12px 30px;
+  padding: 10px 10px;
   font-size: 22px;
   font-family: 'Raleway', sans-serif;
   font-weight: 500;
   transition: all 0.3s ease;
   z-index: 1000;
-  width: 100px;
+  min-width: 100px;  /* 改为最小宽度 */
   height: 48px;
   cursor: pointer;
   align-items: center;
   justify-content: center;
+  text-align: center;  /* 添加文本居中 */
+  white-space: nowrap;  /* 防止文字换行 */
 }
 
 /* 添加登录后的按钮样式 */
@@ -517,6 +525,209 @@ html, body {
     top: 20px;
     right: 20px;
     z-index: 999; /* 确保按钮在侧边栏上面 */
+}
+
+/* About Link Styles */
+.about-link {
+  font-family: 'Dancing Script', cursive !important;
+  font-size: 4.5rem !important;
+  background: linear-gradient(45deg, #87A5E9, #1e4a7b, #002fa7, #4B0082) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-size: 300% !important;
+  animation: gradient 8s ease infinite !important;
+  text-decoration: none !important;
+  transition: all 0.3s ease !important;
+  display: block !important;
+  position: fixed !important;
+  bottom: 50px !important;
+  left: 39px !important;
+  z-index: 100 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  line-height: normal !important;
+  text-shadow: 0 0 20px rgba(135, 165, 233, 0.3) !important;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.about-link:hover {
+  transform: scale(1.1) !important;
+  background-size: 400% !important;
+  text-shadow: 0 0 30px rgba(135, 165, 233, 0.5) !important;
+}
+
+/* About Modal Styles */
+.about-container {
+  position: relative;
+  z-index: 1000;
+  width: 600px;
+  max-height: 80vh;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+/* 花朵装饰 */
+.about-container::before {
+  content: '';
+  position: absolute;
+  top: -150px;
+  right: -160px;
+  width: 500px;
+  height: 500px;
+  background: url('../media/images/daisy.png') no-repeat center center;
+  background-size: contain;
+  z-index: 0;
+  opacity: 0.75;
+}
+
+.about-header {
+  padding: 25px 30px;
+  background: transparent;
+  border-bottom: 1px solid rgba(238, 238, 238, 0.5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.about-header h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin: 0;
+  background: linear-gradient(45deg, #87A5E9, #1e4a7b, #002fa7, #4B0082);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 300%;
+  animation: gradient 8s ease infinite;
+  position: relative;
+  z-index: 1;
+}
+
+.about-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #87A5E9;
+  cursor: pointer;
+  padding: 0 10px;
+  transition: all 0.3s ease;
+}
+
+.about-close:hover {
+  color: #1e4a7b;
+  transform: rotate(90deg);
+}
+
+.about-content {
+  padding: 35px;
+  overflow-y: auto;
+}
+
+.about-section {
+  margin-bottom: 35px;
+  position: relative;
+}
+
+.about-section:last-child {
+  margin-bottom: 0;
+}
+
+.about-section h3 {
+  /* font-family: 'Montserrat', sans-serif; */
+  font-weight: 600;
+  color: #1e4a7b;
+  margin-bottom: 20px;
+  font-size: 24px;
+  letter-spacing: 0.5px;
+}
+
+.about-section h4 {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(45deg, #87A5E9, #1e4a7b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 20px 0 15px;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.about-section p {
+  font-family: 'Alice', serif;
+  color: #555;
+  line-height: 1.8;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.about-section ul {
+  list-style-type: none;
+  padding-left: 25px;
+  font-family: 'Raleway', sans-serif;
+}
+
+.about-section ul li {
+  color: #555;
+  margin-bottom: 12px;
+  position: relative;
+  font-size: 15px;
+  line-height: 1.6;
+  padding-left: 5px;
+  transition: all 0.3s ease;
+}
+
+.about-section ul li:before {
+  content: "•";
+  color: #87A5E9;
+  position: absolute;
+  left: -20px;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.about-section ul li:hover {
+  transform: translateX(5px);
+  color: #1e4a7b;
+}
+
+/* Version number special styling */
+.about-section p:has(+ h4) {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  color: #1e4a7b;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+/* 删除之前的花蕊样式，因为图片中已经包含了 */
+.flower-center {
+  display: none;
+}
+
+/* 修改 Why we built this 部分的字体 */
+.about-section:last-child p {
+  font-family: 'Times New Roman', SimSun, serif;
+  color: #555;
+  line-height: 1.8;
+  margin-bottom: 20px;
+  font-size: 10px;
 }
 
 

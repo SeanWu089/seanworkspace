@@ -5,37 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sean's Holistic Workspace - Home</title>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Raleway:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Bubblegum+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Alice:wght@300;400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/homepage.css"/>
+  
   <link rel="stylesheet" href="css/sidebars.css"/>
+  <link rel="stylesheet" href="css/homepage.css"/>
   <!-- 修改脚本加载顺序，与 StatsTools.html 保持一致 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="js/supabase-config.js"></script>
-  <script src="js/sidebars.js" defer></script>
-  <script src="js/homepage.js" defer></script>
-  <style>
-    /* 覆盖箭头位置样式 */
-    #leftSidebar.show ~ #leftToggle {
-      left: 230px !important;
-    }
-    
-    #rightSidebar.show ~ #rightToggle {
-      right: 290px !important;
-    }
-    
-    #rightSidebar.expanded.show ~ #rightToggle {
-      right: calc(66vw - 10px) !important;
-    }
-    
-    /* 确保基本位置正确 */
-    #leftToggle {
-      left: 2px !important;
-    }
-    
-    #rightToggle {
-      right: 2px !important;
-    }
-  </style>
+  <script src="js/sidebars.js"></script>
+  <script src="js/homepage.js"></script>
 </head>
 <body>
   <div class="auth-buttons">
@@ -50,6 +28,7 @@
       <li><a href="StatsTools.html">Statistic Tools</a></li>
       <li><a href="FinancialModels.html">Financial Models</a></li>
       <li><a href="statsmodel.html#visual">Visualization</a></li>
+      <li><a href="#" id="about-link" class="about-link">About</a></li>
     </ul>
   </nav>
 
@@ -205,6 +184,52 @@
                 </div>
             </form>
         </div>
+    </div>
+  </div>
+
+  <!-- About Modal -->
+  <div id="about-modal" class="modal-wrapper">
+    <div class="auth-overlay"></div>
+    <div class="about-container">
+      <div class="about-header">
+        <h2>About Sean's Holistic Workspace</h2>
+        <button class="about-close" aria-label="Close about modal">&times;</button>
+      </div>
+      <div class="about-content">
+        <div class="about-section">
+          <h3>Our Mission</h3>
+          <p>Hey there! 👋 Welcome to Sean's Holistic Workspace - your one-stop-shop for all things data (for now)! We're here to turn those scary-looking statistical models into your new best mates. Think of us as your friendly neighborhood data whisperer, making complex stuff actually fun to use! ✨</p>
+
+          <p>Oh! And also, since this is called a <strong>Holistic</strong> Workspace, there will be more than just data tools. The next thing I would like to build is something that evolves with voice and stories (maybe or maybe not) and some footprints, I guess. Let's see!</p>
+
+          <p>You can always reach me at <a href="mailto:swu089@gmail.com" class="email-link">swu089@gmail.com</a>. <strong>Tell me</strong> if there are some bugs to be fixed; <em>Tell me</em> about how to improve your experiences; And <strong><em>PLEASE</em></strong> do tell me what you think would be fun to use easily on a website. If I also find it appealing, I will try my best to make it come true.</p>
+        </div>
+        <div class="about-section">
+          <h3>Current Version</h3>
+          <p>Version 2.0.0</p>
+          <h4>Latest Updates:</h4>
+          <ul>
+            <li>Finally! You can now sign up and keep track of your files - say goodbye to those "where did I save that?" moments</li>
+            <li>Leveled up our Financial Module with some time-traveling powers (okay, just time series modeling, but still cool)</li>
+            <li>Sean's Assistant got a brain upgrade with RAG superpowers and the ability to switch between different personalities</li>
+            <li>Right sidebar earned its PhD - now showing off with comprehensive variable information</li>
+            <li>Path analysis page got a makeover with prettier layouts and shiny new path visualizations</li>
+          </ul>
+          <h4>Previous Version (1.0.0):</h4>
+          <ul>
+            <li>Started our journey with SEM (Structural Equation Modeling)</li>
+            <li>Basic chatbot capabilities (before all the cool upgrades)</li>
+          </ul>
+        </div>
+        <div class="about-section">
+          <h3>Why We Built This</h3>
+          <p>Why? To save everyone, including myself, from configuring anything. Learning to code, debugging, and adjusting each and every detail is always a lot of pain in the *** 😕. Sometimes we even have to do repetitive work, such as running the same models all over again on a different dataset. NOOOOOOO! Screw that! Simply come and upload and click and click. There you go! You can just put the table or the graph into your paper, your report. Welcome!</p>
+
+          <p>If you haven't finished reading and don't want to deal with your tasks yet, I actually started it all just because of my mom. She is also a researcher and she struggled to run those statistical analyses that she wasn't familiar with. I tried to show her what she could find out during the process of coding, how Python is amazingly powerful and easy to understand and use. I guess she is just always too busy with her studies and couldn't spare some time exploring 😋. But now I hope she will have more time finding out some fun stuff, and not lose more of her hair 😕.</p>
+
+          <p>And of course, I wish the same and I wish the best for everyone who might need to use the website, or who is already using it, no matter if you are doing research or what. Greetings and regards. Sean, your faithful assistant, your son and your friend 🫡.</p>
+        </div>
+      </div>
     </div>
   </div>
 

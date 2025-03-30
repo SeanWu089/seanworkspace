@@ -30,6 +30,33 @@
   </nav>
   <div id="leftToggle" class="sidebar-toggle" aria-label="Toggle left sidebar"></div>
 
+  <!-- 右侧边栏 -->
+  <nav id="rightSidebar" class="sidebar">
+    <div class="sidebar-header">
+      <h2>Data Preview</h2>
+      <button class="preview-close" aria-label="Close preview">&times;</button>
+    </div>
+    <div id="preview-empty-state" class="empty-state">
+      <p>No data preview available</p>
+      <button id="selectFileBtn" class="select-data-btn">Select Data File</button>
+    </div>
+    <div id="preview-content" style="display: none;">
+      <table id="preview-table" class="preview-table">
+        <thead>
+          <tr>
+            <th>Column Name</th>
+            <th>Data Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 数据将通过 JavaScript 动态添加 -->
+        </tbody>
+      </table>
+      <button id="clearPreviewBtn" class="clear-preview-btn">Clear Preview</button>
+    </div>
+  </nav>
+  <div id="rightToggle" class="sidebar-toggle" aria-label="Toggle right sidebar"></div>
+
   <!-- 主页图标链接 -->
   <a href="index.html" class="home-button">
     <i class="fas fa-home"></i>

@@ -6,6 +6,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Tinos:wght@300;400;700&family=Asap:wght@300;400;700&family=Raleway:wght@300;400;700&family=Alice:wght@300;400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/statstools.css">
   <link rel="stylesheet" href="css/sidebars.css">
+  <link rel="stylesheet" href="css/assistant.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -111,6 +112,7 @@
     <h2>Modules</h2>
     <ul>
       <li><a href="StatsTools.html">Statistic Tools</a></li>
+      <li><a href="FinancialModels.html">Financial Models</a></li>
       <li><a href="statsmodel.html#visual">Visualization</a></li>
     </ul>
   </nav>
@@ -140,30 +142,67 @@
   </nav>
   <div id="rightToggle" class="sidebar-toggle" aria-label="Toggle right sidebar"></div>
 
-  <!-- Assistant部分保持不变 -->
+  <!-- 添加悬浮助手 -->
   <div id="assistant-container" class="assistant-container">
-    <!-- 聊天小圆圈（收起状态） -->
     <div class="assistant-icon">
       <img src="media/images/sean.PNG" alt="Assistant Icon" style="width:100%; height:100%; object-fit:cover;">
     </div>
     
-    
-    <!-- 聊天窗口（展开状态） -->
     <div class="chat-window">
-      <div class="chat-header">
-        <h3>Your Helpful Assistant</h3>
-        <button type="button" class="close-btn">&times;</button>
+      <div class="files-trigger">
+        <i class="fas fa-folder"></i>
+      </div>
+      <div class="files-panel">
+        <div class="files-list">
+          <!-- 文件列表将通过 JavaScript 动态添加 -->
+        </div>
+        <button type="button" class="files-done">Done</button>
       </div>
       
-      <div id="chat-history" class="chat-history">
-        <!-- 聊天历史记录将在这里动态添加 -->
-        <div class="message assistant">Hola! I'm Sean, your helpful statistics assistant. Can't wait to fill in some models!</div>
+      <div class="lever-container">
+        <!-- 拉杆移到外层容器 -->
+        <div class="mode-switch">
+          <div class="lever-base">
+            <div class="lever-handle">
+              <div class="lever-stick"></div>
+              <div class="lever-ball"></div>
+            </div>
+          </div>
+        </div>
       </div>
-      
-      <form id="chat-form" class="chat-form">
-        <input type="text" id="user-input" placeholder="Input here..." autocomplete="off">
-        <button type="submit">Send</button>
-      </form>
+      <div class="chat-content">
+        <div class="chat-header">
+          <h3>Your Helpful Assistant</h3>
+          <button type="button" class="close-btn">&times;</button>
+        </div>
+        <div id="chat-history" class="chat-history">
+          <div class="message assistant">Hola! I'm Sean, your helpful statistics assistant. Can't wait to fill in some models!</div>
+        </div>
+        <!-- 确保进度条容器在这里 -->
+        <div class="progress-container" style="display: none;">
+          <div class="progress-text">Processing: Files 0/0 Trunks 0/0</div>
+          <div class="progress-bar-container">
+            <div class="progress-bar"></div>
+          </div>
+        </div>
+        <form id="chat-form" class="chat-form">
+          <div class="model-selector">
+            <button type="button" class="model-toggle">
+              <i class="fas fa-caret-down"></i>
+            </button>
+            <div class="model-dropdown">
+              <div class="model-option" data-model="qwen2.5:0.5b">Qwen 2.5 (0.5B)</div>
+              <div class="model-option" data-model="qwen2.5:14b">Qwen 2.5 (14B)</div>
+              <div class="model-option" data-model="qwen2.5:32b">Qwen 2.5 (32B)</div>
+              <div class="model-option" data-model="deepseek-r1:1.5b">DeepSeek R1 (1.5B)</div>
+              <div class="model-option" data-model="deepseek-r1:4b">DeepSeek R1 (4B)</div>
+              <div class="model-option" data-model="deepseek-r1:32b">DeepSeek R1 (32B)</div>
+            </div>
+          </div>
+          <input type="text" id="user-input" placeholder="Input here..." autocomplete="off">
+          <button type="submit">Send</button>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -174,6 +213,7 @@
   <script src="js/sidebars.js"></script>  <!-- 先加载 sidebars.js -->
   <script src="js/statstools.js"></script>
   <script src="js/auto-logout.js"></script>
+  <script src="js/assistant.js"></script>
 
 </body>
 </html>

@@ -6,9 +6,13 @@
   <title>Sean's Holistic Workspace - Home</title>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Raleway:wght@300;400;700&family=Alice:wght@300;400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/workspace.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="js/supabase-config.js"></script>
+  <link rel="stylesheet" href="css/sidebars.css">
+  <link rel="stylesheet" href="css/assistant.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/sidebars.js"></script>
 </head>
 <body>
 
@@ -142,7 +146,71 @@
   <!-- 状态消息显示区域 -->
   <div id="statusMessage"></div>
 
-  <!-- 主体脚本 -->
+  <!-- 添加悬浮助手 -->
+  <div id="assistant-container" class="assistant-container">
+    <div class="assistant-icon">
+      <img src="media/images/sean.PNG" alt="Assistant Icon" style="width:100%; height:100%; object-fit:cover;">
+    </div>
+    
+    <div class="chat-window">
+      <div class="files-trigger">
+        <i class="fas fa-folder"></i>
+      </div>
+      <div class="files-panel">
+        <div class="files-list">
+          <!-- 文件列表将通过 JavaScript 动态添加 -->
+        </div>
+        <button type="button" class="files-done">Done</button>
+      </div>
+      
+      <div class="lever-container">
+        <!-- 拉杆移到外层容器 -->
+        <div class="mode-switch">
+          <div class="lever-base">
+            <div class="lever-handle">
+              <div class="lever-stick"></div>
+              <div class="lever-ball"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chat-content">
+        <div class="chat-header">
+          <h3>Your Helpful Assistant</h3>
+          <button type="button" class="close-btn">&times;</button>
+        </div>
+        <div id="chat-history" class="chat-history">
+          <div class="message assistant">Hola! I'm Sean, your helpful statistics assistant. Can't wait to fill in some models!</div>
+        </div>
+        <!-- 确保进度条容器在这里 -->
+        <div class="progress-container" style="display: none;">
+          <div class="progress-text">Processing: Files 0/0 Trunks 0/0</div>
+          <div class="progress-bar-container">
+            <div class="progress-bar"></div>
+          </div>
+        </div>
+        <form id="chat-form" class="chat-form">
+          <div class="model-selector">
+            <button type="button" class="model-toggle">
+              <i class="fas fa-caret-down"></i>
+            </button>
+            <div class="model-dropdown">
+              <div class="model-option" data-model="qwen2.5:0.5b">Qwen 2.5 (0.5B)</div>
+              <div class="model-option" data-model="qwen2.5:14b">Qwen 2.5 (14B)</div>
+              <div class="model-option" data-model="qwen2.5:32b">Qwen 2.5 (32B)</div>
+              <div class="model-option" data-model="deepseek-r1:1.5b">DeepSeek R1 (1.5B)</div>
+              <div class="model-option" data-model="deepseek-r1:4b">DeepSeek R1 (4B)</div>
+              <div class="model-option" data-model="deepseek-r1:32b">DeepSeek R1 (32B)</div>
+            </div>
+          </div>
+          <input type="text" id="user-input" placeholder="Input here..." autocomplete="off">
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script src="js/workspace.js"></script>
+  <script src="js/assistant.js"></script>
 </body>
 </html>
