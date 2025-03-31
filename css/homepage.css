@@ -72,88 +72,6 @@ html, body {
 }
 
 /* >>>> 登录弹窗 >>>> */
-.auth-modal {
-  background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1000;
-  }
-
-.auth-modal #app {
-  background-color: #fff; /* 白色模块背景 */
-  max-width: 400px;
-  width: 90%;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.hidden {
-  display: none !important;
-}
-
-
-
-
-/* >>>> Main Content ############################## */
-.main-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  height: 100vh;
-}
-
-.main-content h1 {
-  font-family: 'Raleway', sans-serif;
-  font-size: 5.5rem;
-  color: #87A5E9;
-  font-weight: 400;
-}
-
-.main-content h1 span {
-  font-family: 'Dancing Script', cursive;
-  color: #1e4a7b;
-  font-size: 6.5rem;
-  font-weight: 600;
-}
-
-/* >>>>Upload button<<<< */
-.upload-button {
-  background-color: transparent;
-  color: #fff;
-  border: 2px solid #ffffff; 
-  padding: 1rem 2rem; /* 确保默认 padding */
-  cursor: pointer;
-  border-radius: 6px;
-  font-size: 1rem;
-  display: inline-block;
-  transition: all 0.3s ease; /* 让所有动画更平滑 */
-}
-
-.upload-button:hover {
-  background-color: transparent;
-  color: #a5a4a4;
-  border: 2px solid #a5a4a4; /* 让 hover 状态边框颜色变浅 */
-  padding: 1rem 3rem; /* 确保 padding 变大不会影响高度 */
-  border-radius: 6px; /* 避免 hover 造成跳动 */
-  transition: all 2s ease; /* 让所有动画更顺滑 */
-}
-
-/* >>>> Authentication Modal Styles <<<< */
-.auth-dialog::part(base) {
-  --width: 800px;
-  border-radius: 12px;
-  padding: 0;
-}
-
 .modal-wrapper {
     position: fixed;
     inset: 0;
@@ -178,7 +96,7 @@ html, body {
 /* 弹窗容器样式 */
 .auth-container {
     position: relative;
-    z-index: 1000;
+    z-index: 1001;
     width: 600px;
     height: 380px;
     display: flex;
@@ -187,7 +105,7 @@ html, body {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(16px);
     overflow: hidden;
-    background: transparent;
+    background: white;
 }
 
 /* 左侧样式 */
@@ -231,7 +149,7 @@ html, body {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    background: #dadada0d;
+    background: white;
     justify-content: center;
     align-items: center;
 }
@@ -721,7 +639,6 @@ html, body {
   display: none;
 }
 
-/* 修改 Why we built this 部分的字体 */
 .about-section:last-child p {
   font-family: 'Times New Roman', SimSun, serif;
   color: #555;

@@ -1,7 +1,13 @@
 // DOM Elements
 const loginButton = document.getElementById('open-login-button');
 const myAccountButton = document.getElementById('my-account-button');
-const authModal = document.getElementById('auth-modal'); // 修改为正确的ID
+const authModal = document.getElementById('auth-modal');
+
+console.log('Initial DOM elements:', {
+    loginButton: !!loginButton,
+    myAccountButton: !!myAccountButton,
+    authModal: !!authModal
+});
 
 // 添加上传相关的 DOM 元素
 const uploadBtn = document.getElementById('uploadBtn');
@@ -52,11 +58,15 @@ async function checkLoginStatus() {
 }
 
 // 显示登录模态框的函数
-function showLoginModal() {
+function showLoginModal(e) {
+    if (e) e.preventDefault();
     console.log('Login button clicked');
+    console.log('Auth modal element:', authModal);
     if (authModal) {
-        authModal.style.display = 'flex';
-        console.log('Modal should be visible now');
+        console.log('Current modal class:', authModal.className);
+        authModal.classList.add('show');
+        console.log('Added show class to auth modal');
+        console.log('New modal class:', authModal.className);
     } else {
         console.error('Login modal not found!');
     }
@@ -67,9 +77,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM fully loaded');
     
     // 确保DOM元素已正确获取
-    console.log('Login button exists:', !!loginButton);
-    console.log('My account button exists:', !!myAccountButton);
-    console.log('Login modal exists:', !!authModal);
+    console.log('DOM elements after load:', {
+        loginButton: !!loginButton,
+        loginButtonId: loginButton?.id,
+        myAccountButton: !!myAccountButton,
+        myAccountButtonId: myAccountButton?.id,
+        authModal: !!authModal,
+        authModalId: authModal?.id
+    });
+    
+    // 检查 Supabase 初始化状态
+    console.log('Supabase initialization:', {
+        clientExists: !!window.supabaseClient,
+        initialized: !!window.supabaseInitialized
+    });
     
     // 检查登录状态
     if (window.supabaseClient) {
@@ -77,14 +98,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         console.error('Supabase client not initialized!');
         // Supabase未初始化，显示登录按钮
-        loginButton.style.display = 'block';
-        myAccountButton.style.display = 'none';
-      }
+        if (loginButton) {
+            loginButton.style.display = 'block';
+            console.log('Login button display set to block');
+        }
+        if (myAccountButton) {
+            myAccountButton.style.display = 'none';
+            console.log('My account button display set to none');
+        }
+    }
     
     // 设置事件监听器
     if (loginButton) {
+        console.log('Adding click event listener to login button');
         loginButton.addEventListener('click', showLoginModal);
-  }
+        console.log('Click event listener added to login button');
+    } else {
+        console.error('Login button not found when setting up event listener');
+    }
 
     // My Account button click handler 
     if (myAccountButton) {
@@ -162,8 +193,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 点击模态框背景关闭
     const authOverlay = document.querySelector('.auth-overlay');
     if (authOverlay) {
+        console.log('Adding click event listener to auth overlay');
         authOverlay.addEventListener('click', () => {
-            authModal.style.display = 'none';
+            console.log('Auth overlay clicked');
+            if (authModal) {
+                authModal.classList.remove('show');
+                console.log('Removed show class from auth modal');
+            }
         });
     }
     
