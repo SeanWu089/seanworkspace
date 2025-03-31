@@ -98,8 +98,9 @@ html, body {
 .auth-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(106, 106, 106, 0.01);
+    background: rgba(106, 106, 106, 0.15);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 999;
 }
 
@@ -113,9 +114,11 @@ html, body {
     flex-direction: row;
     border-radius: 50px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(16px);
     overflow: hidden;
-    background: white;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* 左侧样式 */
@@ -126,8 +129,9 @@ html, body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: #bbbbbb2b;
+    background: rgba(255, 255, 255, 0.1);
     text-align: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .auth-image {
@@ -159,7 +163,7 @@ html, body {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    background: white;
+    background: transparent;
     justify-content: center;
     align-items: center;
 }
@@ -206,21 +210,23 @@ html, body {
 }
 
 .input-field {
-    width: 100%;  /* 改为100%来适应父容器宽度 */
-    box-sizing: border-box;  /* 确保padding不会增加总宽度 */
+    width: 100%;
+    box-sizing: border-box;
     height: 48px;
     border: none;
     border-radius: 25px;
     padding: 0 20px 0 60px;
     font-size: 15px;
     color: #262629;
-    background: rgba(255, 255, 255, 0.3);
-    /* font-family: '', sans-serif; */
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 1;
 }
 
 .input-field::placeholder {
     color: rgba(38, 38, 41, 0.5);
-    padding-left: 0;  /* 移除placeholder的左侧内边距 */
+    padding-left: 0;
 }
 
 .prefix-icon {
@@ -233,8 +239,9 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 50%;
+    z-index: 2;
 }
 
 .prefix-icon svg {
@@ -242,6 +249,7 @@ html, body {
     height: 20px;
     stroke: #666;
     stroke-width: 2;
+    z-index: 2;
 }
 
 /* 按钮样式 */
@@ -363,6 +371,10 @@ html, body {
     height: 500px;
     align-items: center;
     justify-content: center;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .signup-modal .auth-right {
@@ -373,9 +385,7 @@ html, body {
     align-items: center;
     justify-content: center;
     border-radius: 50px;
-    background: rgba(255, 255, 255, 0.1);
-    align-items: center;
-    justify-content: center;
+    background: transparent;
 }
 
 .signup-modal .auth-header {

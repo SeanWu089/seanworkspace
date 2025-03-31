@@ -2,6 +2,7 @@
 const loginButton = document.getElementById('open-login-button');
 const myAccountButton = document.getElementById('my-account-button');
 const authModal = document.getElementById('auth-modal');
+const signupModal = document.getElementById('signup-modal');
 
 console.log('Initial DOM elements:', {
     loginButton: !!loginButton,
@@ -12,6 +13,14 @@ console.log('Initial DOM elements:', {
 // 添加上传相关的 DOM 元素
 const uploadBtn = document.getElementById('uploadBtn');
 const fileInput = document.getElementById('file-input');
+
+// 确保登录按钮初始可见
+if (loginButton) {
+    loginButton.style.display = 'block';
+}
+if (myAccountButton) {
+    myAccountButton.style.display = 'none';
+}
 
 // 将checkLoginStatus定义在全局作用域
 async function checkLoginStatus() {
@@ -26,8 +35,8 @@ async function checkLoginStatus() {
         // 如果没有会话，直接处理未登录状态
         if (!session) {
             console.log('No active session found - user not logged in');
-            loginButton.style.display = 'block';
-            myAccountButton.style.display = 'none';
+            if (loginButton) loginButton.style.display = 'block';
+            if (myAccountButton) myAccountButton.style.display = 'none';
             return;
         }
         
@@ -41,19 +50,19 @@ async function checkLoginStatus() {
         if (user) {
             // User is logged in - show My Account button
             console.log('User is logged in:', user.email);
-            loginButton.style.display = 'none';
-            myAccountButton.style.display = 'block';
-      } else {
+            if (loginButton) loginButton.style.display = 'none';
+            if (myAccountButton) myAccountButton.style.display = 'block';
+        } else {
             // User is not logged in - show Login button
             console.log('User data not found despite session');
-            loginButton.style.display = 'block';
-            myAccountButton.style.display = 'none';
+            if (loginButton) loginButton.style.display = 'block';
+            if (myAccountButton) myAccountButton.style.display = 'none';
         }
     } catch (error) {
         console.error('Error checking login status:', error);
         // 处理错误情况 - 显示登录按钮
-        loginButton.style.display = 'block';
-        myAccountButton.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'block';
+        if (myAccountButton) myAccountButton.style.display = 'none';
     }
 }
 
@@ -65,10 +74,22 @@ function showLoginModal(e) {
     if (authModal) {
         console.log('Current modal class:', authModal.className);
         authModal.classList.add('show');
+        authModal.style.display = 'flex';  // 确保设置为 flex
         console.log('Added show class to auth modal');
         console.log('New modal class:', authModal.className);
     } else {
         console.error('Login modal not found!');
+    }
+}
+
+// 隐藏登录模态框的函数
+function hideLoginModal() {
+    if (authModal) {
+        authModal.classList.remove('show');
+        authModal.style.display = 'none';
+    }
+    if (signupModal) {
+        signupModal.style.display = 'none';
     }
 }
 
@@ -155,7 +176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.log('Login successful:', data);
                 
                 // 隐藏登录模态框
-                authModal.style.display = 'none';
+                hideLoginModal();
                 
                 // 更新UI状态
                 await checkLoginStatus();
@@ -165,9 +186,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (loginError) loginError.textContent = error.message || 'Login failed';
             } finally {
                 if (loginLoading) loginLoading.style.display = 'none';
-      }
-    });
-  }
+            }
+        });
+    }
 
     // Google登录按钮处理
     const googleLoginBtn = document.getElementById('google-login-btn');
@@ -190,23 +211,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
     
-    // 点击模态框背景关闭
-    const authOverlay = document.querySelector('.auth-overlay');
-    if (authOverlay) {
-        console.log('Adding click event listener to auth overlay');
-        authOverlay.addEventListener('click', () => {
+    // 点击模态框背景关闭 - 增强版
+    const authOverlays = document.querySelectorAll('.auth-overlay');
+    authOverlays.forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
             console.log('Auth overlay clicked');
-            if (authModal) {
-                authModal.classList.remove('show');
-                console.log('Removed show class from auth modal');
+            // 确保点击的是背景而不是弹窗本身
+            if (e.target === overlay) {
+                hideLoginModal();
             }
         });
-    }
+    });
+    
+    // 添加 ESC 键关闭弹窗功能
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            hideLoginModal();
+        }
+    });
     
     // 获取注册和登录链接
     const signupLink = document.getElementById('signup-link');
     const loginLink = document.getElementById('login-link');
-    const signupModal = document.getElementById('signup-modal');
     
     // 切换到注册页面
     if (signupLink && signupModal) {
@@ -215,7 +241,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             authModal.style.display = 'none';
             signupModal.style.display = 'flex';
         });
-      }
+    }
     
     // 切换到登录页面
     if (loginLink && authModal) {
@@ -223,6 +249,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             e.preventDefault();
             signupModal.style.display = 'none';
             authModal.style.display = 'flex';
+            authModal.classList.add('show');
         });
     }
     
@@ -235,7 +262,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // 更新UI状态
             await checkLoginStatus();
             // 隐藏登录模态框
-            authModal.style.display = 'none';
+            hideLoginModal();
         } else if (event === 'SIGNED_OUT') {
             console.log('User signed out');
             // 更新UI状态
