@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistical Analysis - Research Assistant</title>
+    <link rel="stylesheet" href="css/descriptive.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="home-link">
+            <i class="fas fa-home"></i>
+        </a>
+        <div class="nav-title">
+            <span>Descriptive Statistics</span>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Left Side -->
+        <div class="left-column">
+            <!-- Method Panel -->
+            <aside class="method-panel">
+                <div class="method-panel-header">
+                    <h2>Analysis Methods</h2>
+                </div>
+                <!-- Main Method Selection -->
+                <div class="method-tabs">
+                    <button class="tab-btn active" data-section="difference-section">
+                        <i class="fas fa-balance-scale"></i>
+                        <span>Difference Testing</span>
+                    </button>
+                    <button class="tab-btn" data-section="correlation-section">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Correlation Analysis</span>
+                    </button>
+                </div>
+                <!-- Difference Testing Methods -->
+                <div class="method-list active" id="difference-methods">
+                    <div class="method-item" data-method="ttest">
+                        <i class="fas fa-balance-scale"></i>
+                        <span>T-test</span>
+                    </div>
+                    <div class="method-item" data-method="chisquare">
+                        <i class="fas fa-square-root-alt"></i>
+                        <span>Chi-Square</span>
+                    </div>
+                    <div class="method-item" data-method="anova">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>ANOVA</span>
+                    </div>
+                </div>
+                <!-- Correlation Methods -->
+                <div class="method-list" id="correlation-methods">
+                    <div class="method-item" data-method="pearson">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Pearson Correlation</span>
+                    </div>
+                    <div class="method-item" data-method="spearman">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Spearman Correlation</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Settings Panel -->
+            <div class="settings-panel">
+                <div class="settings-group">
+                    <label for="diff-variable-select">Select Variable</label>
+                    <select id="diff-variable-select">
+                        <option value="">Choose a variable...</option>
+                    </select>
+                </div>
+                <div class="settings-group" data-for="group">
+                    <label for="diff-group-select">Select Group</label>
+                    <select id="diff-group-select">
+                        <option value="">Choose a group...</option>
+                    </select>
+                </div>
+                <div class="settings-group">
+                    <label for="diff-confidence-level">Confidence Level</label>
+                    <select id="diff-confidence-level">
+                        <option value="0.95">95%</option>
+                        <option value="0.99">99%</option>
+                        <option value="0.90">90%</option>
+                    </select>
+                </div>
+                <button class="analyze-btn">
+                    <i class="fas fa-play"></i>
+                    <span>Run Analysis</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Side: Results Panel -->
+        <main class="main-content">
+            <!-- Difference Testing Section -->
+            <section class="analysis-section active" id="difference-section">
+                <div class="section-header">
+                    <h2>Difference Testing</h2>
+                </div>
+                <div class="analysis-container">
+                    <!-- Right Side: Results Table -->
+                    <div class="results-panel">
+                        <!-- Standard Results Table -->
+                        <div class="results-table-container" id="standard-results">
+                            <table class="results-table">
+                                <thead>
+                                    <tr>
+                                        <th>Method</th>
+                                        <th>Variable</th>
+                                        <th>Group</th>
+                                        <th>P-value</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="difference-results">
+                                    <!-- Results will be appended here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- ANOVA Results -->
+                        <div class="results-table-container" id="anova-results" style="display: none;">
+                            <div class="results-tabs">
+                                <button class="results-tab active" data-view="main">ANOVA Results</button>
+                                <button class="results-tab" data-view="posthoc">Post-hoc Analysis</button>
+                            </div>
+                            
+                            <!-- Main ANOVA Results -->
+                            <div class="anova-view active" id="anova-main-view">
+                                <table class="results-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Source</th>
+                                            <th>df</th>
+                                            <th>Sum of Squares</th>
+                                            <th>Mean Square</th>
+                                            <th>F-value</th>
+                                            <th>P-value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="anova-main-results">
+                                        <!-- ANOVA results will be appended here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Post-hoc Results -->
+                            <div class="anova-view" id="anova-posthoc-view" style="display: none;">
+                                <table class="results-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Group 1</th>
+                                            <th>Group 2</th>
+                                            <th>Mean Difference</th>
+                                            <th>P-value</th>
+                                            <th>Significant</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="anova-posthoc-results">
+                                        <!-- Post-hoc results will be appended here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Correlation Analysis Section -->
+            <section class="analysis-section" id="correlation-section">
+                <div class="section-header">
+                    <h2>Correlation Analysis</h2>
+                </div>
+                <div class="analysis-container">
+                    <!-- Right Side: Results -->
+                    <div class="results-panel">
+                        <div class="results-controls">
+                            <div class="view-toggle">
+                                <span>Table View</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="view-toggle">
+                                    <span class="slider round"></span>
+                                </label>
+                                <span>Graph View</span>
+                            </div>
+                            <div class="color-scheme-selector">
+                                <button class="color-scheme-btn active" data-scheme="lancet">
+                                    <span class="color-dot" style="background: #00468B"></span>
+                                    <span>Lancet</span>
+                                </button>
+                                <button class="color-scheme-btn" data-scheme="nature">
+                                    <span class="color-dot" style="background: #E64B35"></span>
+                                    <span>Nature</span>
+                                </button>
+                                <button class="color-scheme-btn" data-scheme="nejm">
+                                    <span class="color-dot" style="background: #000000"></span>
+                                    <span>NEJM</span>
+                                </button>
+                                <button class="color-scheme-btn" data-scheme="grayscale">
+                                    <span class="color-dot" style="background: #666666"></span>
+                                    <span>Grayscale</span>
+                                </button>
+                                <button class="color-scheme-btn" data-scheme="redblue">
+                                    <span class="color-dot" style="background: #FF0000"></span>
+                                    <span>Red-Blue</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="results-content">
+                            <div id="correlation-table-view">
+                                <table class="results-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Variable 1</th>
+                                            <th>Variable 2</th>
+                                            <th>Correlation</th>
+                                            <th>P-value</th>
+                                            <th>Timestamp</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="correlation-results">
+                                        <!-- Results will be appended here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="correlation-graph-view" style="display: none;">
+                                <!-- Graph will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/descriptive.js"></script>
+</body>
+</html> 
