@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Regression Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/regression.css">
+    <link rel="stylesheet" href="/css/sidebars.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="/index.html" class="home-link">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <div class="nav-title">Regression Analysis</div>
+    </nav>
+
+    <!-- Section 1: Data Selection and Scatter Plot -->
+    <section class="section data-section">
+        <div class="data-selection">
+            <h2>Data Selection</h2>
+            <div class="file-select">
+                <!-- <label for="fileSelect">Select File</label> -->
+                <select id="fileSelect" class="file-dropdown">
+                    <option value="">Choose a file...</option>
+                    <option value="file1.csv">dataset1.csv</option>
+                    <option value="file2.csv">dataset2.csv</option>
+                    <option value="file3.csv">sales_data.csv</option>
+                    <option value="file4.csv">customer_analysis.csv</option>
+                </select>
+            </div>
+            <div class="variables-list">
+                <div id="variablesList" class="variables-container">
+                    <h3>Available Variables</h3>
+                    <!-- Variables will be populated here -->
+                </div>
+            </div>
+        </div>
+        <div class="scatter-plot">
+            <h2>Scatter Plot</h2>
+            <div id="scatterPlotContainer">
+                <!-- Scatter plot will be rendered here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Model Configuration -->
+    <section class="section model-section">
+        <h2>Model Configuration</h2>
+        
+        <!-- Variable Roles -->
+        <div class="config-panel">
+            <h3>Variable Roles</h3>
+            <div class="role-settings">
+                <div class="setting-group">
+                    <label>Dependent Variable</label>
+                    <select id="dependentVar"></select>
+                </div>
+                <div class="setting-group">
+                    <label>Grouping Variable</label>
+                    <select id="groupingVar"></select>
+                </div>
+                <div class="setting-group">
+                    <label>Fixed Effects Variables</label>
+                    <div id="fixedEffectsVars" class="multi-select"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Specification -->
+        <div class="config-panel">
+            <h3>Fixed Effects Panel</h3>
+            <div class="effects-panel">
+                <div class="setting-group">
+                    <label>Main Effects</label>
+                    <div id="mainEffects" class="multi-select"></div>
+                </div>
+                <div class="setting-group">
+                    <label>Interaction Builder</label>
+                    <div id="interactionBuilder" class="interaction-builder">
+                        <select multiple id="interactionTerms"></select>
+                        <button id="addInteraction" class="secondary-btn">Add Interaction</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Random Effects -->
+        <div class="config-panel">
+            <h3>Random Effects Panel</h3>
+            <div class="random-effects">
+                <div class="setting-group">
+                    <label>Random Intercepts</label>
+                    <div id="randomIntercepts" class="multi-select"></div>
+                </div>
+                <div class="setting-group">
+                    <label>Random Slopes</label>
+                    <div id="randomSlopes" class="multi-select"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Options -->
+        <div class="config-panel collapsible">
+            <h3>Advanced Options <i class="fas fa-chevron-down"></i></h3>
+            <div class="advanced-options">
+                <div class="setting-group">
+                    <label>Covariance Structure</label>
+                    <select id="covStructure">
+                        <option value="unstructured">Unstructured</option>
+                        <option value="diagonal">Diagonal</option>
+                        <option value="compound">Compound Symmetry</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>Estimation Method</label>
+                    <select id="estimationMethod">
+                        <option value="reml">REML</option>
+                        <option value="ml">Maximum Likelihood</option>
+                        <option value="mcmc">MCMC</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <label>Technical Settings</label>
+                    <div class="technical-params">
+                        <div>
+                            <label>Max Iterations</label>
+                            <input type="number" id="maxIter" value="100">
+                        </div>
+                        <div>
+                            <label>Convergence Tolerance</label>
+                            <input type="number" id="convTol" value="0.0001">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button id="runModel" class="primary-btn run-model">
+            <i class="fas fa-play"></i> Run Model
+        </button>
+    </section>
+
+    <!-- Section 3: Results -->
+    <section class="section results-section">
+        <div class="model-results">
+            <h2>Model Results</h2>
+            <div class="results-tabs">
+                <button class="tab-btn active" data-tab="summary">Summary</button>
+                <button class="tab-btn" data-tab="coefficients">Coefficients</button>
+                <button class="tab-btn" data-tab="diagnostics">Diagnostics</button>
+            </div>
+            <div id="resultsContent" class="results-content">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+        <div class="visualization">
+            <h2>Visualization</h2>
+            <div class="viz-tabs">
+                <button class="tab-btn active" data-tab="fittedLine">Fitted Line</button>
+                <button class="tab-btn" data-tab="residuals">Residual Plots</button>
+                <button class="tab-btn" data-tab="effects">Effects Plots</button>
+            </div>
+            <div id="vizContent" class="viz-content">
+                <!-- Visualizations will be rendered here -->
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.js"></script>
+    <script src="/js/regression.js"></script>
+</body>
+</html> 
