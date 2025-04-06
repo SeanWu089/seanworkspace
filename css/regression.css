@@ -115,19 +115,15 @@ body {
 
 /* Modern Section Styles */
 .section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
     max-width: 1600px;
     margin-left: auto;
     margin-right: auto;
-    background: var(--surface-color);
-    border-radius: 16px;
     padding: 25px;
     margin-bottom: 30px;
-    box-shadow: var(--card-shadow);
-    border: 1px solid var(--border-color);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
     margin-top: 50px;
-    position: relative;
-    overflow: hidden;
 }
 
 .section::before {
@@ -419,6 +415,7 @@ label {
     border-radius: 10px;
     position: relative;
     z-index: 1;
+    border: 1px solid var(--border-color);
 }
 
 .tab-btn {
@@ -432,6 +429,8 @@ label {
     border-radius: 8px;
     position: relative;
     overflow: hidden;
+    flex: 1;
+    text-align: center;
 }
 
 .tab-btn::before {
@@ -475,6 +474,21 @@ label {
 .results-content:hover, .viz-content:hover {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
     border-color: var(--primary-color);
+}
+
+/* Add a subtle gradient overlay to content areas */
+.results-content::before, .viz-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        rgba(108, 92, 231, 0.02) 0%, 
+        rgba(0, 206, 201, 0.02) 100%);
+    pointer-events: none;
+    z-index: 0;
 }
 
 /* Results Tables */
@@ -589,21 +603,62 @@ label {
 
 /* Styling for the run model button */
 .run-model {
-    width: 200px;
+    width: 300px;
+    height: 60px;
     margin: 30px auto;
     display: block;
-    font-size: 16px;
+    font-size: 18px;
     position: relative;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+    background: linear-gradient(135deg, #6c5ce7 0%, #6c5ce7 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    z-index: 1;
 }
 
-.run-model i {
-    margin-right: 10px;
+.run-model::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.2) 0%, 
+        rgba(255, 255, 255, 0) 50%, 
+        rgba(255, 255, 255, 0.2) 100%);
+    z-index: -1;
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+}
+
+.run-model:hover::before {
+    transform: translateX(100%);
+}
+
+.run-model:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(108, 92, 231, 0.5);
+    background: linear-gradient(135deg, #6c5ce7 0%, #fd79a8 50%, #00cec9 100%);
 }
 
 .run-model:active {
     transform: translateY(2px);
+    box-shadow: 0 2px 10px rgba(108, 92, 231, 0.3);
+}
+
+.run-model i {
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+.run-model:hover {
+    animation: pulse 1.5s infinite;
 }
 
 /* Animations */
@@ -649,10 +704,6 @@ label {
 
 .data-selection h2:hover::after, .scatter-plot h2:hover::after {
     width: 100%;
-}
-
-.run-model:hover {
-    animation: pulse 1.5s infinite;
 }
 
 /* Responsive Design */
@@ -707,6 +758,7 @@ label {
     
     .run-model {
         width: 100%;
+        max-width: 300px;
     }
     
     .results-tabs, .viz-tabs {
@@ -822,160 +874,367 @@ label {
     box-shadow: var(--card-shadow);
     border: 1px solid var(--border-color);
     transition: all 0.3s ease;
-    margin-bottom: 25px;
 }
 
-.model-results h2, .visualization h2 {
-    margin-bottom: 20px;
+/* Left column: Model Results */
+.model-results {
+    border-left: 3px solid var(--primary-color);
+    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.1);
 }
 
-.results-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+/* Right column: Visualization */
+.visualization {
+    border-left: 3px solid var(--secondary-color);
+    box-shadow: 0 4px 12px rgba(0, 206, 201, 0.1);
 }
 
-.summary-stat {
-    background-color: var(--panel-background);
-    border-radius: 10px;
-    padding: 15px;
+/* Panel headers */
+.model-results h3,
+.visualization h3 {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    text-align: center;
-    box-shadow: var(--card-shadow);
-    transition: all 0.3s ease;
-}
-
-.summary-stat:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--hover-shadow);
-}
-
-.stat-value {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 10px 0;
-    color: var(--secondary-color);
-}
-
-.stat-label {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.coefficient-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.coefficient-table th,
-.coefficient-table td {
-    padding: 12px 15px;
-    text-align: right;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
     border-bottom: 1px solid var(--border-color);
-}
-
-.coefficient-table th {
-    background-color: rgba(0, 0, 0, 0.2);
+    font-size: 1.2rem;
     color: var(--text-color);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 0.9rem;
 }
 
-.coefficient-table th:first-child,
-.coefficient-table td:first-child {
-    text-align: left;
+.model-results h3::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    margin-right: 10px;
 }
 
-.coefficient-table tbody tr:hover {
-    background-color: rgba(108, 92, 231, 0.1);
+.visualization h3::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--secondary-color);
+    border-radius: 50%;
+    margin-right: 10px;
 }
 
-.significant {
-    color: var(--success-color);
-    font-weight: 600;
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .section {
+        grid-template-columns: 1fr;
+    }
+    
+    .model-results,
+    .visualization {
+        border-left: none;
+        border-top: 3px solid var(--primary-color);
+        margin-bottom: 30px;
+    }
+    
+    .visualization {
+        border-top: 3px solid var(--secondary-color);
+    }
 }
 
-.not-significant {
-    color: var(--text-muted);
+@media (max-width: 768px) {
+    .section {
+        gap: 20px;
+        padding: 15px;
+    }
+    
+    .model-results,
+    .visualization {
+        padding: 15px;
+    }
+    
+    .model-results h3,
+    .visualization h3 {
+        font-size: 1.1rem;
+    }
 }
 
-/* Diagnostic plots */
-.diagnostic-plots {
+@media (max-width: 576px) {
+    .section {
+        gap: 15px;
+        padding: 12px;
+    }
+    
+    .model-results,
+    .visualization {
+        padding: 12px;
+    }
+}
+
+/* Model Configuration Section Layout */
+.model-section {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.diagnostic-plot {
-    background-color: var(--panel-background);
-    border-radius: 10px;
-    overflow: hidden;
-    height: 300px;
-}
-
-/* Effects plots */
-.effects-plots {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.effect-plot {
-    background-color: var(--panel-background);
-    border-radius: 10px;
-    overflow: hidden;
-    height: 350px;
-    padding: 15px;
-}
-
-.effect-plot-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 10px;
-    text-align: center;
-}
-
-
-#scatterPlotContainer {
-    width: 88%;
-    margin-top: 40px;
-    height: 480px;
-    background-color: var(--panel-background);
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2), 
-                0 1px 3px rgba(0, 0, 0, 0.1);
-    /* border: 1px solid rgba(255, 255, 255, 0.1); */
-    transition: all 0.3s ease;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
     position: relative;
 }
 
-#scatterPlotContainer:hover {
-    box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.25), 
-                0 2px 5px rgba(0, 0, 0, 0.15);
-}
-
-#scatterPlotContainer::before {
+.model-section::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(90deg, 
+            rgba(108, 92, 231, 0.03) 0%, 
+            rgba(108, 92, 231, 0.03) 49%, 
+            rgba(0, 206, 201, 0.03) 50%, 
+            rgba(0, 206, 201, 0.03) 100%);
+    z-index: -1;
+    border-radius: 16px;
+}
+
+.model-section h2 {
+    grid-column: 1 / -1;
+    margin-bottom: 25px;
+    position: relative;
+    display: inline-block;
+}
+
+.model-section h2::after {
+    display: none;
+}
+
+.model-section .run-model {
+    grid-column: 1 / -1;
+    margin-top: 20px;
+}
+
+/* Left column panels */
+.model-section .config-panel:nth-of-type(1),
+.model-section .config-panel:nth-of-type(2) {
+    margin-bottom: 30px;
+    border-left: 3px solid var(--primary-color);
+    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.1);
+}
+
+/* Right column panels */
+.model-section .config-panel:nth-of-type(3),
+.model-section .config-panel:nth-of-type(4) {
+    margin-bottom: 30px;
+    border-left: 3px solid var(--secondary-color);
+    box-shadow: 0 4px 12px rgba(0, 206, 201, 0.1);
+}
+
+/* Panel headers */
+.model-section .config-panel h3 {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+
+.model-section .config-panel:nth-of-type(1) h3::before,
+.model-section .config-panel:nth-of-type(2) h3::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.model-section .config-panel:nth-of-type(3) h3::before,
+.model-section .config-panel:nth-of-type(4) h3::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--secondary-color);
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+/* Setting groups within panels */
+.model-section .setting-group {
+    margin-bottom: 20px;
+    padding: 10px;
     border-radius: 8px;
-    background: linear-gradient(to bottom, 
-                rgba(255, 255, 255, 0.05) 0%, 
-                rgba(255, 255, 255, 0) 100%);
-    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.model-section .setting-group:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Responsive adjustments for model section */
+@media (max-width: 992px) {
+    .model-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .model-section .config-panel:nth-of-type(1),
+    .model-section .config-panel:nth-of-type(2),
+    .model-section .config-panel:nth-of-type(3),
+    .model-section .config-panel:nth-of-type(4) {
+        border-left: none;
+        border-top: 3px solid var(--primary-color);
+    }
+    
+    .model-section .config-panel:nth-of-type(3),
+    .model-section .config-panel:nth-of-type(4) {
+        border-top: 3px solid var(--secondary-color);
+    }
+}
+
+@media (max-width: 768px) {
+    .model-section {
+        gap: 20px;
+    }
+    
+    .model-section .config-panel {
+        padding: 15px;
+    }
+    
+    .model-section .setting-group {
+        padding: 8px;
+    }
+    
+    .model-section h2 {
+        font-size: 1.5rem;
+    }
+    
+    .model-section .config-panel h3 {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .model-section {
+        gap: 15px;
+    }
+    
+    .model-section .config-panel {
+        padding: 12px;
+    }
+    
+    .model-section .setting-group {
+        padding: 6px;
+    }
+}
+
+/* Results Section Layout */
+.results-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    position: relative;
+}
+
+.results-section h2 {
+    grid-column: 1 / -1;
+    margin-bottom: 25px;
+    position: relative;
+    display: inline-block;
+}
+
+.results-section h2::after {
+    display: none;
+}
+
+/* Left column: Model Results */
+.results-section .model-results {
+    margin-bottom: 0;
+    border-left: 3px solid var(--primary-color);
+    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.1);
+}
+
+/* Right column: Visualization */
+.results-section .visualization {
+    margin-bottom: 0;
+    border-left: 3px solid var(--secondary-color);
+    box-shadow: 0 4px 12px rgba(0, 206, 201, 0.1);
+}
+
+/* Panel headers */
+.results-section .model-results h3,
+.results-section .visualization h3 {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+
+.results-section .model-results h3::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.results-section .visualization h3::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--secondary-color);
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+/* Responsive adjustments for results section */
+@media (max-width: 992px) {
+    .results-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .results-section .model-results,
+    .results-section .visualization {
+        border-left: none;
+        border-top: 3px solid var(--primary-color);
+        margin-bottom: 30px;
+    }
+    
+    .results-section .visualization {
+        border-top: 3px solid var(--secondary-color);
+    }
+}
+
+@media (max-width: 768px) {
+    .results-section {
+        gap: 20px;
+    }
+    
+    .results-section .model-results,
+    .results-section .visualization {
+        padding: 15px;
+    }
+    
+    .results-section h2 {
+        font-size: 1.5rem;
+    }
+    
+    .results-section .model-results h3,
+    .results-section .visualization h3 {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .results-section {
+        gap: 15px;
+    }
+    
+    .results-section .model-results,
+    .results-section .visualization {
+        padding: 12px;
+    }
 } 
