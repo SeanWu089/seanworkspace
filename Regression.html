@@ -18,12 +18,12 @@
         <div class="nav-title">Regression Analysis</div>
     </nav>
 
-    <!-- Section 1: Data Selection and Scatter Plot -->
-    <section class="section data-section">
-        <div class="data-selection">
-            <h2>Data Selection</h2>
+    <!-- Data Selection and Scatter Plot -->
+    <div class="data-scatter-container">
+        <!-- Data Selection Panel -->
+        <div class="data-selection-panel">
+            <div class="data-selection-title">Data Selection</div>
             <div class="file-select">
-                <!-- <label for="fileSelect">Select File</label> -->
                 <select id="fileSelect" class="file-dropdown">
                     <option value="">Choose a file...</option>
                     <option value="file1.csv">dataset1.csv</option>
@@ -34,123 +34,135 @@
             </div>
             <div class="variables-list">
                 <div id="variablesList" class="variables-container">
-                    <h3>Available Variables</h3>
+                    <div class="variables-title">Available Variables</div>
                     <!-- Variables will be populated here -->
                 </div>
             </div>
         </div>
-        <div class="scatter-plot">
-            <h2>Scatter Plot</h2>
+
+        <!-- Scatter Plot Panel -->
+        <div class="scatter-plot-panel">
+            <div class="scatter-plot-title">Scatter Plot</div>
             <div id="scatterPlotContainer">
                 <!-- Scatter plot will be rendered here -->
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Section 2: Model Configuration -->
-    <section class="section model-section">
-        <h2>Model Configuration</h2>
-        
-        <!-- Left Column -->
-        <!-- Variable Roles -->
-        <div class="config-panel">
-            <h3>Variable Roles</h3>
-            <div class="role-settings">
-                <div class="setting-group">
-                    <label>Dependent Variable</label>
-                    <select id="dependentVar"></select>
-                </div>
-                <div class="setting-group">
-                    <label>Grouping Variable</label>
-                    <select id="groupingVar"></select>
-                </div>
-                <div class="setting-group">
-                    <label>Fixed Effects Variables</label>
-                    <div id="fixedEffectsVars" class="multi-select"></div>
-                </div>
-            </div>
-        </div>
+    <!-- Model Structure -->
+    <div class="model-structure-container">
+        <!-- Variable Specification Panel -->
+        <div class="variable-spec-panel">
+            <div class="variable-spec-title">Variable Specification</div>
+            <div class="variable-spec-grid">
+                <!-- Left Column -->
+                <div class="variable-spec-left">
+                    <div class="dependent-var-section">
+                        <div class="section-title">Dependent Variable</div>
+                        <div class="variable-select-container">
+                            <select class="form-select">
+                                <option value="" hidden></option>
+                            </select>
+                        </div>
+                    </div>
 
-        <!-- Model Specification -->
-        <div class="config-panel">
-            <h3>Fixed Effects Panel</h3>
-            <div class="effects-panel">
-                <div class="setting-group">
-                    <label>Main Effects</label>
-                    <div id="mainEffects" class="multi-select"></div>
+                    <div class="random-effects-section">
+                        <div class="section-title">Random Effects Settings</div>
+                        <div class="section-title">Grouping Variable</div>
+                        <div class="variable-select-container">
+                            <select class="form-select">
+                                <option value="" hidden></option>
+                            </select>
+                        </div>
+
+                        <div class="section-title">Random Slopes</div>
+                        <div class="variable-select-container">
+                            <select class="form-select" multiple>
+                                <option value="" hidden></option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="setting-group">
-                    <label>Interaction Builder</label>
-                    <div id="interactionBuilder" class="interaction-builder">
-                        <select multiple id="interactionTerms"></select>
-                        <button id="addInteraction" class="secondary-btn">Add Interaction</button>
+
+                <!-- Right Column -->
+                <div class="variable-spec-right">
+                    <div class="main-effects-section">
+                        <div class="section-title">Main Effects</div>
+                        <div class="variable-select-container">
+                            <select class="form-select">
+                                <option value="" hidden></option>
+                            </select>
+                        </div>
+                        <div class="selected-effects-display">
+                            <!-- Selected main effects will be displayed here -->
+                        </div>
+                    </div>
+
+                    <div class="interaction-section">
+                        <div class="section-title">Interaction</div>
+                        <div class="interaction-grid">
+                            <select class="form-select interaction-select">
+                                <option value="" hidden></option>
+                            </select>
+                            <div class="interaction-operator">×</div>
+                            <select class="form-select interaction-select">
+                                <option value="" hidden></option>
+                            </select>
+                            <button class="secondary-btn add-interaction">Add</button>
+                        </div>
+                        <div class="interactions-list">
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Right Column -->
-        <!-- Random Effects -->
-        <div class="config-panel">
-            <h3>Random Effects Panel</h3>
-            <div class="random-effects">
-                <div class="setting-group">
-                    <label>Random Intercepts</label>
-                    <div id="randomIntercepts" class="multi-select"></div>
-                </div>
-                <div class="setting-group">
-                    <label>Random Slopes</label>
-                    <div id="randomSlopes" class="multi-select"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Advanced Options -->
-        <div class="config-panel collapsible">
-            <h3>Advanced Options <i class="fas fa-chevron-down"></i></h3>
-            <div class="advanced-options">
-                <div class="setting-group">
+        <!-- Advanced Options Panel -->
+        <div class="advanced-options-panel">
+            <div class="advanced-options-title">Advanced Options</div>
+            <div class="advanced-options-content">
+                <div class="option-group">
                     <label>Covariance Structure</label>
-                    <select id="covStructure">
+                    <select id="covStructure" class="form-select">
                         <option value="unstructured">Unstructured</option>
                         <option value="diagonal">Diagonal</option>
                         <option value="compound">Compound Symmetry</option>
                     </select>
                 </div>
-                <div class="setting-group">
+                <div class="option-group">
                     <label>Estimation Method</label>
-                    <select id="estimationMethod">
+                    <select id="estimationMethod" class="form-select">
                         <option value="reml">REML</option>
                         <option value="ml">Maximum Likelihood</option>
                         <option value="mcmc">MCMC</option>
                     </select>
                 </div>
-                <div class="setting-group">
+                <div class="option-group">
                     <label>Technical Settings</label>
                     <div class="technical-params">
                         <div>
                             <label>Max Iterations</label>
-                            <input type="number" id="maxIter" value="100">
+                            <input type="number" id="maxIter" value="100" class="form-select">
                         </div>
                         <div>
                             <label>Convergence Tolerance</label>
-                            <input type="number" id="convTol" value="0.0001">
+                            <input type="number" id="convTol" value="0.0001" class="form-select">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <button id="runModel" class="primary-btn run-model">
+        <button id="runModel" class="run-model-btn">
             <i class="fas fa-play"></i> Run Model
         </button>
-    </section>
+    </div>
 
-    <!-- Section 3: Results -->
-    <section class="section">
-        <!-- Left Column: Model Results -->
-        <div class="model-results">
-            <h3>Model Results</h3>
+    <!-- Results Section -->
+    <div class="results-container">
+        <!-- Model Results Panel -->
+        <div class="model-results-panel">
+            <div class="model-results-title">Model Results</div>
             <div class="results-tabs">
                 <button class="tab-btn active" data-tab="summary">Summary</button>
                 <button class="tab-btn" data-tab="coefficients">Coefficients</button>
@@ -161,9 +173,9 @@
             </div>
         </div>
         
-        <!-- Right Column: Visualization -->
-        <div class="visualization">
-            <h3>Visualization</h3>
+        <!-- Results Visualization Panel -->
+        <div class="results-visual-panel">
+            <div class="results-visual-title">Results Visualization</div>
             <div class="viz-tabs">
                 <button class="tab-btn active" data-tab="fittedLine">Fitted Line</button>
                 <button class="tab-btn" data-tab="residuals">Residual Plots</button>
@@ -173,7 +185,7 @@
                 <!-- Visualizations will be rendered here -->
             </div>
         </div>
-    </section>
+    </div>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.js"></script>
