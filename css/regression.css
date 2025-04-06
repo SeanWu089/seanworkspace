@@ -869,8 +869,8 @@ label {
 
 /* File dropdown styles */
 .file-select {
+    margin-top: 0;
     margin-bottom: 25px;
-    margin-top: 40px;
 }
 
 .file-select label {
@@ -1081,7 +1081,7 @@ label {
     border-radius: 8px;
     padding: 12px;
     margin-top: 5px;
-    min-height: 50px;
+    height: 100px;
 }
 
 .interaction-tag {
@@ -1118,7 +1118,49 @@ label {
 }
 
 .random-slopes {
-    margin-top: 15px;
+    flex-grow: 1;
+    margin-top: 30px;
+}
+
+.random-slopes-select {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.selected-slopes-display {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    height: 140px !important;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+.selected-slope-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--panel-background);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+}
+
+.selected-slope-item:last-child {
+    margin-bottom: 0;
+}
+
+.remove-slope {
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.remove-slope:hover {
+    color: var(--error-color);
+    background: rgba(255, 118, 117, 0.1);
 }
 
 /* Remove underline from Random Effects Settings */
@@ -1183,17 +1225,25 @@ label {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 30px;
-    min-height: 750px;
-    padding: 40px 0;  /* 添加上下内边距，与Variable Specification标题保持一致的间距 */
+    height: 500px;  /* 设置固定高度 */
+    padding: 0;
 }
 
 .variable-spec-left,
 .variable-spec-right {
     background: transparent;
     border: none;
-    padding: 20px;
+    padding: 20px 20px 0 20px;
     display: flex;
     flex-direction: column;
+}
+
+.variable-spec-right {
+    padding-top: 0;  /* 移除右侧列的顶部padding */
+}
+
+.main-effects-section {
+    margin-top: -20px;  /* 移除Main Effects的顶部margin */
 }
 
 /* 隐藏Random Effects Settings */
@@ -1209,7 +1259,7 @@ label {
 
 /* 增加Interaction部分与Main Effects的间距 */
 .interaction-section {
-    margin-top: 60px;  /* 增加与Main Effects的间距 */
+    margin-top: 40px;  /* 增加与Main Effects的间距 */
 }
 
 /* Responsive adjustments for variable panel grid */
@@ -1264,13 +1314,12 @@ label {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     color: var(--text-color);
-    padding: 12px 15px;
-    padding-right: 40px;
+    padding: 12px 0;
+    /* padding-right: 40px; */
     width: 100%;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
+    /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); */
+    /* background-position: right 12px center; */
     background-size: 16px;
     cursor: pointer;
 }
@@ -1288,11 +1337,11 @@ label {
 .add-interaction {
     background: transparent;
     color: var(--secondary-color);
-    border: 1px solid var(--secondary-color);
-    padding: 8px 16px;
+    border: 3px solid var(--secondary-color) !important;
+    padding: 8px 10px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 1.2rem;
     transition: all 0.3s ease;
 }
 
@@ -1306,7 +1355,7 @@ label {
     background: var(--surface-color);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    min-height: 120px;
+    height: 140px;
     padding: 12px;
     margin-top: 10px;
     color: var(--text-color);
@@ -1330,8 +1379,7 @@ h4, h3, h2 {
     gap: 30px;
     max-width: 1550px;
     margin: 30px auto;
-    padding: 10px 30px;
-    /* padding-top: 10px; */
+    padding: 30px;
     background: var(--surface-color);
     border: 1px solid var(--border-color);
     border-radius: 12px;
@@ -1366,13 +1414,18 @@ h4, h3, h2 {
 .results-visual-title {
     color: var(--text-color);
     font-size: 1.8rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.variable-spec-title {
+    margin-left: 25px;
+    margin-top: 10px;  /* 统一使用一个合适的间距 */
 }
 
 .section-title {
     color: var(--text-color);
     font-size: 1.1rem;
-    margin-bottom: 15px;
+    margin-bottom: 12px;  /* 减小section标题的底部间距 */
 }
 
 /* Panel Styles */
@@ -1456,17 +1509,82 @@ h4, h3, h2 {
     border-radius: 12px;
 }
 
-/* Variable Specification Grid */
-.variable-spec-grid {
+/* Intercept Checkbox Styles */
+.intercept-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 0;
+}
+
+.intercept-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    padding: 0;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: transparent;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.intercept-checkbox input[type="checkbox"]:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.intercept-checkbox input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 10px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    line-height: 1;
+}
+
+.intercept-checkbox label {
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+}
+
+.variable-spec-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 30px;
-    min-height: 600px;
+    height: 500px;
 }
 
-.variable-spec-left,
-.variable-spec-right {
+.variable-spec-left {
     background: transparent;
     border: none;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.variable-spec-right {
+    background: transparent;
+    border: none;
+    padding: 0 20px;  /* 移除顶部padding */
+    display: flex;
+    flex-direction: column;
+}
+
+.effects-container {
+    margin-top: -40px;  /* 整体上移 */
+}
+
+.main-effects-section {
+    margin-bottom: 30px;
 } 

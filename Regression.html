@@ -54,7 +54,7 @@
         <!-- Variable Specification Panel -->
         <div class="variable-spec-panel">
             <div class="variable-spec-title">Variable Specification</div>
-            <div class="variable-spec-grid">
+            <div class="variable-spec-content">
                 <!-- Left Column -->
                 <div class="variable-spec-left">
                     <div class="dependent-var-section">
@@ -66,51 +66,53 @@
                         </div>
                     </div>
 
-                    <div class="random-effects-section">
-                        <div class="section-title">Random Effects Settings</div>
-                        <div class="section-title">Grouping Variable</div>
-                        <div class="variable-select-container">
-                            <select class="form-select">
-                                <option value="" hidden></option>
-                            </select>
-                        </div>
+                    <!-- Intercept Checkbox -->
+                    <div class="intercept-checkbox">
+                        <input type="checkbox" id="intercept" />
+                        <label for="intercept">Intercept</label>
+                    </div>
 
+                    <!-- Random Slopes Section -->
+                    <div class="random-slopes">
                         <div class="section-title">Random Slopes</div>
-                        <div class="variable-select-container">
-                            <select class="form-select" multiple>
-                                <option value="" hidden></option>
-                            </select>
+                        <select class="form-select random-slopes-select">
+                            <option value="" hidden>Select variables...</option>
+                        </select>
+                        <div class="selected-slopes-display">
+                            <!-- Selected random slopes will be displayed here -->
                         </div>
                     </div>
                 </div>
 
                 <!-- Right Column -->
                 <div class="variable-spec-right">
-                    <div class="main-effects-section">
-                        <div class="section-title">Main Effects</div>
-                        <div class="variable-select-container">
-                            <select class="form-select">
-                                <option value="" hidden></option>
-                            </select>
+                    <div class="effects-container">
+                        <div class="main-effects-section">
+                            <div class="section-title">Main Effects</div>
+                            <div class="variable-select-container">
+                                <select class="form-select">
+                                    <option value="" hidden></option>
+                                </select>
+                            </div>
+                            <div class="selected-effects-display">
+                                <!-- Selected main effects will be displayed here -->
+                            </div>
                         </div>
-                        <div class="selected-effects-display">
-                            <!-- Selected main effects will be displayed here -->
-                        </div>
-                    </div>
 
-                    <div class="interaction-section">
-                        <div class="section-title">Interaction</div>
-                        <div class="interaction-grid">
-                            <select class="form-select interaction-select">
-                                <option value="" hidden></option>
-                            </select>
-                            <div class="interaction-operator">×</div>
-                            <select class="form-select interaction-select">
-                                <option value="" hidden></option>
-                            </select>
-                            <button class="secondary-btn add-interaction">Add</button>
-                        </div>
-                        <div class="interactions-list">
+                        <div class="interaction-section">
+                            <div class="section-title">Interaction</div>
+                            <div class="interaction-grid">
+                                <select class="form-select interaction-select">
+                                    <option value="" hidden></option>
+                                </select>
+                                <div class="interaction-operator">×</div>
+                                <select class="form-select interaction-select">
+                                    <option value="" hidden></option>
+                                </select>
+                                <button class="secondary-btn add-interaction">Add</button>
+                            </div>
+                            <div class="interactions-list">
+                            </div>
                         </div>
                     </div>
                 </div>
