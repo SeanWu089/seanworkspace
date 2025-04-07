@@ -35,9 +35,10 @@ body {
     color: var(--text-color);
     line-height: 1.6;
     background-image: 
-        radial-gradient(circle at 25px 25px, rgba(255, 255, 255, 0.03) 2%, transparent 0%), 
-        radial-gradient(circle at 75px 75px, rgba(255, 255, 255, 0.03) 2%, transparent 0%);
-    background-size: 100px 100px;
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5L35 15H25L30 5zM45 25L50 35H40L45 25zM15 35L20 45H10L15 35zM35 45L42 55H28L35 45z' fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 10L60 30H40L50 10zM20 40L30 60H10L20 40zM80 50L95 75H65L80 50z' fill='%23ffffff' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E");
+    background-position: 0 0, 30px 30px;
+    background-size: 60px 60px, 100px 100px;
 }
 
 /* Common Typography */
@@ -78,8 +79,6 @@ h4, h3, h2 {
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    position: sticky;
-    top: 0;
     z-index: 1000;
     margin-bottom: 2rem;
     overflow: hidden;
@@ -92,7 +91,7 @@ h4, h3, h2 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+    background: rgba(255, 255, 255, 0.02);
     z-index: -1;
 }
 
@@ -423,7 +422,6 @@ label {
     border-radius: var(--border-radius-md);
     position: relative;
     z-index: 1;
-    border: 1px solid var(--border-color);
 }
 
 .tab-btn {
@@ -473,15 +471,8 @@ label {
     border-radius: var(--border-radius-md);
     padding: 20px;
     min-height: 400px;
-    border: 1px solid var(--border-color);
     position: relative;
     overflow: hidden;
-    transition: var(--transition-standard);
-}
-
-.results-content:hover, .viz-content:hover {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-    border-color: var(--primary-color);
 }
 
 /* Add a subtle gradient overlay to content areas */
@@ -497,6 +488,28 @@ label {
         rgba(0, 206, 201, 0.02) 100%);
     pointer-events: none;
     z-index: 0;
+}
+
+/* Visualization placeholder stripes */
+.viz-content {
+    background-image: repeating-linear-gradient(
+        45deg,
+        var(--surface-color),
+        var(--surface-color) 10px,
+        var(--panel-background) 10px,
+        var(--panel-background) 20px
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+}
+
+.viz-content::after {
+    content: 'Visualization Area';
+    position: absolute;
+    opacity: 0.7;
 }
 
 /* Results Tables */
@@ -630,12 +643,12 @@ label {
     grid-template-columns: 2fr 1fr;
     gap: 30px;
     max-width: 1700px;
-    padding: 40px 80px;
+    padding: 4px 80px;
 }
 
 .results-container {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 30px;
     max-width: 1600px;
     margin: 30px auto;
@@ -672,13 +685,36 @@ label {
 }
 
 /* Panel Styles */
-.data-selection-panel,
-.scatter-plot-panel,
-.variable-spec-panel,
-.advanced-options-panel,
-.model-results-panel,
+.data-selection-panel {
+    padding: 0 25px;
+}
+
+.scatter-plot-panel {
+    padding: 0 25px;
+}
+
+.variable-spec-panel {
+    padding: 25px;
+}
+
+.advanced-options-panel {
+    padding: 25px;
+}
+
+.model-results-panel {
+    padding: 25px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    position: relative;
+}
+
 .results-visual-panel {
     padding: 25px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    position: relative;
 }
 
 /* First section styles */
@@ -1237,7 +1273,7 @@ label {
 
 #scatterPlotContainer {
     width: 100%;
-    height: 88%;
+    height: 86%;
     background: repeating-linear-gradient(
         45deg,
         var(--surface-color),
@@ -1270,7 +1306,7 @@ label {
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
     overflow: hidden;
-    height: calc(100% - 140px);  /* Adjust based on the space needed for file select */
+    height: calc(100% - 160px);
     display: flex;
     flex-direction: column;
 }
