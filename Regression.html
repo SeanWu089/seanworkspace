@@ -32,10 +32,15 @@
                     <option value="file4.csv">customer_analysis.csv</option>
                 </select>
             </div>
-            <div class="variables-list">
-                <div id="variablesList" class="variables-container">
-                    <div class="variables-title">Available Variables</div>
-                    <!-- Variables will be populated here -->
+
+            <!-- Variables Display Area -->
+            <div class="variables-display">
+                <div class="variables-header">
+                    <span>Available Variables</span>
+                    <span class="variables-count">(0)</span>
+                </div>
+                <div class="variables-list">
+                    <!-- Variables will be populated here dynamically -->
                 </div>
             </div>
         </div>
@@ -140,24 +145,30 @@
                     </select>
                 </div>
                 <div class="option-group">
-                    <label>Technical Settings</label>
-                    <div class="technical-params">
-                        <div>
-                            <label>Max Iterations</label>
-                            <input type="number" id="maxIter" value="100" class="form-select">
-                        </div>
-                        <div>
-                            <label>Convergence Tolerance</label>
-                            <input type="number" id="convTol" value="0.0001" class="form-select">
-                        </div>
-                    </div>
+                    <label>Max Iterations</label>
+                    <select id="maxIter" class="form-select">
+                        <option value="50">50</option>
+                        <option value="100" selected>100</option>
+                        <option value="200">200</option>
+                        <option value="500">500</option>
+                        <option value="1000">1000</option>
+                    </select>
                 </div>
+                <div class="option-group">
+                    <label>Convergence Tolerance</label>
+                    <select id="convTol" class="form-select">
+                        <option value="0.01">0.01</option>
+                        <option value="0.001">0.001</option>
+                        <option value="0.0001" selected>0.0001</option>
+                        <option value="0.00001">0.00001</option>
+                        <option value="0.000001">0.000001</option>
+                    </select>
+                </div>
+                <button id="runModel" class="run-model">
+                    <i class="fas fa-play"></i> Run Analysis
+                </button>
             </div>
         </div>
-
-        <button id="runModel" class="run-model-btn">
-            <i class="fas fa-play"></i> Run Model
-        </button>
     </div>
 
     <!-- Results Section -->
