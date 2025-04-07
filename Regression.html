@@ -3,10 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>Regression Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="/js/supabase-config.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/regression.css">
     <link rel="stylesheet" href="/css/sidebars.css">
+    
+    <!-- Scripts -->
+    <script src="https://cdn.plot.ly/plotly-2.21.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.js"></script>
+    
+    <script type="module" src="/js/config.js"></script>
+    
+    <script type="module" src="/js/regression.js"></script>
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -23,14 +33,16 @@
         <!-- Data Selection Panel -->
         <div class="data-selection-panel">
             <div class="data-selection-title">Data Selection</div>
-            <div class="file-select">
-                <select id="fileSelect" class="file-dropdown">
-                    <option value="">Choose a file...</option>
-                    <option value="file1.csv">dataset1.csv</option>
-                    <option value="file2.csv">dataset2.csv</option>
-                    <option value="file3.csv">sales_data.csv</option>
-                    <option value="file4.csv">customer_analysis.csv</option>
-                </select>
+            
+            <!-- File Selector -->
+            <div class="file-selector">
+                <button type="button" id="fileSelectBtn" class="file-select-btn">
+                    <span class="btn-text">Choose a file...</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div id="fileDropdown" class="file-dropdown">
+                    <!-- Files will be added here dynamically -->
+                </div>
             </div>
 
             <!-- Variables Display Area -->
@@ -47,7 +59,7 @@
 
         <!-- Scatter Plot Panel -->
         <div class="scatter-plot-panel">
-            <div class="scatter-plot-title">Scatter Plot</div>
+            <!-- <div class="scatter-plot-title">Scatter Plot</div> -->
             <div id="scatterPlotContainer">
                 <!-- Scatter plot will be rendered here -->
             </div>
@@ -106,15 +118,19 @@
 
                         <div class="interaction-section">
                             <div class="section-title">Interaction</div>
-                            <div class="interaction-grid">
-                                <select class="form-select interaction-select">
-                                    <option value="" hidden></option>
-                                </select>
-                                <div class="interaction-operator">×</div>
-                                <select class="form-select interaction-select">
-                                    <option value="" hidden></option>
-                                </select>
-                                <button class="secondary-btn add-interaction">Add</button>
+                            <div class="interaction-inputs">
+                                <div class="select-wrapper">
+                                    <select class="form-select interaction-select">
+                                        <option value="" hidden></option>
+                                    </select>
+                                </div>
+                                <span class="interaction-operator">×</span>
+                                <div class="select-wrapper">
+                                    <select class="form-select interaction-select">
+                                        <option value="" hidden></option>
+                                    </select>
+                                </div>
+                                <button class="add-interaction">Add</button>
                             </div>
                             <div class="interactions-list">
                             </div>
@@ -199,9 +215,5 @@
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.js"></script>
-    <script src="/js/regression.js"></script>
 </body>
 </html> 

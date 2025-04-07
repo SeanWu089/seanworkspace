@@ -1,908 +1,1149 @@
-// DOM Elements
-const fileSelect = document.getElementById('fileSelect');
-const variablesList = document.getElementById('variablesList');
-const scatterPlotContainer = document.getElementById('scatterPlotContainer');
-const dependentVarSelect = document.getElementById('dependentVar');
-const groupingVarSelect = document.getElementById('groupingVar');
-const fixedEffectsVars = document.getElementById('fixedEffectsVars');
-const mainEffects = document.getElementById('mainEffects');
-const interactionTerms = document.getElementById('interactionTerms');
-const addInteractionBtn = document.getElementById('addInteraction');
-const randomIntercepts = document.getElementById('randomIntercepts');
-const randomSlopes = document.getElementById('randomSlopes');
-const runModelBtn = document.getElementById('runModel');
+// 导入API配置
+import { API_ENDPOINTS } from '/js/config.js';
 
-// State Management
-let currentData = null;
-let currentVariables = [];
-let selectedInteractions = [];
-let availableFiles = {
-    'file1.csv': { 'age': [25, 30, 35, 40, 45], 'income': [50000, 55000, 60000, 65000, 70000], 'education': [12, 14, 16, 18, 20] },
-    'file2.csv': { 'weight': [70, 75, 80, 85, 90], 'height': [170, 175, 180, 185, 190], 'bmi': [24.2, 24.5, 24.7, 24.8, 25.0] },
-    'file3.csv': { 'sales': [1200, 1500, 1800, 2100, 2400], 'advertising': [500, 600, 700, 800, 900], 'customers': [120, 150, 180, 210, 240] },
-    'file4.csv': { 'satisfaction': [7, 8, 6, 9, 7], 'retention': [0.7, 0.8, 0.6, 0.9, 0.7], 'support_calls': [2, 1, 3, 0, 2] }
-};
+// Global variables
+let currentFileId = null;
+let currentVariables = null;
 
 // Initialize the page
-document.addEventListener('DOMContentLoaded', () => {
-    initializeCollapsible();
-    initializeTabs();
-    setupEventListeners();
-});
-
-// Collapsible Panels
-function initializeCollapsible() {
-    document.querySelectorAll('.collapsible h3').forEach(header => {
-        header.addEventListener('click', () => {
-            const content = header.nextElementSibling;
-            const icon = header.querySelector('i');
-            content.style.display = content.style.display === 'none' ? 'block' : 'none';
-            icon.classList.toggle('fa-chevron-down');
-            icon.classList.toggle('fa-chevron-up');
-        });
-    });
-}
-
-// Tabs
-function initializeTabs() {
-    document.querySelectorAll('.tab-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const tabGroup = e.target.closest('div');
-            tabGroup.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-            updateTabContent(e.target.dataset.tab);
-        });
-    });
-}
-
-// Event Listeners
-function setupEventListeners() {
-    fileSelect.addEventListener('change', handleFileSelect);
-    addInteractionBtn.addEventListener('click', handleAddInteraction);
-    runModelBtn.addEventListener('click', handleRunModel);
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Page: DOM Content Loaded');
     
-    // Variable selection events
-    dependentVarSelect.addEventListener('change', updateScatterPlot);
-    groupingVarSelect.addEventListener('change', updateScatterPlot);
-}
-
-// File Handling
-function handleFileSelect() {
-    const selectedFile = fileSelect.value;
-    
-    if (selectedFile && availableFiles[selectedFile]) {
-        currentData = availableFiles[selectedFile];
-        currentVariables = Object.keys(currentData);
-        
-        updateVariableSelectors();
-        updateScatterPlot();
-    } else {
-        currentData = null;
-        currentVariables = [];
-        clearVariableSelectors();
-    }
-}
-
-// Clear UI Elements
-function clearVariableSelectors() {
-    [dependentVarSelect, groupingVarSelect].forEach(select => {
-        select.innerHTML = '<option value="">Select Variable</option>';
-    });
-    
-    [fixedEffectsVars, mainEffects, interactionTerms].forEach(container => {
-        container.innerHTML = '';
-    });
-}
-
-// Update UI Elements
-function updateVariableSelectors() {
-    // Clear existing options
-    [dependentVarSelect, groupingVarSelect].forEach(select => {
-        select.innerHTML = '<option value="">Select Variable</option>';
-    });
-    
-    // Add variables to selectors
-    currentVariables.forEach(variable => {
-        const option = document.createElement('option');
-        option.value = variable;
-        option.textContent = variable;
-        
-        dependentVarSelect.appendChild(option.cloneNode(true));
-        groupingVarSelect.appendChild(option.cloneNode(true));
-    });
-    
-    // Update multi-select areas
-    updateMultiSelect(fixedEffectsVars, currentVariables);
-    updateMultiSelect(mainEffects, currentVariables);
-    updateMultiSelect(interactionTerms, currentVariables);
-}
-
-function updateMultiSelect(container, options) {
-    container.innerHTML = '';
-    options.forEach(option => {
-        const checkbox = document.createElement('div');
-        checkbox.className = 'checkbox-item';
-        checkbox.innerHTML = `
-            <input type="checkbox" id="${option}" value="${option}">
-            <label for="${option}">${option}</label>
-        `;
-        container.appendChild(checkbox);
-    });
-}
-
-// Scatter Plot
-function updateScatterPlot() {
-    if (!currentData || !dependentVarSelect.value) return;
-    
-    const xVar = dependentVarSelect.value;
-    const groupVar = groupingVarSelect.value;
-    
-    const trace = {
-        x: currentData[xVar],
-        y: currentData[groupVar] || Array(currentData[xVar].length).fill(1),
-        mode: 'markers',
-        type: 'scatter',
-        marker: { 
-            size: 10,
-            color: 'rgba(108, 92, 231, 0.7)',
-            line: {
-                color: 'rgba(108, 92, 231, 1)',
-                width: 1
-            }
-        }
-    };
-    
-    const layout = {
-        title: {
-            text: 'Variable Relationship',
-            font: {
-                family: 'Raleway, sans-serif'
-            }
-        },
-        xaxis: { 
-            title: xVar,
-            gridcolor: 'transparent'
-        },
-        yaxis: { 
-            title: groupVar || 'Value',
-            gridcolor: 'transparent'
-        },
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent',
-        margin: { t: 50, r: 30, l: 60, b: 50 },
-        hovermode: 'closest',
-        autosize: true
-    };
-    
-    const config = {
-        responsive: true,
-        displayModeBar: false
-    };
-    
-    Plotly.newPlot(scatterPlotContainer, [trace], layout, config);
-}
-
-// Model Building
-function handleAddInteraction() {
-    const selectedVars = Array.from(interactionTerms.querySelectorAll('input:checked'))
-        .map(input => input.value);
-    
-    if (selectedVars.length < 2) {
-        alert('Please select at least 2 variables for interaction');
+    if (!window.supabaseClient) {
+        console.error('Page: Supabase client not initialized');
+        showError('Supabase client not initialized. Please check your configuration.');
         return;
     }
     
-    selectedInteractions.push(selectedVars);
-    updateInteractionsList();
-}
-
-function updateInteractionsList() {
-    const container = document.createElement('div');
-    container.className = 'selected-interactions';
+    console.log('Supabase Client:', window.supabaseClient);
     
-    selectedInteractions.forEach((interaction, index) => {
-        const interactionElement = document.createElement('div');
-        interactionElement.className = 'interaction-term';
-        interactionElement.textContent = interaction.join(' × ');
+    // Initialize file selector
+    setupFileSelector();
+    setupEventListeners();
+    enhanceNativeSelects();
+});
+
+// 增强原生的select元素，添加搜索和过滤功能
+function enhanceNativeSelects() {
+    // 获取所有需要增强的select元素
+    const selects = document.querySelectorAll('.form-select');
+    
+    selects.forEach(select => {
+        // 创建一个包装容器
+        const wrapper = document.createElement('div');
+        wrapper.className = 'custom-select-wrapper';
+        select.parentNode.insertBefore(wrapper, select);
+        wrapper.appendChild(select);
+
+        // 隐藏原始select元素，但保持其功能
+        select.classList.add('original-select');
         
-        const removeBtn = document.createElement('button');
-        removeBtn.textContent = '×';
-        removeBtn.onclick = () => {
-            selectedInteractions.splice(index, 1);
-            updateInteractionsList();
-        };
+        // 创建自定义显示的div
+        const customSelect = document.createElement('div');
+        customSelect.className = 'custom-select';
+        customSelect.innerHTML = `
+            <div class="selected-option">
+                <span>${select.options[select.selectedIndex]?.text || 'Select option...'}</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="search-container">
+                <input type="text" class="select-search" placeholder="Search...">
+            </div>
+            <div class="options-container"></div>
+        `;
+        wrapper.appendChild(customSelect);
         
-        interactionElement.appendChild(removeBtn);
-        container.appendChild(interactionElement);
+        // 创建选项列表
+        updateOptions(select, customSelect);
+        
+        // 绑定事件
+        setupCustomSelectEvents(select, customSelect);
     });
     
-    const existingContainer = document.querySelector('.selected-interactions');
-    if (existingContainer) {
-        existingContainer.replaceWith(container);
-    } else {
-        interactionTerms.parentNode.appendChild(container);
-    }
+    // 点击其他地方关闭所有下拉菜单
+    document.addEventListener('click', (e) => {
+        const wrappers = document.querySelectorAll('.custom-select-wrapper');
+        wrappers.forEach(wrapper => {
+            if (!wrapper.contains(e.target)) {
+                wrapper.querySelector('.custom-select')?.classList.remove('open');
+            }
+        });
+    });
 }
 
-// Model Execution
-async function handleRunModel() {
-    try {
-        runModelBtn.disabled = true;
-        runModelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+// 更新自定义select的选项
+function updateOptions(originalSelect, customSelect) {
+    const optionsContainer = customSelect.querySelector('.options-container');
+    optionsContainer.innerHTML = '';
+    
+    Array.from(originalSelect.options).forEach(option => {
+        if (option.hidden) return; // 跳过隐藏的选项
         
-        // Gather model parameters
-        const modelParams = {
-            dependent: dependentVarSelect.value,
-            grouping: groupingVarSelect.value,
-            fixedEffects: getSelectedValues(fixedEffectsVars),
-            mainEffects: getSelectedValues(mainEffects),
-            interactions: selectedInteractions,
-            randomIntercepts: getSelectedValues(randomIntercepts),
-            randomSlopes: getSelectedValues(randomSlopes),
-            covStructure: document.getElementById('covStructure').value,
-            estimationMethod: document.getElementById('estimationMethod').value,
-            maxIter: document.getElementById('maxIter').value,
-            convTol: document.getElementById('convTol').value
-        };
+        const optionElement = document.createElement('div');
+        optionElement.className = 'option';
+        optionElement.dataset.value = option.value;
+        optionElement.textContent = option.text;
         
-        // Validate parameters
-        if (!validateModelParams(modelParams)) {
-            throw new Error('Invalid model parameters');
+        if (option.selected) {
+            optionElement.classList.add('selected');
         }
         
-        // Run model (implementation needed)
-        const results = await runRegressionModel(modelParams);
+        optionsContainer.appendChild(optionElement);
+    });
+}
+
+// 设置自定义select的事件
+function setupCustomSelectEvents(originalSelect, customSelect) {
+    const selectedOption = customSelect.querySelector('.selected-option');
+    const searchInput = customSelect.querySelector('.select-search');
+    const optionsContainer = customSelect.querySelector('.options-container');
+    
+    // 点击显示/隐藏选项
+    selectedOption.addEventListener('click', (e) => {
+        e.stopPropagation();
+        customSelect.classList.toggle('open');
         
-        // Update results display
-        updateResults(results);
-        
-    } catch (error) {
-        console.error('Error running model:', error);
-        alert('Error running model. Please check your parameters and try again.');
-    } finally {
-        runModelBtn.disabled = false;
-        runModelBtn.innerHTML = '<i class="fas fa-play"></i> Run Model';
-    }
-}
-
-// Utility Functions
-function getSelectedValues(container) {
-    return Array.from(container.querySelectorAll('input:checked'))
-        .map(input => input.value);
-}
-
-function validateModelParams(params) {
-    if (!params.dependent) {
-        alert('Please select a dependent variable');
-        return false;
-    }
-    
-    if (params.fixedEffects.length === 0 && params.mainEffects.length === 0) {
-        alert('Please select at least one fixed effect or main effect');
-        return false;
-    }
-    
-    return true;
-}
-
-// Model Running (implementation needed)
-async function runRegressionModel(params) {
-    // Implementation needed
-    // Return results object with coefficients, statistics, etc.
-    return {};
-}
-
-// Results Display
-function updateResults(results) {
-    // For demonstration, create mock results
-    const mockResults = {
-        summary: {
-            r2: 0.78,
-            adjR2: 0.76,
-            rmse: 2.34,
-            aic: 187.5
-        },
-        coefficients: [
-            { term: 'Intercept', estimate: 12.45, stdError: 1.23, tValue: 10.12, pValue: 0.0001 },
-            { term: 'Age', estimate: 0.34, stdError: 0.05, tValue: 6.8, pValue: 0.0002 },
-            { term: 'Income', estimate: 0.0002, stdError: 0.0001, tValue: 2.0, pValue: 0.046 },
-            { term: 'Education', estimate: 1.23, stdError: 0.45, tValue: 2.73, pValue: 0.009 },
-            { term: 'Age:Income', estimate: -0.00001, stdError: 0.00001, tValue: -1.0, pValue: 0.32 }
-        ]
-    };
-    
-    // Clear existing content
-    const resultsContent = document.getElementById('resultsContent');
-    resultsContent.innerHTML = '';
-    
-    // Create content divs for each tab
-    const summaryContent = document.createElement('div');
-    summaryContent.id = 'summary-content';
-    
-    const coefficientsContent = document.createElement('div');
-    coefficientsContent.id = 'coefficients-content';
-    coefficientsContent.style.display = 'none';
-    
-    const diagnosticsContent = document.createElement('div');
-    diagnosticsContent.id = 'diagnostics-content';
-    diagnosticsContent.style.display = 'none';
-    
-    // Build summary content
-    const summaryDiv = document.createElement('div');
-    summaryDiv.className = 'results-summary';
-    
-    const summaryStats = [
-        { label: 'R²', value: mockResults.summary.r2.toFixed(3) },
-        { label: 'Adjusted R²', value: mockResults.summary.adjR2.toFixed(3) },
-        { label: 'RMSE', value: mockResults.summary.rmse.toFixed(3) },
-        { label: 'AIC', value: mockResults.summary.aic.toFixed(1) }
-    ];
-    
-    summaryStats.forEach(stat => {
-        const statDiv = document.createElement('div');
-        statDiv.className = 'summary-stat';
-        statDiv.innerHTML = `
-            <div class="stat-value">${stat.value}</div>
-            <div class="stat-label">${stat.label}</div>
-        `;
-        summaryDiv.appendChild(statDiv);
+        if (customSelect.classList.contains('open')) {
+            searchInput.focus();
+        }
     });
     
-    summaryContent.appendChild(summaryDiv);
+    // 搜索过滤
+    searchInput.addEventListener('input', () => {
+        const filter = searchInput.value.toLowerCase();
+        const options = optionsContainer.querySelectorAll('.option');
+        
+        options.forEach(option => {
+            const text = option.textContent.toLowerCase();
+            option.style.display = text.includes(filter) ? '' : 'none';
+        });
+    });
     
-    // Build coefficients content
-    const coeffTable = document.createElement('table');
-    coeffTable.className = 'coefficient-table';
+    // 点击选项
+    optionsContainer.addEventListener('click', (e) => {
+        const option = e.target.closest('.option');
+        if (!option) return;
+        
+        const value = option.dataset.value;
+        originalSelect.value = value;
+        
+        // 触发change事件
+        const event = new Event('change', { bubbles: true });
+        originalSelect.dispatchEvent(event);
+        
+        // 更新显示
+        selectedOption.querySelector('span').textContent = option.textContent;
+        
+        // 关闭下拉框
+        customSelect.classList.remove('open');
+        
+        // 更新选中状态
+        optionsContainer.querySelectorAll('.option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        option.classList.add('selected');
+    });
+}
+
+// Set up file selector
+function setupFileSelector() {
+    const button = document.getElementById('fileSelectBtn');
+    const dropdown = document.getElementById('fileDropdown');
+    const buttonText = button?.querySelector('.btn-text');
+
+    if (!button || !dropdown || !buttonText) {
+        console.error('FileSelector: Required elements not found');
+        return;
+    }
+
+    button.addEventListener('click', async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log('FileSelector: Button clicked');
+
+        const isOpening = !dropdown.classList.contains('show');
+        toggleDropdown(dropdown, button, isOpening);
+
+        if (isOpening) {
+            await loadFiles(dropdown, buttonText);
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!button.contains(event.target)) {
+            console.log('FileSelector: Clicked outside');
+            toggleDropdown(dropdown, button, false);
+        }
+    });
+
+    console.log('FileSelector: Initialized');
+}
+
+// Toggle dropdown visibility
+function toggleDropdown(dropdown, button, show) {
+    console.log('FileSelector: Toggling dropdown:', show);
+    button.classList.toggle('active', show);
+    dropdown.classList.toggle('show', show);
+}
+
+// Load files from Supabase
+async function loadFiles(dropdown, buttonText) {
+    try {
+        console.log('FileSelector: Loading files');
+        const { data: { session }, error } = await window.supabaseClient.auth.getSession();
+        console.log('Session:', session, 'Error:', error);
+        
+        if (error) {
+            throw new Error('Session error: ' + error.message);
+        }
+        
+        if (!session) {
+            throw new Error('No active session');
+        }
+        
+        console.log('FileSelector: User ID:', session.user.id);
+        
+        const { data: files, error: filesError } = await window.supabaseClient
+            .storage
+            .from('user_files')
+            .list(session.user.id);
+            
+        if (filesError) {
+            console.error('Files error:', filesError);
+            throw new Error('Files error: ' + filesError.message);
+        }
+        
+        console.log('Files loaded:', files);
+        
+        renderFiles(files, dropdown, buttonText);
+    } catch (error) {
+        console.error('FileSelector: Load error:', error);
+        showError(error.message);
+    }
+}
+
+// Render files in the dropdown
+function renderFiles(files, dropdown, buttonText) {
+    console.log('FileSelector: Rendering files');
+    dropdown.innerHTML = '';
     
-    const tableHead = document.createElement('thead');
-    tableHead.innerHTML = `
-        <tr>
-            <th>Term</th>
-            <th>Estimate</th>
-            <th>Std. Error</th>
-            <th>t-value</th>
-            <th>p-value</th>
-        </tr>
+    if (!files || files.length === 0) {
+        const noFiles = document.createElement('div');
+        noFiles.className = 'file-option';
+        noFiles.textContent = 'No files available';
+        dropdown.appendChild(noFiles);
+        return;
+    }
+    
+    files.forEach(file => {
+        const displayName = file.name.replace(/^\d+_/, '');
+        const option = document.createElement('div');
+        option.className = 'file-option';
+        option.innerHTML = `
+            <i class="fas fa-file-csv"></i>
+            <span>${displayName}</span>
+        `;
+        
+        option.addEventListener('click', () => {
+            console.log('FileSelector: File selected:', displayName);
+            selectFile(file, displayName, buttonText, dropdown);
+        });
+        
+        dropdown.appendChild(option);
+    });
+}
+
+// Select a file
+function selectFile(file, displayName, buttonText, dropdown) {
+    console.log('File selected:', file, 'Display name:', displayName);
+    buttonText.textContent = displayName;
+    toggleDropdown(dropdown, buttonText.parentElement, false);
+    
+    // Update selected state
+    const options = dropdown.querySelectorAll('.file-option');
+    options.forEach(opt => opt.classList.remove('selected'));
+    
+    // Process the selected file
+    processSelectedFile(file.name);
+}
+
+// Set up event listeners
+function setupEventListeners() {
+    console.log('Setting up event listeners');
+    
+    // Run model button
+    const runModelBtn = document.getElementById('runModel');
+    if (runModelBtn) {
+        runModelBtn.addEventListener('click', () => {
+            if (!currentFileId || !currentVariables) {
+                showError('Please select a file and variables first');
+                return;
+            }
+            runRegressionAnalysis();
+        });
+    }
+
+    // Add interaction button
+    const addInteractionBtn = document.querySelector('.add-interaction');
+    if (addInteractionBtn) {
+        addInteractionBtn.addEventListener('click', () => {
+            // 获取原生下拉框的值
+            const var1Select = document.querySelector('.interaction-grid select:first-of-type');
+            const var2Select = document.querySelector('.interaction-grid select:last-of-type');
+            
+            if (!var1Select || !var2Select) {
+                console.error('Interaction selects not found');
+                return;
+            }
+
+            const var1 = var1Select.value;
+            const var2 = var2Select.value;
+
+            if (!var1 || !var2) {
+                showError('Please select both variables for interaction');
+                return;
+            }
+
+            if (var1 === var2) {
+                showError('Please select different variables for interaction');
+                return;
+            }
+
+            addInteractionEffect(var1, var2);
+            
+            // 清空下拉框选择
+            var1Select.value = '';
+            var2Select.value = '';
+            
+            // 更新自定义下拉框显示
+            const customSelect1 = var1Select.closest('.custom-select-wrapper')?.querySelector('.custom-select');
+            const customSelect2 = var2Select.closest('.custom-select-wrapper')?.querySelector('.custom-select');
+            
+            if (customSelect1) {
+                customSelect1.querySelector('.selected-option span').textContent = 'Select option...';
+            }
+            
+            if (customSelect2) {
+                customSelect2.querySelector('.selected-option span').textContent = 'Select option...';
+            }
+        });
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            switchTab(tabId);
+        });
+    });
+    
+    // 设置随机斜率选择
+    const randomSlopesSelect = document.querySelector('.random-slopes-select');
+    if (randomSlopesSelect) {
+        randomSlopesSelect.addEventListener('change', () => {
+            const value = randomSlopesSelect.value;
+            if (!value) return;
+            
+            // 添加到已选择区域
+            addRandomSlope(value);
+            
+            // 重置选择
+            randomSlopesSelect.value = '';
+            
+            // 更新自定义下拉框显示
+            const customSelect = randomSlopesSelect.closest('.custom-select-wrapper')?.querySelector('.custom-select');
+            if (customSelect) {
+                customSelect.querySelector('.selected-option span').textContent = 'Select option...';
+            }
+        });
+    }
+    
+    // 主效应选择框
+    const mainEffectsSelect = document.querySelector('.main-effects-section select');
+    if (mainEffectsSelect) {
+        mainEffectsSelect.addEventListener('change', () => {
+            const value = mainEffectsSelect.value;
+            if (!value) return;
+            
+            // 添加到已选择区域
+            addMainEffect(value);
+            
+            // 重置选择
+            mainEffectsSelect.value = '';
+            
+            // 更新自定义下拉框显示
+            const customSelect = mainEffectsSelect.closest('.custom-select-wrapper')?.querySelector('.custom-select');
+            if (customSelect) {
+                customSelect.querySelector('.selected-option span').textContent = 'Select option...';
+            }
+        });
+    }
+}
+
+// Process selected file
+async function processSelectedFile(fileId) {
+    try {
+        console.log('Processing file:', fileId);
+        
+        // Check if Supabase client is available
+        if (!window.supabaseClient) {
+            throw new Error('Supabase client not initialized');
+        }
+        
+        currentFileId = fileId;
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        const userId = session?.user?.id;
+        
+        if (!userId) {
+            showError('User not authenticated');
+            return;
+        }
+        
+        console.log('User ID:', userId);
+        showLoading('Processing file...');
+        
+        const filePath = `${userId}/${fileId}`;
+        console.log('Requesting data for file path:', filePath);
+        
+        const response = await fetch(API_ENDPOINTS.dataType, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ 
+                file_path: filePath,
+                user_id: userId 
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Received data:', data);
+        
+        if (data.status === 'success') {
+            currentVariables = data.variables;
+            console.log('Variables to display:', currentVariables);
+            await displayVariables(data.variables);
+            updateVariableSelects(data.variables);
+            hideLoading();
+        } else {
+            throw new Error(data.message || 'Failed to get variable types');
+        }
+    } catch (error) {
+        console.error('Error in processSelectedFile:', error);
+        hideLoading();
+        showError(`Error: ${error.message}`);
+    }
+}
+
+// Update variable selects with select2
+function updateVariableSelects(variables) {
+    if (typeof variables === 'string') {
+        // Called from drop event
+        const variableName = variables;
+        const dropTarget = arguments[1];
+        
+        if (dropTarget.classList.contains('dependent-var-section')) {
+            const select = dropTarget.querySelector('select');
+            if (select) {
+                select.value = variableName;
+                // 触发change事件
+                const event = new Event('change', { bubbles: true });
+                select.dispatchEvent(event);
+                
+                // 更新自定义选择器的显示
+                const customSelect = select.parentNode.querySelector('.custom-select');
+                if (customSelect) {
+                    const selectedText = select.options[select.selectedIndex]?.text || variableName;
+                    customSelect.querySelector('.selected-option span').textContent = selectedText;
+                    
+                    // 更新选项的选中状态
+                    const options = customSelect.querySelectorAll('.option');
+                    options.forEach(opt => {
+                        opt.classList.toggle('selected', opt.dataset.value === variableName);
+                    });
+                }
+            }
+        } else if (dropTarget.classList.contains('main-effects-section')) {
+            const select = dropTarget.querySelector('select');
+            if (select) {
+                select.value = variableName;
+                // 触发change事件
+                const event = new Event('change', { bubbles: true });
+                select.dispatchEvent(event);
+                
+                // 更新自定义选择器的显示
+                const customSelect = select.parentNode.querySelector('.custom-select');
+                if (customSelect) {
+                    const selectedText = select.options[select.selectedIndex]?.text || variableName;
+                    customSelect.querySelector('.selected-option span').textContent = selectedText;
+                    
+                    // 更新选项的选中状态
+                    const options = customSelect.querySelectorAll('.option');
+                    options.forEach(opt => {
+                        opt.classList.toggle('selected', opt.dataset.value === variableName);
+                    });
+                }
+                
+                addMainEffect(variableName);
+            }
+        }
+    } else {
+        // Called with variables object to update all selects
+        const selects = [
+            '.dependent-var-section select',
+            '.main-effects-section select',
+            '.interaction-inputs .interaction-select',
+            '.random-slopes-select'
+        ];
+
+        selects.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(select => {
+                if (!select) return;
+                
+                // 清空现有选项
+                while (select.options.length > 0) {
+                    select.remove(0);
+                }
+                
+                // 添加占位选项
+                const placeholderOption = document.createElement('option');
+                placeholderOption.value = '';
+                placeholderOption.hidden = true;
+                placeholderOption.selected = true;
+                select.add(placeholderOption);
+                
+                // 添加变量选项
+                Object.entries(variables).forEach(([varName, varInfo]) => {
+                    const option = document.createElement('option');
+                    option.value = varName;
+                    option.text = varName;
+                    select.add(option);
+                });
+                
+                // 更新自定义选择器
+                const wrapper = select.closest('.custom-select-wrapper');
+                if (wrapper) {
+                    const customSelect = wrapper.querySelector('.custom-select');
+                    if (customSelect) {
+                        updateOptions(select, customSelect);
+                    }
+                }
+            });
+        });
+    }
+}
+
+// 修改现有的 displayVariables 函数
+async function displayVariables(variables) {
+    console.log('Displaying variables:', variables);
+    
+    const variablesList = document.querySelector('.variables-list');
+    const variablesCount = document.querySelector('.variables-count');
+    
+    if (!variablesList || !variablesCount) {
+        console.error('Required DOM elements not found');
+        return;
+    }
+    
+    // 清空现有内容
+    variablesList.innerHTML = '';
+    
+    if (!variables || Object.keys(variables).length === 0) {
+        console.log('No variables to display');
+        variablesList.innerHTML = '<div class="no-variables">No variables available</div>';
+        variablesCount.textContent = '(0)';
+        return;
+    }
+    
+    // 更新变量计数
+    const count = Object.keys(variables).length;
+    variablesCount.textContent = `(${count})`;
+    
+    // 创建变量列表
+    Object.entries(variables).forEach(([varName, varInfo]) => {
+        console.log('Creating variable item:', varName, varInfo);
+        
+        const varItem = document.createElement('div');
+        varItem.className = 'variable-item';
+        varItem.draggable = true;
+        varItem.dataset.variable = varName;
+        varItem.dataset.type = varInfo.type;
+        
+        varItem.innerHTML = `
+            <div class="variable-content">
+                ${getVariableTypeIcon(varInfo.type)}
+                <span>${varName}</span>
+            </div>
+            <span class="variable-type">${varInfo.type}</span>
+        `;
+        
+        // 添加拖拽事件监听器
+        varItem.addEventListener('dragstart', (e) => {
+            console.log('Drag started:', varName);
+            e.dataTransfer.setData('text/plain', varName);
+            varItem.classList.add('dragging');
+        });
+        
+        varItem.addEventListener('dragend', () => {
+            console.log('Drag ended:', varName);
+            varItem.classList.remove('dragging');
+        });
+        
+        variablesList.appendChild(varItem);
+    });
+    
+    // 初始化拖放功能
+    initializeDragAndDrop();
+    console.log('Variables display completed');
+    
+    // 更新所有下拉选择框的选项
+    updateVariableSelects(variables);
+}
+
+// 获取变量类型图标
+function getVariableTypeIcon(type) {
+    switch (type) {
+        case 'continuous':
+            return '<i class="fas fa-chart-line variable-icon continuous"></i>';
+        case 'categorical':
+            return '<i class="fas fa-tags variable-icon categorical"></i>';
+        case 'text':
+            return '<i class="fas fa-font variable-icon text"></i>';
+        case 'date':
+            return '<i class="fas fa-calendar variable-icon date"></i>';
+        default:
+            return '<i class="fas fa-question variable-icon"></i>';
+    }
+}
+
+// 修改初始化拖放功能
+function initializeDragAndDrop() {
+    console.log('Initializing drag and drop...');
+    
+    const scatterPlotContainer = document.getElementById('scatterPlotContainer');
+    const dependentVarSelect = document.querySelector('.dependent-var-section select');
+    const mainEffectsSelect = document.querySelector('.main-effects-section select');
+    
+    if (scatterPlotContainer) {
+        console.log('Found scatter plot container');
+        scatterPlotContainer.addEventListener('dragover', handleDragOver);
+        scatterPlotContainer.addEventListener('dragleave', handleDragLeave);
+        scatterPlotContainer.addEventListener('drop', handleDrop);
+        // 设置默认文本
+        scatterPlotContainer.innerHTML = 'Drop variables here to create scatter plot';
+    } else {
+        console.error('Scatter plot container not found');
+    }
+
+    [dependentVarSelect, mainEffectsSelect].forEach(area => {
+        if (!area) return;
+        area.addEventListener('dragover', handleDragOver);
+        area.addEventListener('dragleave', handleDragLeave);
+        area.addEventListener('drop', handleDrop);
+    });
+}
+
+// 修改处理拖拽悬停
+function handleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Drag over event on:', e.currentTarget.id);
+    e.dataTransfer.dropEffect = 'copy';
+    e.currentTarget.classList.add('drag-over');
+}
+
+// 修改处理拖拽离开
+function handleDragLeave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Drag leave event on:', e.currentTarget.id);
+    e.currentTarget.classList.remove('drag-over');
+}
+
+// 修改处理拖拽放下
+async function handleDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Drop event on:', e.currentTarget.id);
+    
+    const dropTarget = e.currentTarget;
+    dropTarget.classList.remove('drag-over');
+    
+    const variableName = e.dataTransfer.getData('text/plain');
+    console.log('Dropped variable:', variableName);
+    
+    if (!variableName || !currentFileId) {
+        console.error('Missing variable name or file ID');
+        return;
+    }
+
+    try {
+        if (!window.supabaseClient) {
+            throw new Error('Supabase client not initialized');
+        }
+        
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        
+        // 如果是散点图区域
+        if (dropTarget.id === 'scatterPlotContainer') {
+            console.log('Handling drop in scatter plot container');
+            // 检查是否已经有一个变量被拖入
+            const existingVariable = dropTarget.dataset.variable;
+            
+            if (!existingVariable) {
+                // 第一个变量 - 设置为 X 轴
+                dropTarget.dataset.variable = variableName;
+                dropTarget.dataset.axis = 'x';
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'scatter-info';
+                contentDiv.innerHTML = `
+                    <p>X-axis: ${variableName}</p>
+                    <p>Drop another variable for Y-axis</p>
+                `;
+                dropTarget.innerHTML = '';
+                dropTarget.appendChild(contentDiv);
+            } else {
+                // 第二个变量 - 设置为 Y 轴并创建散点图
+                showLoading('Generating scatter plot...');
+                
+                try {
+                    console.log('Requesting scatter plot with:', {
+                        file_path: currentFileId,
+                        x: existingVariable,
+                        y: variableName,
+                        user_id: session.user.id
+                    });
+                    
+                    const response = await fetch(API_ENDPOINTS.scatter, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            file_path: currentFileId,
+                            x_variable: existingVariable,
+                            y_variable: variableName,
+                            user_id: session.user.id,
+                            x_label: existingVariable,
+                            y_label: variableName,
+                            title: `${existingVariable} vs ${variableName}`
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    console.log('Scatter plot response:', result);
+
+                    if (result.status === 'success') {
+                        console.log('Successfully generated scatter plot');
+                        
+                        // 添加has-image类来移除虚线边框
+                        dropTarget.classList.add('has-image');
+                        
+                        // 创建一个容器来包装图片和重置按钮
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'scatter-plot-content';
+                        
+                        // 创建图片元素
+                        const img = document.createElement('img');
+                        img.src = `data:image/png;base64,${result.plot}`;
+                        img.alt = 'Scatter Plot';
+                        
+                        // 创建重置按钮
+                        const resetBtn = document.createElement('button');
+                        resetBtn.className = 'reset-scatter-btn';
+                        resetBtn.innerHTML = '<i class="fas fa-redo"></i> Reset';
+                        resetBtn.onclick = () => {
+                            dropTarget.innerHTML = 'Drop variables here to create scatter plot';
+                            dropTarget.removeAttribute('data-variable');
+                            dropTarget.removeAttribute('data-axis');
+                            dropTarget.classList.remove('has-image'); // 移除has-image类，恢复虚线边框
+                        };
+                        
+                        // 添加元素到容器
+                        contentDiv.appendChild(img);
+                        contentDiv.appendChild(resetBtn);
+                        
+                        // 清空并添加新内容
+                        dropTarget.innerHTML = '';
+                        dropTarget.appendChild(contentDiv);
+                    } else {
+                        throw new Error(result.message || 'Failed to create scatter plot');
+                    }
+                } catch (error) {
+                    console.error('Error creating scatter plot:', error);
+                    showError(`Failed to create scatter plot: ${error.message}`);
+                    // 重置状态
+                    dropTarget.innerHTML = 'Drop variables here to create scatter plot';
+                    dropTarget.removeAttribute('data-variable');
+                    dropTarget.removeAttribute('data-axis');
+                }
+            }
+        } else {
+            // 下拉框选择逻辑
+            console.log('Handling drop in variable select area');
+            updateVariableSelects(variableName, dropTarget);
+        }
+    } catch (error) {
+        console.error('Error handling drop:', error);
+        showError(`Error: ${error.message}`);
+    } finally {
+        hideLoading();
+    }
+}
+
+// Add main effect
+function addMainEffect(variableName) {
+    const effectsDisplay = document.querySelector('.selected-effects-display');
+    if (!effectsDisplay) return;
+    
+    // 检查是否已经存在
+    const existingItem = Array.from(effectsDisplay.querySelectorAll('.selected-effect-item'))
+        .find(item => item.querySelector('span').textContent === variableName);
+    
+    if (existingItem) return; // 避免重复添加
+    
+    const effectItem = document.createElement('div');
+    effectItem.className = 'selected-effect-item';
+    effectItem.innerHTML = `
+        <span>${variableName}</span>
+        <button class="remove-effect" data-variable="${variableName}">
+            <i class="fas fa-times"></i>
+        </button>
     `;
     
-    const tableBody = document.createElement('tbody');
-    mockResults.coefficients.forEach(coef => {
-        const isSignificant = coef.pValue < 0.05;
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${coef.term}</td>
-            <td>${coef.estimate.toFixed(4)}</td>
-            <td>${coef.stdError.toFixed(4)}</td>
-            <td>${coef.tValue.toFixed(2)}</td>
-            <td class="${isSignificant ? 'significant' : 'not-significant'}">${coef.pValue.toFixed(4)}</td>
-        `;
-        tableBody.appendChild(row);
+    effectsDisplay.appendChild(effectItem);
+    
+    // Add remove event listener
+    const removeBtn = effectItem.querySelector('.remove-effect');
+    removeBtn.addEventListener('click', () => {
+        effectItem.remove();
     });
-    
-    coeffTable.appendChild(tableHead);
-    coeffTable.appendChild(tableBody);
-    coefficientsContent.appendChild(coeffTable);
-    
-    // Build diagnostics content
-    const diagnosticsPlots = document.createElement('div');
-    diagnosticsPlots.className = 'diagnostic-plots';
-    
-    const plots = [
-        'Residuals vs Fitted',
-        'QQ Plot',
-        'Scale-Location',
-        'Residuals vs Leverage'
-    ];
-    
-    plots.forEach(plot => {
-        const plotDiv = document.createElement('div');
-        plotDiv.className = 'diagnostic-plot';
-        plotDiv.id = `diagnostic-${plot.toLowerCase().replace(/\s+/g, '-')}`;
-        diagnosticsPlots.appendChild(plotDiv);
-        
-        // We'll create mock plots in another function
-        createDiagnosticPlot(plotDiv.id, plot);
-    });
-    
-    diagnosticsContent.appendChild(diagnosticsPlots);
-    
-    // Add all content divs to results
-    resultsContent.appendChild(summaryContent);
-    resultsContent.appendChild(coefficientsContent);
-    resultsContent.appendChild(diagnosticsContent);
-    
-    // Update visualization content
-    updateVisualizationContent();
 }
 
-// Create diagnostic plots
-function createDiagnosticPlot(id, title) {
-    // Create mock data for diagnostic plots
-    const x = Array.from({length: 50}, (_, i) => i * 0.2 - 5);
-    let y;
+// Add interaction effect
+function addInteractionEffect(var1, var2) {
+    const interactionsDisplay = document.querySelector('.interactions-list');
+    if (!interactionsDisplay) return;
     
-    // Different patterns for different plots
-    switch(title) {
-        case 'Residuals vs Fitted':
-            y = x.map(val => 2 * Math.random() - 1);
-            break;
-        case 'QQ Plot':
-            y = x.map(val => val + (Math.random() - 0.5) * 0.5);
-            break;
-        case 'Scale-Location':
-            y = x.map(val => Math.abs(Math.sin(val) + (Math.random() - 0.5) * 0.3));
-            break;
-        case 'Residuals vs Leverage':
-            y = x.map(val => 0.1 / (Math.abs(val) + 0.1) * (Math.random() + 0.5));
-            break;
-        default:
-            y = x.map(val => Math.random());
+    const interactionId = `interaction-${var1}-${var2}`;
+    
+    // Check if interaction already exists
+    if (document.getElementById(interactionId)) {
+        showError('This interaction already exists');
+        return;
     }
     
-    const trace = {
-        x: x,
-        y: y,
-        mode: 'markers',
-        type: 'scatter',
-        marker: {
-            size: 8,
-            color: 'rgba(108, 92, 231, 0.7)',
-            line: {
-                color: 'rgba(108, 92, 231, 1)',
-                width: 1
-            }
-        }
-    };
+    const interactionTag = document.createElement('div');
+    interactionTag.className = 'interaction-tag';
+    interactionTag.id = interactionId;
+    interactionTag.dataset.variables = `${var1},${var2}`;
+    interactionTag.innerHTML = `
+        <span>${var1} × ${var2}</span>
+        <button class="remove-interaction" title="Remove interaction">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
     
-    const layout = {
-        title: {
-            text: title,
-            font: {
-                family: 'Raleway, sans-serif',
-                size: 14
-            }
-        },
-        xaxis: { 
-            title: title.includes('Fitted') ? 'Fitted Values' : 
-                  title === 'QQ Plot' ? 'Theoretical Quantiles' :
-                  title.includes('Leverage') ? 'Leverage' : 'Index',
-            gridcolor: 'transparent'
-        },
-        yaxis: { 
-            title: title.includes('Residuals') ? 'Residuals' : 
-                  title === 'QQ Plot' ? 'Sample Quantiles' :
-                  title === 'Scale-Location' ? 'Sqrt(|Standardized Residuals|)' : 'Value',
-            gridcolor: 'transparent'
-        },
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent',
-        margin: { t: 40, r: 10, l: 50, b: 40 },
-        autosize: true
-    };
-    
-    const config = {
-        responsive: true,
-        displayModeBar: false
-    };
-    
-    Plotly.newPlot(id, [trace], layout, config);
-}
-
-// Update visualization content
-function updateVisualizationContent() {
-    // Clear existing content
-    const vizContent = document.getElementById('vizContent');
-    vizContent.innerHTML = '';
-    
-    // Create content divs for each tab
-    const fittedLineContent = document.createElement('div');
-    fittedLineContent.id = 'fittedLine-content';
-    
-    const residualsContent = document.createElement('div');
-    residualsContent.id = 'residuals-content';
-    residualsContent.style.display = 'none';
-    
-    const effectsContent = document.createElement('div');
-    effectsContent.id = 'effects-content';
-    effectsContent.style.display = 'none';
-    
-    // Build fitted line plot
-    const fittedLineDiv = document.createElement('div');
-    fittedLineDiv.id = 'fitted-line-plot';
-    fittedLineDiv.style.height = '400px';
-    fittedLineContent.appendChild(fittedLineDiv);
-    
-    // Create mock fitted line plot
-    createFittedLinePlot('fitted-line-plot');
-    
-    // Build residuals plots
-    const residualsDiv = document.createElement('div');
-    residualsDiv.id = 'residuals-plot';
-    residualsDiv.style.height = '400px';
-    residualsContent.appendChild(residualsDiv);
-    
-    // Create mock residuals plot
-    createResidualsPlot('residuals-plot');
-    
-    // Build effects plots
-    const effectsPlots = document.createElement('div');
-    effectsPlots.className = 'effects-plots';
-    
-    // Main effects
-    const mainEffectsSelected = getSelectedValues(mainEffects);
-    mainEffectsSelected.forEach(effect => {
-        const plotDiv = document.createElement('div');
-        plotDiv.className = 'effect-plot';
-        
-        const titleDiv = document.createElement('div');
-        titleDiv.className = 'effect-plot-title';
-        titleDiv.textContent = `Main Effect: ${effect}`;
-        
-        const chartDiv = document.createElement('div');
-        chartDiv.id = `effect-${effect.toLowerCase()}`;
-        chartDiv.style.height = '300px';
-        
-        plotDiv.appendChild(titleDiv);
-        plotDiv.appendChild(chartDiv);
-        effectsPlots.appendChild(plotDiv);
-        
-        // Create mock effect plot
-        createEffectPlot(`effect-${effect.toLowerCase()}`, effect);
+    // Add remove event listener
+    const removeBtn = interactionTag.querySelector('.remove-interaction');
+    removeBtn.addEventListener('click', () => {
+        interactionTag.remove();
     });
     
-    // Interaction effects
-    selectedInteractions.forEach((interaction, idx) => {
-        const plotDiv = document.createElement('div');
-        plotDiv.className = 'effect-plot';
-        
-        const titleDiv = document.createElement('div');
-        titleDiv.className = 'effect-plot-title';
-        titleDiv.textContent = `Interaction: ${interaction.join(' × ')}`;
-        
-        const chartDiv = document.createElement('div');
-        chartDiv.id = `interaction-${idx}`;
-        chartDiv.style.height = '300px';
-        
-        plotDiv.appendChild(titleDiv);
-        plotDiv.appendChild(chartDiv);
-        effectsPlots.appendChild(plotDiv);
-        
-        // Create mock interaction plot
-        createInteractionPlot(`interaction-${idx}`, interaction);
-    });
-    
-    effectsContent.appendChild(effectsPlots);
-    
-    // Add all content divs to visualization
-    vizContent.appendChild(fittedLineContent);
-    vizContent.appendChild(residualsContent);
-    vizContent.appendChild(effectsContent);
+    interactionsDisplay.appendChild(interactionTag);
 }
 
-// Create fitted line plot
-function createFittedLinePlot(id) {
-    // Mock data
-    const xVar = dependentVarSelect.value;
-    if (!xVar || !currentData) return;
-    
-    const x = currentData[xVar];
-    
-    // Generate mock fitted values
-    const yFitted = x.map(val => 5 + 0.5 * val + (Math.random() - 0.5) * 3);
-    
-    // Data points trace
-    const dataTrace = {
-        x: x,
-        y: yFitted,
-        mode: 'markers',
-        type: 'scatter',
-        name: 'Data',
-        marker: {
-            size: 10,
-            color: 'rgba(108, 92, 231, 0.7)',
-            line: {
-                color: 'rgba(108, 92, 231, 1)',
-                width: 1
-            }
+// Run regression analysis
+async function runRegressionAnalysis() {
+    try {
+        // Check if Supabase client is available
+        if (!window.supabaseClient) {
+            throw new Error('Supabase client not initialized');
         }
-    };
-    
-    // Generate line of best fit
-    const xLine = [Math.min(...x), Math.max(...x)];
-    const yLine = xLine.map(val => 5 + 0.5 * val);
-    
-    // Line trace
-    const lineTrace = {
-        x: xLine,
-        y: yLine,
-        mode: 'lines',
-        type: 'scatter',
-        name: 'Fitted Line',
-        line: {
-            color: 'rgba(0, 206, 201, 1)',
-            width: 3
-        }
-    };
-    
-    const layout = {
-        title: {
-            text: 'Fitted Regression Line',
-            font: {
-                family: 'Raleway, sans-serif'
-            }
-        },
-        xaxis: { 
-            title: xVar,
-            gridcolor: 'transparent'
-        },
-        yaxis: { 
-            title: 'Fitted Values',
-            gridcolor: 'transparent'
-        },
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent',
-        margin: { t: 50, r: 20, l: 60, b: 50 },
-        autosize: true,
-        legend: {
-            x: 0.05,
-            y: 0.95,
-            bgcolor: 'rgba(0, 0, 0, 0.3)',
-            bordercolor: 'rgba(255, 255, 255, 0.2)',
-            borderwidth: 1
-        }
-    };
-    
-    const config = {
-        responsive: true,
-        displayModeBar: false
-    };
-    
-    Plotly.newPlot(id, [dataTrace, lineTrace], layout, config);
-}
-
-// Create residuals plot
-function createResidualsPlot(id) {
-    // Mock data for residuals
-    const x = Array.from({length: 50}, (_, i) => i);
-    const residuals = x.map(_ => (Math.random() - 0.5) * 4);
-    
-    const trace = {
-        x: x,
-        y: residuals,
-        mode: 'markers',
-        type: 'scatter',
-        marker: {
-            size: 10,
-            color: 'rgba(108, 92, 231, 0.7)',
-            line: {
-                color: 'rgba(108, 92, 231, 1)',
-                width: 1
-            }
-        }
-    };
-    
-    // Add horizontal zero line
-    const zeroLine = {
-        x: [0, x.length - 1],
-        y: [0, 0],
-        mode: 'lines',
-        type: 'scatter',
-        line: {
-            color: 'rgba(253, 121, 168, 0.7)',
-            width: 2,
-            dash: 'dash'
-        }
-    };
-    
-    const layout = {
-        title: {
-            text: 'Residuals Plot',
-            font: {
-                family: 'Raleway, sans-serif'
-            }
-        },
-        xaxis: { 
-            title: 'Index',
-            gridcolor: 'transparent'
-        },
-        yaxis: { 
-            title: 'Residuals',
-            gridcolor: 'transparent'
-        },
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent',
-        margin: { t: 50, r: 20, l: 60, b: 50 },
-        autosize: true
-    };
-    
-    const config = {
-        responsive: true,
-        displayModeBar: false
-    };
-    
-    Plotly.newPlot(id, [trace, zeroLine], layout, config);
-}
-
-// Create effect plot
-function createEffectPlot(id, variable) {
-    if (!currentData || !currentData[variable]) return;
-    
-    // Get unique x values or create bins for continuous variables
-    const xValues = [...new Set(currentData[variable])].sort((a, b) => a - b);
-    
-    // Mock y values (effect sizes)
-    const yValues = xValues.map(x => 2 + 0.3 * x + (Math.random() - 0.5) * 0.2);
-    
-    // Confidence intervals (mock)
-    const yUpper = yValues.map(y => y + 0.2 + Math.random() * 0.1);
-    const yLower = yValues.map(y => y - 0.2 - Math.random() * 0.1);
-    
-    // Main effect trace
-    const effectTrace = {
-        x: xValues,
-        y: yValues,
-        mode: 'lines+markers',
-        type: 'scatter',
-        name: variable,
-        line: {
-            color: 'rgba(0, 206, 201, 1)',
-            width: 3
-        },
-        marker: {
-            size: 8,
-            color: 'rgba(0, 206, 201, 1)'
-        }
-    };
-    
-    // Upper CI
-    const upperTrace = {
-        x: xValues,
-        y: yUpper,
-        mode: 'lines',
-        line: {
-            color: 'rgba(0, 206, 201, 0.3)',
-            width: 0
-        },
-        showlegend: false
-    };
-    
-    // Lower CI
-    const lowerTrace = {
-        x: xValues,
-        y: yLower,
-        mode: 'lines',
-        fill: 'tonexty',
-        fillcolor: 'rgba(0, 206, 201, 0.2)',
-        line: {
-            color: 'rgba(0, 206, 201, 0.3)',
-            width: 0
-        },
-        showlegend: false
-    };
-    
-    const layout = {
-        title: {
-            text: `Effect of ${variable}`,
-            font: {
-                family: 'Raleway, sans-serif',
-                size: 14
-            }
-        },
-        xaxis: { 
-            title: variable,
-            gridcolor: 'transparent'
-        },
-        yaxis: { 
-            title: 'Effect',
-            gridcolor: 'transparent'
-        },
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent',
-        margin: { t: 30, r: 10, l: 40, b: 40 },
-        autosize: true,
-        showlegend: false
-    };
-    
-    const config = {
-        responsive: true,
-        displayModeBar: false
-    };
-    
-    Plotly.newPlot(id, [lowerTrace, upperTrace, effectTrace], layout, config);
-}
-
-// Create interaction plot
-function createInteractionPlot(id, variables) {
-    if (!currentData || variables.length < 2) return;
-    
-    // For simplicity, we'll only consider the first two variables in the interaction
-    const xVar = variables[0];
-    const groupVar = variables[1];
-    
-    if (!currentData[xVar] || !currentData[groupVar]) return;
-    
-    // Get unique values for grouping variable
-    const groups = [...new Set(currentData[groupVar])].sort((a, b) => a - b);
-    
-    // Mock data generation
-    const traces = groups.map((group, index) => {
-        // For each group, generate a trend line
-        const x = Array.from({length: 10}, (_, i) => i + (Math.random() - 0.5) * 0.2);
-        const slope = 0.5 + index * 0.2; // Different slope for each group
-        const y = x.map(val => 2 + slope * val + (Math.random() - 0.5) * 0.3);
         
-        return {
-            x: x,
-            y: y,
-            mode: 'lines+markers',
-            type: 'scatter',
-            name: `${groupVar} = ${group}`,
-            line: {
-                width: 2
-            },
-            marker: {
-                size: 6
-            }
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        if (!session?.user?.id) {
+            throw new Error('User not authenticated');
+        }
+
+        showLoading('Running analysis...');
+
+        // Get selected variables and options
+        const dependentVar = document.querySelector('.dependent-var-section select').value;
+        const mainEffects = Array.from(document.querySelectorAll('.selected-effect-item span'))
+            .map(span => span.textContent);
+        const interactions = Array.from(document.querySelectorAll('.interaction-tag'))
+            .map(tag => tag.dataset.variables.split(','));
+        const randomSlopes = Array.from(document.querySelectorAll('.selected-slope-item span'))
+            .map(span => span.textContent);
+        
+        const options = {
+            intercept: document.getElementById('intercept').checked,
+            covarianceStructure: document.getElementById('covStructure').value,
+            estimationMethod: document.getElementById('estimationMethod').value,
+            maxIterations: parseInt(document.getElementById('maxIter').value),
+            convergenceTolerance: parseFloat(document.getElementById('convTol').value)
         };
-    });
-    
-    const layout = {
-        title: {
-            text: `Interaction: ${variables.join(' × ')}`,
-            font: {
-                family: 'Raleway, sans-serif',
-                size: 14
-            }
-        },
-        xaxis: { 
-            title: xVar,
-            gridcolor: 'transparent'
-        },
-        yaxis: { 
-            title: 'Effect',
-            gridcolor: 'transparent'
-        },
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent',
-        margin: { t: 30, r: 10, l: 40, b: 40 },
-        autosize: true,
-        legend: {
-            x: 0.02,
-            y: 0.98,
-            bgcolor: 'rgba(0, 0, 0, 0.3)',
-            bordercolor: 'rgba(255, 255, 255, 0.2)',
-            borderwidth: 1,
-            font: {
-                size: 10
-            }
+
+        // 验证必要的变量
+        if (!dependentVar) {
+            throw new Error('Please select a dependent variable');
         }
-    };
-    
-    const config = {
-        responsive: true,
-        displayModeBar: false
-    };
-    
-    Plotly.newPlot(id, traces, layout, config);
+
+        if (mainEffects.length === 0) {
+            throw new Error('Please select at least one main effect');
+        }
+
+        const response = await fetch(API_ENDPOINTS.regressionModel, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                file_path: `${session.user.id}/${currentFileId}`,
+                dependent_variable: dependentVar,
+                main_effects: mainEffects,
+                interactions: interactions,
+                random_slopes: randomSlopes,
+                options: options,
+                user_id: session.user.id
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.status === 'success') {
+            displayResults(result);
+            
+            // 切换到结果选项卡
+            switchTab('summary');
+            
+            // 滚动到结果部分
+            document.querySelector('.model-results-panel').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        } else {
+            throw new Error(result.message || 'Analysis failed');
+        }
+    } catch (error) {
+        console.error('Analysis error:', error);
+        showError(`Analysis failed: ${error.message}`);
+    } finally {
+        hideLoading();
+    }
 }
 
-// Update tab content
-function updateTabContent(tab) {
-    // Results tabs
-    if (document.querySelector('.results-tabs .tab-btn.active')) {
-        const activeTab = document.querySelector('.results-tabs .tab-btn.active').dataset.tab;
-        document.querySelectorAll('#resultsContent > div').forEach(div => {
-            div.style.display = 'none';
+// Display analysis results
+function displayResults(result) {
+    // Update summary tab
+    const summaryContent = document.querySelector('#resultsContent[data-tab="summary"]');
+    if (summaryContent) {
+        summaryContent.innerHTML = `
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <h4>R-squared</h4>
+                    <p>${result.metrics.r_squared.toFixed(4)}</p>
+                </div>
+                <div class="stat-item">
+                    <h4>Adjusted R-squared</h4>
+                    <p>${result.metrics.adjusted_r_squared.toFixed(4)}</p>
+                </div>
+                <div class="stat-item">
+                    <h4>F-statistic</h4>
+                    <p>${result.metrics.f_statistic.toFixed(4)}</p>
+                </div>
+                <div class="stat-item">
+                    <h4>p-value</h4>
+                    <p>${result.metrics.p_value.toFixed(4)}</p>
+                </div>
+            </div>
+        `;
+    }
+
+    // Update coefficients tab
+    const coefficientsContent = document.querySelector('#resultsContent[data-tab="coefficients"]');
+    if (coefficientsContent && result.coefficients) {
+        const table = document.createElement('table');
+        table.className = 'results-table';
+        
+        // Create table header
+        const thead = document.createElement('thead');
+        thead.innerHTML = `
+            <tr>
+                <th>Variable</th>
+                <th>Estimate</th>
+                <th>Std. Error</th>
+                <th>t-value</th>
+                <th>p-value</th>
+            </tr>
+        `;
+        table.appendChild(thead);
+        
+        // Create table body
+        const tbody = document.createElement('tbody');
+        Object.entries(result.coefficients).forEach(([varName, coef]) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${varName}</td>
+                <td>${coef.estimate.toFixed(4)}</td>
+                <td>${coef.std_error.toFixed(4)}</td>
+                <td>${coef.t_value.toFixed(4)}</td>
+                <td>${coef.p_value.toFixed(4)}</td>
+            `;
+            tbody.appendChild(tr);
         });
-        document.getElementById(`${activeTab}-content`).style.display = 'block';
+        table.appendChild(tbody);
+        
+        coefficientsContent.innerHTML = '';
+        coefficientsContent.appendChild(table);
+    }
+
+    // Update diagnostics tab
+    const diagnosticsContent = document.querySelector('#resultsContent[data-tab="diagnostics"]');
+    if (diagnosticsContent && result.diagnostics) {
+        const diagnosticsPlots = document.createElement('div');
+        diagnosticsPlots.className = 'diagnostics-plots';
+        
+        result.diagnostics.plots.forEach(plot => {
+            const plotContainer = document.createElement('div');
+            plotContainer.className = 'plot-container';
+            
+            const plotTitle = document.createElement('h4');
+            plotTitle.textContent = plot.title;
+            plotContainer.appendChild(plotTitle);
+            
+            const plotDiv = document.createElement('div');
+            plotDiv.id = plot.id;
+            plotContainer.appendChild(plotDiv);
+            
+            diagnosticsPlots.appendChild(plotContainer);
+            
+            // Render diagnostic plot
+            const plotData = JSON.parse(plot.data);
+            Plotly.newPlot(plot.id, plotData.data, plotData.layout);
+        });
+        
+        diagnosticsContent.innerHTML = '';
+        diagnosticsContent.appendChild(diagnosticsPlots);
+    }
+
+    // Update visualization tab
+    const vizContent = document.querySelector('#vizContent');
+    if (vizContent && result.visualizations) {
+        const plotData = JSON.parse(result.visualizations.plot);
+        Plotly.newPlot('vizContent', plotData.data, plotData.layout);
+    }
+}
+
+// Switch between tabs
+function switchTab(tabId) {
+    // Remove active class from all tabs and content
+    document.querySelectorAll('.tab-btn').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.results-content, .viz-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    // Add active class to selected tab and content
+    const selectedTab = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+    const selectedContent = document.querySelector(`#resultsContent[data-tab="${tabId}"], #vizContent[data-tab="${tabId}"]`);
+    
+    if (selectedTab) selectedTab.classList.add('active');
+    if (selectedContent) selectedContent.classList.add('active');
+}
+
+// Show loading overlay
+function showLoading(message) {
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'loadingOverlay';
+    loadingDiv.innerHTML = `
+        <div class="loading-spinner"></div>
+        <p>${message}</p>
+    `;
+    document.body.appendChild(loadingDiv);
+}
+
+// Hide loading overlay
+function hideLoading() {
+    const loadingDiv = document.getElementById('loadingOverlay');
+    if (loadingDiv) {
+        loadingDiv.remove();
+    }
+}
+
+// Show error message
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-toast';
+    errorDiv.innerHTML = `
+        <i class="fas fa-exclamation-circle"></i>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(errorDiv);
+    
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 3000);
+}
+
+// Clear variables list
+function clearVariablesList() {
+    const variablesList = document.querySelector('.variables-list');
+    if (variablesList) {
+        variablesList.innerHTML = '';
     }
     
-    // Visualization tabs
-    if (document.querySelector('.viz-tabs .tab-btn.active')) {
-        const activeVizTab = document.querySelector('.viz-tabs .tab-btn.active').dataset.tab;
-        document.querySelectorAll('#vizContent > div').forEach(div => {
-            div.style.display = 'none';
-        });
-        document.getElementById(`${activeVizTab}-content`).style.display = 'block';
+    const variablesCount = document.querySelector('.variables-count');
+    if (variablesCount) {
+        variablesCount.textContent = '(0)';
     }
-} 
+    
+    currentVariables = null;
+}
+
+// Add random slope
+function addRandomSlope(variableName) {
+    const slopesDisplay = document.querySelector('.selected-slopes-display');
+    if (!slopesDisplay) return;
+    
+    // 检查是否已经存在
+    const existingItem = Array.from(slopesDisplay.querySelectorAll('.selected-slope-item'))
+        .find(item => item.querySelector('span').textContent === variableName);
+    
+    if (existingItem) return; // 避免重复添加
+    
+    const slopeItem = document.createElement('div');
+    slopeItem.className = 'selected-slope-item';
+    slopeItem.innerHTML = `
+        <span>${variableName}</span>
+        <button class="remove-slope" title="Remove slope">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    slopesDisplay.appendChild(slopeItem);
+    
+    // 添加删除事件监听器
+    const removeBtn = slopeItem.querySelector('.remove-slope');
+    removeBtn.addEventListener('click', () => {
+        slopeItem.remove();
+    });
+}
