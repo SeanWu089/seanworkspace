@@ -293,8 +293,8 @@ label {
 .intercept-checkbox {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    margin-top: 20px;
+    gap: 20px;
+    margin-top: 5px;
     padding: 0;
 }
 
@@ -397,8 +397,9 @@ label {
 /* Run Model Button */
 .run-model {
     width: 100%;
-    height: 60px;
-    margin: 46px auto 0;
+    height: 80px;
+    margin: auto;
+    margin-top: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -492,26 +493,19 @@ label {
     min-height: 400px;
     position: relative;
     overflow: hidden;
+    border: 1px solid var(--border-color);
+    margin-top: 10px;
 }
 
-/* Add a subtle gradient overlay to content areas */
-.results-content::before, .viz-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, 
-        rgba(108, 92, 231, 0.02) 0%, 
-        rgba(0, 206, 201, 0.02) 100%);
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* Visualization placeholder stripes */
+/* Visualization Area Placeholder */
 .viz-content {
-    background: var(--surface-color);
+    background-image: repeating-linear-gradient(
+        45deg,
+        var(--surface-color),
+        var(--surface-color) 10px,
+        var(--panel-background) 10px,
+        var(--panel-background) 20px
+    );
     display: flex;
     align-items: center;
     justify-content: center;
@@ -522,7 +516,20 @@ label {
 .viz-content::after {
     content: 'Visualization Area';
     position: absolute;
-    opacity: 0.7;
+    background: var(--surface-color);
+    padding: 10px 20px;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    opacity: 0.9;
+}
+
+/* When visualization is active, remove placeholder */
+.viz-content.has-content {
+    background-image: none;
+}
+
+.viz-content.has-content::after {
+    display: none;
 }
 
 /* Results Tables */
@@ -715,46 +722,44 @@ label {
 }
 
 .variable-spec-panel {
-    padding: 25px;
-}
-
-.advanced-options-panel {
-    padding: 25px;
-}
-
-.model-results-panel {
-    padding: 25px;
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    position: relative;
-}
-
-.results-visual-panel {
-    padding: 25px;
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    position: relative;
-}
-
-/* First section styles */
-.data-selection-panel {
-    position: relative;
-}
-
-/* Container highlight effect */
-.data-scatter-container::before {
-    display: none;
-}
-
-/* Second section highlight effects */
-.variable-spec-panel {
     background: var(--surface-color);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg);
     border-left: 3px solid var(--primary-color);
     position: relative;
+    padding: 25px;
+    height: 550px;
+}
+
+.variable-panel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 50px;
+    margin: 0 auto;
+    padding: 0;
+    height: calc(100% - 60px); /* 减去标题和padding的空间 */
+    width: 100%;
+}
+
+.variable-spec-left {
+    background: transparent;
+    border: none;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+}
+
+.variable-spec-right {
+    background: transparent;
+    border: none;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    margin-top: -55px;
 }
 
 .advanced-options-panel {
@@ -764,12 +769,16 @@ label {
     border-left: 3px solid var(--secondary-color);
     position: relative;
     padding: 50px 60px;
+    height: 500px;
+    overflow: hidden;
 }
 
 .advanced-options-content {
     display: flex;
     flex-direction: column;
-    gap: 35px;
+    gap: 15px;
+    height: calc(100% - 50px); /* Subtract title space */
+    overflow-y: auto;
 }
 
 .option-group {
@@ -777,6 +786,7 @@ label {
     grid-template-columns: 180px 1fr;
     align-items: center;
     gap: 15px !important;
+    position: relative;
 }
 
 .option-group label {
@@ -802,11 +812,11 @@ label {
 .variable-panel-grid {
     display: grid;
     grid-template-columns: 1fr 1.2fr;
-    gap: 30px;
+    gap: 50px;
     margin: 0 auto;
     padding: 0;
-    height: 200px !important;
-    max-width: 1480px;
+    height: calc(100% - 60px); /* 减去标题和padding的空间 */
+    width: 100%;
 }
 
 .left-column,
@@ -815,24 +825,6 @@ label {
     border-radius: var(--border-radius-md);
     padding: 20px;
     border: 1px solid var(--border-color);
-}
-
-.variable-spec-left {
-    background: transparent;
-    border: none;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-}
-
-.variable-spec-right {
-    background: transparent;
-    border: none;
-    padding: 20px 20px 20px 0;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    margin-top: -80px;
 }
 
 /* Setting Groups */
@@ -851,19 +843,8 @@ label {
     margin-bottom: 15px;
 }
 
-/* Variable Specification Content */
-.variable-spec-content {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    gap: 20px;
-    height: 400px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding-right: 20px;
-}
-
 .effects-container {
-    margin-top: 20px;
+    margin-top: 0;
 }
 
 .main-effects-section {
@@ -969,13 +950,13 @@ label {
 
 /* Selected Main Effects Display */
 .selected-effects-display {
+    flex: 1;
+    min-height: 150px;
     background: var(--surface-color);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
-    height: 140px;
-    padding: 12px;
-    margin-top: 15px;
-    color: var(--text-color);
+    padding: 10px;
+    overflow-y: auto;
 }
 
 /* Random Effects Structure */
@@ -987,7 +968,7 @@ label {
 
 .random-slopes {
     flex-grow: 1;
-    margin-top: 30px;
+    margin-top: 10px;
 }
 
 .random-slopes-select {
@@ -996,13 +977,13 @@ label {
 }
 
 .selected-slopes-display {
+    flex: 1;
+    min-height: 150px;
     background: var(--surface-color);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
-    height: 140px;
-    padding: 12px;
-    margin-top: 15px;
-    color: var(--text-color);
+    padding: 10px;
+    overflow-y: auto;
 }
 
 .selected-slope-item {
@@ -1693,7 +1674,7 @@ label {
     top: 100%;
     left: 0;
     width: 100%;
-    height: 300px;
+    max-height: 200px;
     overflow-y: auto;
     background: var(--surface-color);
     border: 1px solid var(--border-color);
@@ -1753,4 +1734,14 @@ label {
 .select2-container--open .select2-selection--single .select2-selection__arrow::after,
 .select2-container--default .select2-selection--single {
     display: none !important;
+}
+
+/* Model Results Panel and Results Visual Panel */
+.model-results-panel,
+.results-visual-panel {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 25px;
+    position: relative;
 } 

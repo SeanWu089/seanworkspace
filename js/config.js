@@ -10,5 +10,6 @@ export const API_ENDPOINTS = {
     dataType: `${API_BASE_URL}/data_type`,
     timeseriesPlot: `${API_BASE_URL}/finance/timeseries_plot`,
     timeseriesModel: `${API_BASE_URL}/finance/timeseries_model`,
+    scatter: `${API_BASE_URL}/scatter`,
     test: `${API_BASE_URL}/test`
 }; 
