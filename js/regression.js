@@ -287,18 +287,17 @@ function setupEventListeners() {
     const addInteractionBtn = document.querySelector('.add-interaction');
     if (addInteractionBtn) {
         addInteractionBtn.addEventListener('click', () => {
-            // 获取原生下拉框的值
-            const var1Select = document.querySelector('.interaction-grid select:first-of-type');
-            const var2Select = document.querySelector('.interaction-grid select:last-of-type');
-            
-            if (!var1Select || !var2Select) {
+            // 获取两个交互变量的选择框
+            const selects = document.querySelectorAll('.interaction-inputs .interaction-select');
+            if (selects.length !== 2) {
                 console.error('Interaction selects not found');
                 return;
             }
 
-            const var1 = var1Select.value;
-            const var2 = var2Select.value;
+            const var1 = selects[0].value;
+            const var2 = selects[1].value;
 
+            // 验证选择
             if (!var1 || !var2) {
                 showError('Please select both variables for interaction');
                 return;
@@ -309,23 +308,49 @@ function setupEventListeners() {
                 return;
             }
 
-            addInteractionEffect(var1, var2);
-            
-            // 清空下拉框选择
-            var1Select.value = '';
-            var2Select.value = '';
-            
-            // 更新自定义下拉框显示
-            const customSelect1 = var1Select.closest('.custom-select-wrapper')?.querySelector('.custom-select');
-            const customSelect2 = var2Select.closest('.custom-select-wrapper')?.querySelector('.custom-select');
-            
-            if (customSelect1) {
-                customSelect1.querySelector('.selected-option span').textContent = 'Select option...';
+            // 检查是否已存在相同的交互（考虑顺序无关）
+            const interactionsList = document.querySelector('.interactions-list');
+            const existingInteractions = interactionsList.querySelectorAll('.interaction-tag');
+            const isDuplicate = Array.from(existingInteractions).some(tag => {
+                const [existingVar1, existingVar2] = tag.dataset.variables.split(',');
+                return (existingVar1 === var1 && existingVar2 === var2) || 
+                       (existingVar1 === var2 && existingVar2 === var1);
+            });
+
+            if (isDuplicate) {
+                showError('This interaction already exists');
+                return;
             }
-            
-            if (customSelect2) {
-                customSelect2.querySelector('.selected-option span').textContent = 'Select option...';
-            }
+
+            // 添加交互项
+            const interactionTag = document.createElement('div');
+            interactionTag.className = 'interaction-tag';
+            interactionTag.dataset.variables = `${var1},${var2}`;
+            interactionTag.innerHTML = `
+                <span>${var1} × ${var2}</span>
+                <button class="remove-interaction" title="Remove interaction">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            // 添加删除按钮的事件监听器
+            const removeBtn = interactionTag.querySelector('.remove-interaction');
+            removeBtn.addEventListener('click', () => {
+                interactionTag.remove();
+            });
+
+            // 添加到交互列表
+            interactionsList.appendChild(interactionTag);
+
+            // 重置选择框
+            selects.forEach(select => {
+                select.value = '';
+                // 更新自定义选择器的显示
+                const customSelect = select.closest('.custom-select-wrapper')?.querySelector('.custom-select');
+                if (customSelect) {
+                    customSelect.querySelector('.selected-option span').textContent = 'Select option...';
+                }
+            });
         });
     }
 
@@ -833,37 +858,33 @@ function addMainEffect(variableName) {
     });
 }
 
-// Add interaction effect
-function addInteractionEffect(var1, var2) {
-    const interactionsDisplay = document.querySelector('.interactions-list');
-    if (!interactionsDisplay) return;
+// Add random slope
+function addRandomSlope(variableName) {
+    const slopesDisplay = document.querySelector('.selected-slopes-display');
+    if (!slopesDisplay) return;
     
-    const interactionId = `interaction-${var1}-${var2}`;
+    // 检查是否已经存在
+    const existingItem = Array.from(slopesDisplay.querySelectorAll('.selected-slope-item'))
+        .find(item => item.querySelector('span').textContent === variableName);
     
-    // Check if interaction already exists
-    if (document.getElementById(interactionId)) {
-        showError('This interaction already exists');
-        return;
-    }
+    if (existingItem) return; // 避免重复添加
     
-    const interactionTag = document.createElement('div');
-    interactionTag.className = 'interaction-tag';
-    interactionTag.id = interactionId;
-    interactionTag.dataset.variables = `${var1},${var2}`;
-    interactionTag.innerHTML = `
-        <span>${var1} × ${var2}</span>
-        <button class="remove-interaction" title="Remove interaction">
+    const slopeItem = document.createElement('div');
+    slopeItem.className = 'selected-slope-item';
+    slopeItem.innerHTML = `
+        <span>${variableName}</span>
+        <button class="remove-slope" title="Remove slope">
             <i class="fas fa-times"></i>
         </button>
     `;
     
-    // Add remove event listener
-    const removeBtn = interactionTag.querySelector('.remove-interaction');
-    removeBtn.addEventListener('click', () => {
-        interactionTag.remove();
-    });
+    slopesDisplay.appendChild(slopeItem);
     
-    interactionsDisplay.appendChild(interactionTag);
+    // 添加删除事件监听器
+    const removeBtn = slopeItem.querySelector('.remove-slope');
+    removeBtn.addEventListener('click', () => {
+        slopeItem.remove();
+    });
 }
 
 // Run regression analysis
@@ -1117,33 +1138,4 @@ function clearVariablesList() {
     }
     
     currentVariables = null;
-}
-
-// Add random slope
-function addRandomSlope(variableName) {
-    const slopesDisplay = document.querySelector('.selected-slopes-display');
-    if (!slopesDisplay) return;
-    
-    // 检查是否已经存在
-    const existingItem = Array.from(slopesDisplay.querySelectorAll('.selected-slope-item'))
-        .find(item => item.querySelector('span').textContent === variableName);
-    
-    if (existingItem) return; // 避免重复添加
-    
-    const slopeItem = document.createElement('div');
-    slopeItem.className = 'selected-slope-item';
-    slopeItem.innerHTML = `
-        <span>${variableName}</span>
-        <button class="remove-slope" title="Remove slope">
-            <i class="fas fa-times"></i>
-        </button>
-    `;
-    
-    slopesDisplay.appendChild(slopeItem);
-    
-    // 添加删除事件监听器
-    const removeBtn = slopeItem.querySelector('.remove-slope');
-    removeBtn.addEventListener('click', () => {
-        slopeItem.remove();
-    });
 }
