@@ -11,5 +11,6 @@ export const API_ENDPOINTS = {
     timeseriesPlot: `${API_BASE_URL}/finance/timeseries_plot`,
     timeseriesModel: `${API_BASE_URL}/finance/timeseries_model`,
     scatter: `${API_BASE_URL}/scatter`,
-    test: `${API_BASE_URL}/test`
+    test: `${API_BASE_URL}/test`,
+    regressionModel: `${API_BASE_URL}/mlm`  // 添加混合线性模型端点
 }; 

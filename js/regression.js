@@ -979,20 +979,20 @@ function displayResults(result) {
         summaryContent.innerHTML = `
             <div class="summary-stats">
                 <div class="stat-item">
-                    <h4>R-squared</h4>
-                    <p>${result.metrics.r_squared.toFixed(4)}</p>
+                    <h4>AIC</h4>
+                    <p>${result.metrics.aic.toFixed(4)}</p>
                 </div>
                 <div class="stat-item">
-                    <h4>Adjusted R-squared</h4>
-                    <p>${result.metrics.adjusted_r_squared.toFixed(4)}</p>
+                    <h4>BIC</h4>
+                    <p>${result.metrics.bic.toFixed(4)}</p>
                 </div>
                 <div class="stat-item">
-                    <h4>F-statistic</h4>
-                    <p>${result.metrics.f_statistic.toFixed(4)}</p>
+                    <h4>Log Likelihood</h4>
+                    <p>${result.metrics.log_likelihood.toFixed(4)}</p>
                 </div>
                 <div class="stat-item">
-                    <h4>p-value</h4>
-                    <p>${result.metrics.p_value.toFixed(4)}</p>
+                    <h4>Degrees of Freedom</h4>
+                    <p>${result.metrics.df_resid}</p>
                 </div>
             </div>
         `;
@@ -1019,10 +1019,10 @@ function displayResults(result) {
         
         // Create table body
         const tbody = document.createElement('tbody');
-        Object.entries(result.coefficients).forEach(([varName, coef]) => {
+        result.coefficients.forEach(coef => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${varName}</td>
+                <td>${coef.variable}</td>
                 <td>${coef.estimate.toFixed(4)}</td>
                 <td>${coef.std_error.toFixed(4)}</td>
                 <td>${coef.t_value.toFixed(4)}</td>
@@ -1034,6 +1034,51 @@ function displayResults(result) {
         
         coefficientsContent.innerHTML = '';
         coefficientsContent.appendChild(table);
+    }
+
+    // Update random effects tab if available
+    const randomEffectsContent = document.querySelector('#resultsContent[data-tab="random-effects"]');
+    if (randomEffectsContent && result.random_effects && result.random_effects.length > 0) {
+        const table = document.createElement('table');
+        table.className = 'results-table';
+        
+        // Create table header
+        const thead = document.createElement('thead');
+        thead.innerHTML = `
+            <tr>
+                <th>Group</th>
+                <th>Variance</th>
+                <th>Std. Dev.</th>
+            </tr>
+        `;
+        table.appendChild(thead);
+        
+        // Create table body
+        const tbody = document.createElement('tbody');
+        result.random_effects.forEach(effect => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${effect.group}</td>
+                <td>${effect.variance.toFixed(4)}</td>
+                <td>${effect.std_dev.toFixed(4)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        
+        randomEffectsContent.innerHTML = '';
+        randomEffectsContent.appendChild(table);
+    }
+
+    // Update model summary tab if available
+    const modelSummaryContent = document.querySelector('#resultsContent[data-tab="model-summary"]');
+    if (modelSummaryContent && result.model_summary) {
+        const pre = document.createElement('pre');
+        pre.className = 'model-summary';
+        pre.textContent = result.model_summary;
+        
+        modelSummaryContent.innerHTML = '';
+        modelSummaryContent.appendChild(pre);
     }
 
     // Update diagnostics tab

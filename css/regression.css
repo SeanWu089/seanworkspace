@@ -959,6 +959,34 @@ label {
     overflow-y: auto;
 }
 
+/* Selected Effect Item Styles */
+.selected-effect-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--panel-background);
+    border-radius: var(--border-radius-sm);
+    padding: 8px 12px;
+    margin-bottom: 8px;
+}
+
+.selected-effect-item:last-child {
+    margin-bottom: 0;
+}
+
+.remove-effect {
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition-standard);
+}
+
+.remove-effect:hover {
+    color: var(--error-color);
+    background: rgba(255, 118, 117, 0.1);
+}
+
 /* Random Effects Structure */
 .random-structure {
     background: transparent;
