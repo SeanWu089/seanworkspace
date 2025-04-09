@@ -1677,22 +1677,28 @@ select, input, .form-select, .selected-option {
     border-bottom-right-radius: 0;
 }
 
-.search-container {
+.dropdown-container {
     display: none;
     position: absolute;
+    top: 100%;
     left: 0;
     right: 0;
-    padding: 10px;
     background: var(--surface-color);
-    border-left: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
-    width: 100%;
-    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
     z-index: 1001;
+    overflow: hidden;
 }
 
-.custom-select.open .search-container {
+.custom-select.open .dropdown-container {
     display: block;
+}
+
+.search-container {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--surface-color);
 }
 
 .select-search {
@@ -1702,9 +1708,6 @@ select, input, .form-select, .selected-option {
     border-radius: var(--border-radius-sm);
     background: var(--background-color);
     color: var(--text-color);
-    box-sizing: border-box;
-    margin: 0;
-    font-size: 0.9rem;
     outline: none;
 }
 
@@ -1714,70 +1717,42 @@ select, input, .form-select, .selected-option {
 }
 
 .options-container {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    max-height: 200px;
+    max-height: 300px;
     overflow-y: auto;
-    background: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-bottom-left-radius: var(--border-radius-md);
-    border-bottom-right-radius: var(--border-radius-md);
-    z-index: 1000;
-    box-sizing: border-box;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.custom-select.open .options-container {
-    display: block;
-    animation: dropdownFadeIn 0.2s ease;
 }
 
 .option {
-    padding: 10px 15px;
+    padding: 8px 15px;
     cursor: pointer;
     transition: var(--transition-standard);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--surface-color);
+    color: var(--text-color);
+}
+
+.option:last-child {
+    border-bottom: none;
 }
 
 .option:hover {
     background: var(--primary-color);
     color: white;
-    transform: translateX(5px);
 }
 
+/* 移除之前的选中状态样式 */
 .option.selected {
-    background: rgba(108, 92, 231, 0.1);
-    color: var(--primary-color);
+    background: transparent;
+    color: var(--text-color);
+}
+
+.option.hidden {
+    display: none;
+}
+
+/* 确保当前选中项有一个微妙的标记 */
+.option[data-selected="true"] {
     font-weight: 500;
-}
-
-.options-container::-webkit-scrollbar {
-    width: 6px;
-}
-
-.options-container::-webkit-scrollbar-track {
-    background: var(--surface-color);
-    border-radius: 4px;
-}
-
-.options-container::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
-}
-
-.options-container::-webkit-scrollbar-thumb:hover {
-    background: var(--primary-color);
-}
-
-/* 移除所有与Select2相关的样式 */
-.select2-container--default .select2-selection--single .select2-selection__arrow,
-.select2-container--default .select2-selection--single .select2-selection__arrow b,
-.select2-container--default .select2-selection--single .select2-selection__arrow::after,
-.select2-container--open .select2-selection--single .select2-selection__arrow::after,
-.select2-container--default .select2-selection--single {
-    display: none !important;
+    border-left: 2px solid var(--primary-color);
 }
 
 /* Model Results Panel and Results Visual Panel */

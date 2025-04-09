@@ -46,10 +46,12 @@ function enhanceNativeSelects() {
                 <span>${select.options[select.selectedIndex]?.text || 'Select option...'}</span>
                 <i class="fas fa-chevron-down"></i>
             </div>
-            <div class="search-container">
-                <input type="text" class="select-search" placeholder="Search...">
+            <div class="dropdown-container">
+                <div class="search-container">
+                    <input type="text" class="select-search" placeholder="Search...">
+                </div>
+                <div class="options-container"></div>
             </div>
-            <div class="options-container"></div>
         `;
         wrapper.appendChild(customSelect);
         
@@ -85,7 +87,7 @@ function updateOptions(originalSelect, customSelect) {
         optionElement.textContent = option.text;
         
         if (option.selected) {
-            optionElement.classList.add('selected');
+            optionElement.dataset.selected = "true";
         }
         
         optionsContainer.appendChild(optionElement);
@@ -101,28 +103,76 @@ function setupCustomSelectEvents(originalSelect, customSelect) {
     // 点击显示/隐藏选项
     selectedOption.addEventListener('click', (e) => {
         e.stopPropagation();
+        console.log('点击选项按钮');
+        
+        // 关闭所有其他打开的下拉框
+        document.querySelectorAll('.custom-select').forEach(select => {
+            if (select !== customSelect) {
+                select.classList.remove('open');
+            }
+        });
+        
+        // 切换当前下拉框
         customSelect.classList.toggle('open');
         
         if (customSelect.classList.contains('open')) {
+            // 清空搜索框并聚焦
+            searchInput.value = '';
             searchInput.focus();
+            
+            // 显示所有选项
+            optionsContainer.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('hidden');
+            });
         }
     });
     
-    // 搜索过滤
-    searchInput.addEventListener('input', () => {
-        const filter = searchInput.value.toLowerCase();
+    // 搜索输入处理
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.trim().normalize('NFC');
+        console.log('搜索输入:', searchTerm);
+        
         const options = optionsContainer.querySelectorAll('.option');
         
+        if (!searchTerm) {
+            // 如果搜索框为空，显示所有选项
+            options.forEach(option => {
+                option.classList.remove('hidden');
+            });
+            return;
+        }
+        
+        // 处理搜索逻辑
         options.forEach(option => {
-            const text = option.textContent.toLowerCase();
-            option.style.display = text.includes(filter) ? '' : 'none';
+            const optionText = option.textContent.trim().normalize('NFC');
+            let isMatch = false;
+            
+            // 检查是否为中文搜索
+            const isChinese = /[\u4e00-\u9fa5]/.test(searchTerm);
+            
+            if (isChinese) {
+                if (searchTerm.length === 1) {
+                    // 单个中文字符搜索：匹配包含该字符的所有选项
+                    isMatch = optionText.includes(searchTerm);
+                } else {
+                    // 多个中文字符搜索：完整匹配
+                    isMatch = optionText.includes(searchTerm);
+                }
+            } else {
+                // 英文搜索：不区分大小写
+                isMatch = optionText.toLowerCase().includes(searchTerm.toLowerCase());
+            }
+            
+            option.classList.toggle('hidden', !isMatch);
         });
     });
     
     // 点击选项
     optionsContainer.addEventListener('click', (e) => {
         const option = e.target.closest('.option');
-        if (!option) return;
+        if (!option || option.classList.contains('hidden')) return;
+        
+        console.log('点击选项:', option.textContent);
         
         const value = option.dataset.value;
         originalSelect.value = value;
@@ -134,14 +184,14 @@ function setupCustomSelectEvents(originalSelect, customSelect) {
         // 更新显示
         selectedOption.querySelector('span').textContent = option.textContent;
         
-        // 关闭下拉框
-        customSelect.classList.remove('open');
-        
         // 更新选中状态
         optionsContainer.querySelectorAll('.option').forEach(opt => {
-            opt.classList.remove('selected');
+            opt.dataset.selected = "false";
         });
-        option.classList.add('selected');
+        option.dataset.selected = "true";
+        
+        // 关闭下拉框
+        customSelect.classList.remove('open');
     });
 }
 
