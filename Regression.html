@@ -199,19 +199,19 @@
         <!-- Model Results Panel -->
         <div class="model-results-panel">
             <div class="model-results-title">Model Results</div>
-            <div class="results-tabs">
-                <button class="tab-btn active" data-tab="model-summary">Model Summary</button>
-                <button class="tab-btn" data-tab="coefficients">Coefficients</button>
-                <button class="tab-btn" data-tab="diagnostics">Diagnostics</button>
+            <div class="results-tabs model-tabs">
+                <button class="tab-btn model-tab-btn active" data-tab="model-summary">Model Summary</button>
+                <button class="tab-btn model-tab-btn" data-tab="coefficients">Coefficients</button>
+                <button class="tab-btn model-tab-btn" data-tab="diagnostics">Diagnostics</button>
             </div>
-            <div class="results-content">
-                <div id="model-summary" class="tab-content active">
+            <div class="results-content model-content">
+                <div id="model-summary" class="tab-content model-tab-content active">
                     <!-- Model summary will be displayed here -->
                 </div>
-                <div id="coefficients" class="tab-content">
+                <div id="coefficients" class="tab-content model-tab-content">
                     <!-- Coefficients table will be displayed here -->
                 </div>
-                <div id="diagnostics" class="tab-content">
+                <div id="diagnostics" class="tab-content model-tab-content">
                     <!-- Diagnostic plots will be displayed here -->
                 </div>
             </div>
@@ -220,13 +220,21 @@
         <!-- Results Visualization Panel -->
         <div class="results-visual-panel">
             <div class="results-visual-title">Results Visualization</div>
-            <div class="viz-tabs">
-                <button class="tab-btn active" data-tab="fittedLine">Fitted Line</button>
-                <button class="tab-btn" data-tab="residuals">Residual Plots</button>
-                <button class="tab-btn" data-tab="effects">Effects Plots</button>
+            <div class="viz-tabs visual-tabs">
+                <button class="tab-btn visual-tab-btn active" data-tab="fittedLine">Fitted Line</button>
+                <button class="tab-btn visual-tab-btn" data-tab="residuals">Residual Plots</button>
+                <button class="tab-btn visual-tab-btn" data-tab="effects">Effects Plots</button>
             </div>
-            <div id="vizContent" class="viz-content">
-                <!-- Visualizations will be rendered here -->
+            <div id="vizContent" class="viz-content visual-content">
+                <div id="fittedLine" class="tab-content visual-tab-content active">
+                    <!-- Fitted line plot will be rendered here -->
+                </div>
+                <div id="residuals" class="tab-content visual-tab-content">
+                    <!-- Residual plots will be rendered here -->
+                </div>
+                <div id="effects" class="tab-content visual-tab-content">
+                    <!-- Effects plots will be rendered here -->
+                </div>
             </div>
         </div>
     </div>

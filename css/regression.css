@@ -488,11 +488,18 @@ label {
 }
 
 /* Content Panels */
-.results-content, .viz-content {
-    min-height: 400px;
+.results-content {
+    min-height: 300px;
     position: relative;
     overflow: hidden;
     margin-top: 10px;
+}
+
+.viz-content {
+    min-height: 330px !important;
+    position: relative;
+    overflow: hidden;
+    margin-top: 1px;
 }
 
 /* Visualization Area Placeholder */

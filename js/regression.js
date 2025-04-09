@@ -404,8 +404,15 @@ function setupEventListeners() {
         });
     }
 
-    // Tab switching
-    document.querySelectorAll('.tab-btn').forEach(tab => {
+    // 分别为两个面板的标签页添加事件监听器
+    document.querySelectorAll('.model-tab-btn').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            switchTab(tabId);
+        });
+    });
+
+    document.querySelectorAll('.visual-tab-btn').forEach(tab => {
         tab.addEventListener('click', function() {
             const tabId = this.dataset.tab;
             switchTab(tabId);
@@ -958,32 +965,14 @@ async function runRegressionAnalysis() {
             .map(span => span.textContent);
         const interactions = Array.from(document.querySelectorAll('.interaction-tag'))
             .map(tag => {
-                console.log('Processing interaction tag:', tag);
-                console.log('Interaction variables:', tag.dataset.variables);
                 const vars = tag.dataset.variables.split(',');
-                console.log('Split variables:', vars);
-                // 确保返回一个包含两个变量的数组
                 if (vars.length !== 2) {
-                    console.error('Invalid interaction format:', vars);
                     throw new Error('Invalid interaction format');
                 }
-                const result = [vars[0].trim(), vars[1].trim()];
-                console.log('Created interaction array:', result);
-                return result;
+                return [vars[0].trim(), vars[1].trim()];
             });
         const randomSlopes = Array.from(document.querySelectorAll('.selected-slope-item span'))
             .map(span => span.textContent);
-        
-        // 添加调试日志
-        console.log('Selected variables:', {
-            dependentVar,
-            mainEffects,
-            interactions,
-            randomSlopes
-        });
-        
-        console.log('Selected main effects elements:', document.querySelectorAll('.selected-effect-item span'));
-        console.log('Selected random slopes elements:', document.querySelectorAll('.selected-slope-item span'));
         
         const requestBody = {
             file_path: `${session.user.id}/${currentFileId}`,
@@ -1020,16 +1009,32 @@ async function runRegressionAnalysis() {
         console.log('Received response from backend:', result);
 
         if (result.status === 'success') {
+            // 先切换到结果面板区域
+            const resultsPanel = document.querySelector('.model-results-panel');
+            if (resultsPanel) {
+                resultsPanel.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+
+            // 激活 Model Summary 标签页
+            const tabs = document.querySelectorAll('.results-tabs .tab-btn');
+            const contents = document.querySelectorAll('.results-content .tab-content');
+            
+            // 移除所有标签页的激活状态
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // 激活 Model Summary 标签页
+            const summaryTab = document.querySelector('.tab-btn[data-tab="model-summary"]');
+            const summaryContent = document.getElementById('model-summary');
+            
+            if (summaryTab) summaryTab.classList.add('active');
+            if (summaryContent) summaryContent.classList.add('active');
+
+            // 显示结果
             displayResults(result);
-            
-            // 切换到结果选项卡
-            switchTab('summary');
-            
-            // 滚动到结果部分
-            document.querySelector('.model-results-panel').scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
-            });
         } else {
             throw new Error(result.message || 'Analysis failed');
         }
@@ -1218,31 +1223,41 @@ function displayResults(result) {
         diagnosticsContent.innerHTML = '';
         diagnosticsContent.appendChild(diagnosticsPlots);
     }
-
-    // Switch to model summary tab and scroll to results
-    switchTab('model-summary');
-    document.querySelector('.model-results-panel').scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-    });
 }
 
 // Switch between tabs
 function switchTab(tabId) {
-    // Remove active class from all tabs and content
-    document.querySelectorAll('.tab-btn').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-
-    // Add active class to selected tab and content
-    const selectedTab = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-    const selectedContent = document.getElementById(tabId);
+    // 判断是哪个面板的标签页被点击
+    const isModelTab = document.querySelector(`.model-tab-btn[data-tab="${tabId}"]`);
+    const isVisualTab = document.querySelector(`.visual-tab-btn[data-tab="${tabId}"]`);
     
-    if (selectedTab) selectedTab.classList.add('active');
-    if (selectedContent) selectedContent.classList.add('active');
+    if (isModelTab) {
+        // 处理模型结果面板的标签页
+        document.querySelectorAll('.model-tab-btn').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.model-tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // 激活选中的标签页
+        isModelTab.classList.add('active');
+        const selectedContent = document.getElementById(tabId);
+        if (selectedContent) selectedContent.classList.add('active');
+    } else if (isVisualTab) {
+        // 处理可视化面板的标签页
+        document.querySelectorAll('.visual-tab-btn').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.visual-tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // 激活选中的标签页
+        isVisualTab.classList.add('active');
+        const selectedContent = document.getElementById(tabId);
+        if (selectedContent) selectedContent.classList.add('active');
+    }
 }
 
 // Show loading overlay
