@@ -907,41 +907,59 @@ async function runRegressionAnalysis() {
         const mainEffects = Array.from(document.querySelectorAll('.selected-effect-item span'))
             .map(span => span.textContent);
         const interactions = Array.from(document.querySelectorAll('.interaction-tag'))
-            .map(tag => tag.dataset.variables.split(','));
+            .map(tag => {
+                console.log('Processing interaction tag:', tag);
+                console.log('Interaction variables:', tag.dataset.variables);
+                const vars = tag.dataset.variables.split(',');
+                console.log('Split variables:', vars);
+                // 确保返回一个包含两个变量的数组
+                if (vars.length !== 2) {
+                    console.error('Invalid interaction format:', vars);
+                    throw new Error('Invalid interaction format');
+                }
+                const result = [vars[0].trim(), vars[1].trim()];
+                console.log('Created interaction array:', result);
+                return result;
+            });
         const randomSlopes = Array.from(document.querySelectorAll('.selected-slope-item span'))
             .map(span => span.textContent);
         
-        const options = {
-            intercept: document.getElementById('intercept').checked,
-            covarianceStructure: document.getElementById('covStructure').value,
-            estimationMethod: document.getElementById('estimationMethod').value,
-            maxIterations: parseInt(document.getElementById('maxIter').value),
-            convergenceTolerance: parseFloat(document.getElementById('convTol').value)
+        // 添加调试日志
+        console.log('Selected variables:', {
+            dependentVar,
+            mainEffects,
+            interactions,
+            randomSlopes
+        });
+        
+        console.log('Selected main effects elements:', document.querySelectorAll('.selected-effect-item span'));
+        console.log('Selected random slopes elements:', document.querySelectorAll('.selected-slope-item span'));
+        
+        const requestBody = {
+            file_path: `${session.user.id}/${currentFileId}`,
+            dependent_variable: dependentVar,
+            main_effects: mainEffects,
+            interactions: interactions,
+            random_slopes: randomSlopes,
+            options: {
+                intercept: document.getElementById('intercept').checked,
+                reml: document.getElementById('estimationMethod').value === 'true',
+                method: document.getElementById('optimizationMethod').value,
+                maxIterations: parseInt(document.getElementById('maxIter').value),
+                convergence: parseFloat(document.getElementById('convTol').value),
+                smallSample: document.getElementById('smallSample').value === 'true'
+            },
+            user_id: session.user.id
         };
 
-        // 验证必要的变量
-        if (!dependentVar) {
-            throw new Error('Please select a dependent variable');
-        }
-
-        if (mainEffects.length === 0) {
-            throw new Error('Please select at least one main effect');
-        }
+        console.log('Request body:', JSON.stringify(requestBody, null, 2));
 
         const response = await fetch(API_ENDPOINTS.regressionModel, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                file_path: `${session.user.id}/${currentFileId}`,
-                dependent_variable: dependentVar,
-                main_effects: mainEffects,
-                interactions: interactions,
-                random_slopes: randomSlopes,
-                options: options,
-                user_id: session.user.id
-            })
+            body: JSON.stringify(requestBody)
         });
 
         if (!response.ok) {
@@ -949,6 +967,8 @@ async function runRegressionAnalysis() {
         }
 
         const result = await response.json();
+        console.log('Received response from backend:', result);
+
         if (result.status === 'success') {
             displayResults(result);
             
@@ -972,34 +992,105 @@ async function runRegressionAnalysis() {
 }
 
 // Display analysis results
+function formatModelSummary(summaryText) {
+    // 解析模型摘要文本
+    const lines = summaryText.split('\n');
+    let modelInfo = {};
+    
+    // 提取所有信息
+    lines.forEach(line => {
+        if (line.includes('Dependent Variable:')) {
+            modelInfo.model = line.split('Model:')[1].split('Dependent Variable:')[0].trim();
+            modelInfo.dependentVar = line.split('Dependent Variable:')[1].trim();
+        }
+        else if (line.includes('No. Observations:')) {
+            modelInfo.observations = line.split('No. Observations:')[1].split('Method:')[0].trim();
+            modelInfo.method = line.split('Method:')[1].trim();
+        }
+        else if (line.includes('No. Groups:')) {
+            modelInfo.groups = line.split('No. Groups:')[1].split('Scale:')[0].trim();
+            modelInfo.scale = line.split('Scale:')[1].trim();
+        }
+        else if (line.includes('Min. group size:')) {
+            modelInfo.minGroupSize = line.split('Min. group size:')[1].split('Log-Likelihood:')[0].trim();
+            modelInfo.logLikelihood = line.split('Log-Likelihood:')[1].trim();
+        }
+        else if (line.includes('Max. group size:')) {
+            modelInfo.maxGroupSize = line.split('Max. group size:')[1].split('Converged:')[0].trim();
+            modelInfo.converged = line.split('Converged:')[1].trim();
+        }
+        else if (line.includes('Mean group size:')) {
+            modelInfo.meanGroupSize = line.split('Mean group size:')[1].trim();
+        }
+    });
+
+    // 创建左右两列的数据结构
+    const leftColumn = [
+        { label: 'Model', value: modelInfo.model },
+        { label: 'No. Observations', value: modelInfo.observations },
+        { label: 'No. Groups', value: modelInfo.groups },
+        { label: 'Min. group size', value: modelInfo.minGroupSize },
+        { label: 'Max. group size', value: modelInfo.maxGroupSize },
+        { label: 'Mean group size', value: modelInfo.meanGroupSize }
+    ];
+
+    const rightColumn = [
+        { label: 'Dependent', value: modelInfo.dependentVar },
+        { label: 'Method', value: modelInfo.method },
+        { label: 'Scale', value: modelInfo.scale },
+        { label: 'Log-Likelihood', value: modelInfo.logLikelihood },
+        { label: 'Converged', value: modelInfo.converged }
+    ];
+
+    return `
+        <div class="summary-tables">
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${leftColumn.map(item => `
+                        <tr>
+                            <td>${item.label}</td>
+                            <td>${item.value || '-'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rightColumn.map(item => `
+                        <tr>
+                            <td>${item.label}</td>
+                            <td>${item.value || '-'}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
 function displayResults(result) {
-    // Update summary tab
-    const summaryContent = document.querySelector('#resultsContent[data-tab="summary"]');
-    if (summaryContent) {
-        summaryContent.innerHTML = `
-            <div class="summary-stats">
-                <div class="stat-item">
-                    <h4>AIC</h4>
-                    <p>${result.metrics.aic.toFixed(4)}</p>
-                </div>
-                <div class="stat-item">
-                    <h4>BIC</h4>
-                    <p>${result.metrics.bic.toFixed(4)}</p>
-                </div>
-                <div class="stat-item">
-                    <h4>Log Likelihood</h4>
-                    <p>${result.metrics.log_likelihood.toFixed(4)}</p>
-                </div>
-                <div class="stat-item">
-                    <h4>Degrees of Freedom</h4>
-                    <p>${result.metrics.df_resid}</p>
-                </div>
-            </div>
-        `;
+    console.log('Displaying results:', result);
+    
+    // Update model summary tab
+    const modelSummaryContent = document.getElementById('model-summary');
+    if (modelSummaryContent && result.model_summary) {
+        modelSummaryContent.innerHTML = formatModelSummary(result.model_summary);
     }
 
     // Update coefficients tab
-    const coefficientsContent = document.querySelector('#resultsContent[data-tab="coefficients"]');
+    const coefficientsContent = document.getElementById('coefficients');
     if (coefficientsContent && result.coefficients) {
         const table = document.createElement('table');
         table.className = 'results-table';
@@ -1009,10 +1100,11 @@ function displayResults(result) {
         thead.innerHTML = `
             <tr>
                 <th>Variable</th>
-                <th>Estimate</th>
+                <th>Coefficient</th>
                 <th>Std. Error</th>
-                <th>t-value</th>
-                <th>p-value</th>
+                <th>95% CI</th>
+                <th>Z</th>
+                <th>P</th>
             </tr>
         `;
         table.appendChild(thead);
@@ -1020,13 +1112,23 @@ function displayResults(result) {
         // Create table body
         const tbody = document.createElement('tbody');
         result.coefficients.forEach(coef => {
+            const pValue = coef.p_value !== null ? coef.p_value : 'N/A';
+            const pValueFormatted = pValue !== 'N/A' ? pValue.toFixed(3) : 'N/A';
+            const isSignificant = pValue !== 'N/A' && pValue <= 0.05;
+            
+            // Calculate 95% CI
+            const ci_lower = coef.estimate - 1.96 * coef.std_error;
+            const ci_upper = coef.estimate + 1.96 * coef.std_error;
+            const ci_formatted = `[${ci_lower.toFixed(3)}, ${ci_upper.toFixed(3)}]`;
+            
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${coef.variable}</td>
-                <td>${coef.estimate.toFixed(4)}</td>
-                <td>${coef.std_error.toFixed(4)}</td>
-                <td>${coef.t_value.toFixed(4)}</td>
-                <td>${coef.p_value.toFixed(4)}</td>
+                <td class="${isSignificant ? 'significant' : ''}">${coef.estimate !== null ? coef.estimate.toFixed(3) : 'N/A'}</td>
+                <td>${coef.std_error !== null ? coef.std_error.toFixed(3) : 'N/A'}</td>
+                <td>${ci_formatted}</td>
+                <td>${coef.t_value !== null ? coef.t_value.toFixed(3) : 'N/A'}</td>
+                <td>${pValueFormatted}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -1036,54 +1138,9 @@ function displayResults(result) {
         coefficientsContent.appendChild(table);
     }
 
-    // Update random effects tab if available
-    const randomEffectsContent = document.querySelector('#resultsContent[data-tab="random-effects"]');
-    if (randomEffectsContent && result.random_effects && result.random_effects.length > 0) {
-        const table = document.createElement('table');
-        table.className = 'results-table';
-        
-        // Create table header
-        const thead = document.createElement('thead');
-        thead.innerHTML = `
-            <tr>
-                <th>Group</th>
-                <th>Variance</th>
-                <th>Std. Dev.</th>
-            </tr>
-        `;
-        table.appendChild(thead);
-        
-        // Create table body
-        const tbody = document.createElement('tbody');
-        result.random_effects.forEach(effect => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${effect.group}</td>
-                <td>${effect.variance.toFixed(4)}</td>
-                <td>${effect.std_dev.toFixed(4)}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-        table.appendChild(tbody);
-        
-        randomEffectsContent.innerHTML = '';
-        randomEffectsContent.appendChild(table);
-    }
-
-    // Update model summary tab if available
-    const modelSummaryContent = document.querySelector('#resultsContent[data-tab="model-summary"]');
-    if (modelSummaryContent && result.model_summary) {
-        const pre = document.createElement('pre');
-        pre.className = 'model-summary';
-        pre.textContent = result.model_summary;
-        
-        modelSummaryContent.innerHTML = '';
-        modelSummaryContent.appendChild(pre);
-    }
-
     // Update diagnostics tab
-    const diagnosticsContent = document.querySelector('#resultsContent[data-tab="diagnostics"]');
-    if (diagnosticsContent && result.diagnostics) {
+    const diagnosticsContent = document.getElementById('diagnostics');
+    if (diagnosticsContent && result.diagnostics && result.diagnostics.plots) {
         const diagnosticsPlots = document.createElement('div');
         diagnosticsPlots.className = 'diagnostics-plots';
         
@@ -1102,20 +1159,22 @@ function displayResults(result) {
             diagnosticsPlots.appendChild(plotContainer);
             
             // Render diagnostic plot
-            const plotData = JSON.parse(plot.data);
-            Plotly.newPlot(plot.id, plotData.data, plotData.layout);
+            if (plot.data) {
+                const plotData = JSON.parse(plot.data);
+                Plotly.newPlot(plot.id, plotData.data, plotData.layout);
+            }
         });
         
         diagnosticsContent.innerHTML = '';
         diagnosticsContent.appendChild(diagnosticsPlots);
     }
 
-    // Update visualization tab
-    const vizContent = document.querySelector('#vizContent');
-    if (vizContent && result.visualizations) {
-        const plotData = JSON.parse(result.visualizations.plot);
-        Plotly.newPlot('vizContent', plotData.data, plotData.layout);
-    }
+    // Switch to model summary tab and scroll to results
+    switchTab('model-summary');
+    document.querySelector('.model-results-panel').scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+    });
 }
 
 // Switch between tabs
@@ -1124,13 +1183,13 @@ function switchTab(tabId) {
     document.querySelectorAll('.tab-btn').forEach(tab => {
         tab.classList.remove('active');
     });
-    document.querySelectorAll('.results-content, .viz-content').forEach(content => {
+    document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
     });
 
     // Add active class to selected tab and content
     const selectedTab = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-    const selectedContent = document.querySelector(`#resultsContent[data-tab="${tabId}"], #vizContent[data-tab="${tabId}"]`);
+    const selectedContent = document.getElementById(tabId);
     
     if (selectedTab) selectedTab.classList.add('active');
     if (selectedContent) selectedContent.classList.add('active');
