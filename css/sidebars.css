@@ -398,3 +398,17 @@
     color: #6b7280;
     padding: 20px;
 }
+
+#rightSidebar #preview-table th,
+#rightSidebar #preview-table td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    color: #000000; /* Set black color with high specificity, no !important */
+}
+
+/* Style for the expanded full data table */
+#rightSidebar #full-data-table th,
+#rightSidebar #full-data-table td {
+    color: #000000; /* Set black color for expanded view table cells */
+}

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/regression.css">
     <link rel="stylesheet" href="/css/sidebars.css">
+    <link rel="stylesheet" href="/css/assistant.css">
     
     <!-- Scripts -->
     <script src="https://cdn.plot.ly/plotly-2.21.0.min.js"></script>
@@ -238,5 +239,112 @@
             </div>
         </div>
     </div>
+
+    <!-- 左侧边栏 -->
+    <nav id="leftSidebar" class="sidebar">
+        <h2>Modules</h2>
+        <ul>
+            <li><a href="StatsTools.html">Statistic Tools</a></li>
+            <li><a href="/FinancialModels.html">Financial Models</a></li>
+            <li><a href="statsmodel.html#visual">Visualization</a></li>
+        </ul>
+    </nav>
+    <div id="leftToggle" class="sidebar-toggle" aria-label="Toggle left sidebar"></div>
+
+    <!-- 右侧边栏 -->
+    <nav id="rightSidebar" class="sidebar">
+        <div class="sidebar-header">
+        <h2>Data Preview</h2>
+            <button id="clearPreviewBtn" class="preview-close" aria-label="Clear preview"></button>
+        </div>
+        <div id="preview-empty-state" class="empty-state">
+            <p>No data selected for preview</p>
+            <button id="selectFileBtn" class="sidebar-btn">Select File</button>
+        </div>
+        <div id="preview-content" style="display: none;">
+        <table id="preview-table">
+            <thead>
+                <tr>
+                    <th>Variables</th>
+                    <th>DataType</th>
+                </tr>
+            </thead>
+                <tbody></tbody>
+        </table>
+        </div>
+    </nav>
+    <div id="rightToggle" class="sidebar-toggle" aria-label="Toggle right sidebar"></div>
+
+    <!-- 添加悬浮助手 -->
+    <div id="assistant-container" class="assistant-container">
+        <div class="assistant-icon">
+            <img src="media/images/sean.PNG" alt="Assistant Icon" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+        
+        <div class="chat-window">
+            <div class="files-trigger">
+                <i class="fas fa-folder"></i>
+            </div>
+            <div class="files-panel">
+                <div class="files-list">
+                    <!-- 文件列表将通过 JavaScript 动态添加 -->
+                </div>
+                <button type="button" class="files-done">Done</button>
+            </div>
+            
+            <div class="lever-container">
+                <!-- 拉杆移到外层容器 -->
+                <div class="mode-switch">
+                    <div class="lever-base">
+                        <div class="lever-handle">
+                            <div class="lever-stick"></div>
+                            <div class="lever-ball"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-content">
+                <div class="chat-header">
+                    <h3>Your Helpful Assistant</h3>
+                    <button type="button" class="close-btn">&times;</button>
+                </div>
+                <div id="chat-history" class="chat-history">
+                    <div class="message assistant">Hola! I'm Sean, your helpful statistics assistant. Can't wait to fill in some models!</div>
+                </div>
+                <!-- 确保进度条容器在这里 -->
+                <div class="progress-container" style="display: none;">
+                    <div class="progress-text">Processing: Files 0/0 Trunks 0/0</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar"></div>
+                    </div>
+                </div>
+                <form id="chat-form" class="chat-form">
+                    <div class="model-selector">
+                        <button type="button" class="model-toggle">
+                            <i class="fas fa-caret-down"></i>
+                        </button>
+                        <div class="model-dropdown">
+                            <div class="model-option" data-model="qwen2.5:0.5b">Qwen 2.5 (0.5B)</div>
+                            <div class="model-option" data-model="qwen2.5:14b">Qwen 2.5 (14B)</div>
+                            <div class="model-option" data-model="qwen2.5:32b">Qwen 2.5 (32B)</div>
+                            <div class="model-option" data-model="deepseek-r1:1.5b">DeepSeek R1 (1.5B)</div>
+                            <div class="model-option" data-model="deepseek-r1:4b">DeepSeek R1 (4B)</div>
+                            <div class="model-option" data-model="deepseek-r1:32b">DeepSeek R1 (32B)</div>
+                        </div>
+                    </div>
+                    <input type="text" id="user-input" placeholder="Input here..." autocomplete="off">
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改脚本加载顺序 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="/js/supabase-config.js"></script>
+    <script src="/js/sidebars.js"></script>
+    <script src="/js/auto-logout.js"></script>
+    <script src="/js/assistant.js"></script>
 </body>
 </html> 

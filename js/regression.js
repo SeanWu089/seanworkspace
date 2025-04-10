@@ -21,7 +21,142 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupFileSelector();
     setupEventListeners();
     enhanceNativeSelects();
+    
+    // Initialize sidebars and assistant
+    initializeSidebars();
+    initializeAssistant();
 });
+
+// Initialize sidebars
+function initializeSidebars() {
+    const leftSidebar = document.getElementById('leftSidebar');
+    const rightSidebar = document.getElementById('rightSidebar');
+    const leftToggle = document.getElementById('leftToggle');
+    const rightToggle = document.getElementById('rightToggle');
+    const clearPreviewBtn = document.getElementById('clearPreviewBtn');
+    const selectFileBtn = document.getElementById('selectFileBtn');
+    const previewContent = document.getElementById('preview-content');
+    const previewEmptyState = document.getElementById('preview-empty-state');
+    
+    if (leftToggle && leftSidebar) {
+        leftToggle.addEventListener('click', () => {
+            leftSidebar.classList.toggle('open');
+        });
+    }
+    
+    if (rightToggle && rightSidebar) {
+        rightToggle.addEventListener('click', () => {
+            rightSidebar.classList.toggle('open');
+        });
+    }
+    
+    if (clearPreviewBtn) {
+        clearPreviewBtn.addEventListener('click', () => {
+            if (previewContent) previewContent.style.display = 'none';
+            if (previewEmptyState) previewEmptyState.style.display = 'block';
+        });
+    }
+    
+    if (selectFileBtn) {
+        selectFileBtn.addEventListener('click', () => {
+            // Trigger file selection
+            document.getElementById('fileSelectBtn')?.click();
+        });
+    }
+}
+
+// Initialize assistant
+function initializeAssistant() {
+    const assistantContainer = document.getElementById('assistant-container');
+    const assistantIcon = assistantContainer?.querySelector('.assistant-icon');
+    const chatWindow = assistantContainer?.querySelector('.chat-window');
+    const closeBtn = chatWindow?.querySelector('.close-btn');
+    const filesTrigger = chatWindow?.querySelector('.files-trigger');
+    const filesPanel = chatWindow?.querySelector('.files-panel');
+    const filesDoneBtn = filesPanel?.querySelector('.files-done');
+    const chatForm = chatWindow?.querySelector('#chat-form');
+    const userInput = chatWindow?.querySelector('#user-input');
+    const chatHistory = chatWindow?.querySelector('#chat-history');
+    const modelToggle = chatWindow?.querySelector('.model-toggle');
+    const modelDropdown = chatWindow?.querySelector('.model-dropdown');
+    const modelOptions = modelDropdown?.querySelectorAll('.model-option');
+    
+    if (assistantIcon) {
+        assistantIcon.addEventListener('click', () => {
+            chatWindow.classList.toggle('open');
+        });
+    }
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            chatWindow.classList.remove('open');
+        });
+    }
+    
+    if (filesTrigger) {
+        filesTrigger.addEventListener('click', () => {
+            filesPanel.classList.toggle('open');
+        });
+    }
+    
+    if (filesDoneBtn) {
+        filesDoneBtn.addEventListener('click', () => {
+            filesPanel.classList.remove('open');
+        });
+    }
+    
+    if (modelToggle) {
+        modelToggle.addEventListener('click', () => {
+            modelDropdown.classList.toggle('open');
+        });
+    }
+    
+    if (modelOptions) {
+        modelOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const model = option.dataset.model;
+                modelToggle.textContent = model;
+                modelDropdown.classList.remove('open');
+            });
+        });
+    }
+    
+    if (chatForm) {
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = userInput.value.trim();
+            if (message) {
+                addMessage('user', message);
+                userInput.value = '';
+                // Here you would typically send the message to your backend
+                // and handle the response
+                setTimeout(() => {
+                    addMessage('assistant', 'This is a placeholder response. The actual assistant functionality would be implemented here.');
+                }, 1000);
+            }
+        });
+    }
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+        if (modelDropdown && !modelToggle.contains(e.target)) {
+            modelDropdown.classList.remove('open');
+        }
+    });
+}
+
+// Add message to chat history
+function addMessage(sender, text) {
+    const chatHistory = document.getElementById('chat-history');
+    if (!chatHistory) return;
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}`;
+    messageDiv.textContent = text;
+    
+    chatHistory.appendChild(messageDiv);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+}
 
 // 增强原生的select元素，添加搜索和过滤功能
 function enhanceNativeSelects() {
