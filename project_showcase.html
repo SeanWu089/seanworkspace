@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sean's Holistic Workspace - Project Showcase</title>
+    <style>
+        body {
+            font-family: 'Raleway', sans-serif;
+            margin: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 1700px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #1e4a7b;
+            font-family: 'Raleway', sans-serif;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        .feature-section {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            padding: 40px 60px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            gap: 40px;
+        }
+        .feature-description {
+            flex: 1;
+            min-width: 300px;
+            max-width: 50%; /* Ensure 1:1 ratio */
+        }
+        .feature-description h2 {
+            color: #87A5E9;
+            margin-top: 0;
+            border-bottom: 2px solid #87A5E9;
+            padding-bottom: 5px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 30px;
+            line-height: 1.4;
+        }
+        .feature-description p {
+            font-size: 20px;
+            line-height: 1.8;
+            margin: 15px 0;
+            color: #444;
+        }
+        .feature-description code {
+            background-color: #eef;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .image-container {
+            flex: 1;
+            min-width: 300px;
+            max-width: 50%;
+            padding: 10px;
+        }
+        .image-placeholder {
+            width: 100%;
+            height: 400px; /* 调整展示图片的容器高度 */
+            border: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 0.9em;
+            background-color: transparent;
+            border-radius: 8px;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .image-placeholder:hover {
+            transform: scale(1.02); /* 轻微放大效果 */
+            box-shadow: none; /* 移除阴影 */
+        }
+        .image-placeholder img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover; /* 改为 cover 可以填充整个容器 */
+            width: 100%; /* 设置宽度占满容器 */
+            height: 100%; /* 设置高度占满容器 */
+        }
+        /* Modal for enlarged image */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal img {
+            max-width: 95%;
+            max-height: 95vh;
+            object-fit: contain;
+            border-radius: 4px; /* 添加圆角 */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); /* 添加阴影 */
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .feature-section {
+                flex-direction: column;
+                align-items: center;
+            }
+            .feature-description, .image-container {
+                max-width: 100%;
+            }
+            .image-placeholder {
+                width: 100%;
+                max-width: 100%;
+                height: 300px; /* 移动端下的高度 */
+                margin-top: 15px;
+            }
+        }
+        /* Additional styles for image gallery */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .gallery-item {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .feature-list {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+        .feature-list li {
+            margin: 10px 0;
+            line-height: 1.6;
+            font-size: 18px;
+            color: #444;
+        }
+        .tech-stack {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .tech-stack h3 {
+            color: #87A5E9;
+            margin: 0 0 10px 0;
+            font-size: 20px;
+        }
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .tech-tag {
+            background-color: #e9ecef;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 14px;
+            color: #495057;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Sean's Holistic Workspace Showcase</h1>
+
+        <!-- Modal for enlarged images -->
+        <div id="imageModal" class="modal" onclick="closeModal()">
+            <img id="modalImage" src="" alt="Enlarged image">
+        </div>
+
+        <!-- Section for Home Page -->
+        <div class="feature-section">
+            <div class="feature-description">
+                <h2>Home Page Interface</h2>
+                <p>A modern, intuitive landing page that serves as the gateway to Sean's Holistic Workspace. The interface combines functionality with aesthetic appeal, featuring a clean, minimalist design that prioritizes user experience.</p>
+                
+                <div class="tech-stack">
+                    <h3>Key Components</h3>
+                    <ul class="feature-list">
+                        <li><strong>Navigation Sidebar:</strong> Quick access to all major modules including Statistics, Financial Models, and Visualization tools</li>
+                        <li><strong>Authentication System:</strong> Secure login/signup functionality with both email and Google authentication options</li>
+                        <li><strong>Data Upload Center:</strong> Centralized upload functionality supporting various file formats</li>
+                        <li><strong>Interactive Dashboard:</strong> Real-time data preview and analysis options</li>
+                        <li><strong>Responsive Design:</strong> Seamlessly adapts to different screen sizes and devices</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="image-container">
+                <div class="image-gallery">
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/homepage_1.png" alt="Main Dashboard">
+                    </div>
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/homepage_2.png" alt="Navigation Menu">
+                    </div>
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/homepage_3.png" alt="Data Upload Interface">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section for Login/Signup -->
+        <div class="feature-section">
+            <div class="feature-description">
+                <h2>Login & Signup System</h2>
+                <p>A secure and user-friendly authentication system that provides multiple login options and robust account management capabilities.</p>
+                
+                <div class="tech-stack">
+                    <h3>Security Features</h3>
+                    <ul class="feature-list">
+                        <li><strong>Multiple Authentication Methods:</strong> Support for both email/password and Google Sign-In. Will support more authentication methods in the future, including github, facebook, so on.</li>
+                        <li><strong>Secure Password Handling:</strong> Industry-standard encryption and security practices</li>
+                        <li><strong>User Profile Management:</strong> Comprehensive account settings and data management</li>
+                        <li><strong>Session Management:</strong> Secure token-based authentication system</li>
+                        <li><strong>Privacy Controls:</strong> User data protection and privacy settings</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="image-container">
+                <div class="image-gallery">
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/login.png" alt="Login Interface">
+                    </div>
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/signup.png" alt="Signup Interface">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section for Statistic Tools Hub -->
+        <div class="feature-section">
+            <div class="feature-description">
+                <h2>Statistical Analysis Suite</h2>
+                <p>A comprehensive statistical analysis platform that combines powerful analytical capabilities with an intuitive user interface. This suite provides researchers and analysts with tools for both basic and advanced statistical operations.</p>
+                
+                <div class="tech-stack">
+                    <h3>Features</h3>
+                    <ul class="feature-list">
+                        <li><strong>Descriptive Statistics:</strong> Comprehensive summary statistics, distribution analysis, and data visualization</li>
+                        <li><strong>Inferential Statistics:</strong> Advanced hypothesis testing including t-tests, ANOVA, and non-parametric tests</li>
+                        <li><strong>Regression Analysis:</strong> Multiple regression types including linear, logistic, and multilevel modeling</li>
+                        <li><strong>Machine Learning Integration:</strong> Support for various ML algorithms and model validation techniques</li>
+                        <li><strong>Interactive Visualizations:</strong> Dynamic charts and plots with customization options</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="image-container">
+                <div class="image-gallery">
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/regression_1.png" alt="Regression Analysis">
+                    </div>
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/regression_2.png" alt="Model Diagnostics">
+                    </div>
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/regression_3.png" alt="Variable Selection">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section for Descriptive Statistics Page -->
+        <div class="feature-section">
+            <div class="feature-description">
+                <h2>Structural Equation Modeling (SEM) Workspace</h2>
+                <p>A sophisticated environment for building and analyzing structural equation models. This workspace combines visual model building with powerful statistical analysis capabilities.</p>
+                
+                <div class="tech-stack">
+                    <h3>Capabilities</h3>
+                    <ul class="feature-list">
+                        <li><strong>Visual Model Builder:</strong> Intuitive drag-and-drop interface for creating path diagrams</li>
+                        <li><strong>Advanced Analysis Tools:</strong> Comprehensive model fit indices and modification suggestions</li>
+                        <li><strong>Multi-group Analysis:</strong> Support for comparing models across different groups</li>
+                        <li><strong>Mediation Analysis:</strong> Tools for testing direct and indirect effects</li>
+                        <li><strong>Export Options:</strong> Multiple format support for diagrams and results</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="image-container">
+                <div class="image-gallery">
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/SEM_1.png" alt="SEM Model Builder">
+                    </div>
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/SEM_2.png" alt="Path Analysis">
+                    </div>
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/SEM_3.png" alt="Model Results">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section for Regression Analysis Page -->
+        <div class="feature-section">
+            <div class="feature-description">
+                <h2>Time Series Analysis Platform</h2>
+                <p>A specialized platform for time series analysis and forecasting, featuring state-of-the-art algorithms and visualization tools. Perfect for financial analysis and temporal data modeling.</p>
+                
+                <div class="tech-stack">
+                    <h3>Analysis Tools</h3>
+                    <ul class="feature-list">
+                        <li><strong>Multiple Models:</strong> ARIMA, SARIMA, Prophet, and custom model implementations</li>
+                        <li><strong>Automated Forecasting:</strong> Intelligent model selection and parameter optimization</li>
+                        <li><strong>Seasonal Decomposition:</strong> Tools for analyzing trend, seasonal, and residual components</li>
+                        <li><strong>Interactive Plotting:</strong> Dynamic visualization of time series components and forecasts</li>
+                        <li><strong>Validation Tools:</strong> Cross-validation and forecast accuracy metrics</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="image-container">
+                <div class="image-gallery">
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/timeseries_1.png" alt="Time Series Analysis">
+                    </div>
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/timeseries_2.png" alt="Forecasting Results">
+                    </div>
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/timeseries_3.png" alt="Model Diagnostics">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section for SEM Workspace -->
+        <div class="feature-section">
+            <div class="feature-description">
+                <h2>AI-Powered Assistant</h2>
+                <p>An intelligent chatbot assistant that provides contextual help, guidance, and automated analysis support throughout the workspace. Powered by advanced language models and specialized statistical knowledge.</p>
+                
+                <div class="tech-stack">
+                    <h3>Assistant Features</h3>
+                    <ul class="feature-list">
+                        <li><strong>Contextual Help:</strong> Intelligent assistance based on current workspace context</li>
+                        <li><strong>Multiple AI Models:</strong> Support for various LLMs including Qwen and DeepSeek</li>
+                        <li><strong>Code Generation:</strong> Automated code suggestions and analysis scripts</li>
+                        <li><strong>Interactive Learning:</strong> Step-by-step guidance for complex analyses</li>
+                        <li><strong>Natural Language Interface:</strong> Communicate analysis needs in plain English</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="image-container">
+                <div class="image-gallery">
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/assistant_1.png" alt="AI Assistant Interface">
+                    </div>
+                    <div class="gallery-item" onclick="openModal(this)">
+                        <img src="media/images/showcase/assistant_2.png" alt="Code Generation">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section for Financial Models Hub -->
+        <div class="feature-section">
+            <div class="feature-description">
+                <h2>Financial Models Hub (<code>FinancialModels.html</code>)</h2>
+                <p>This page presents a collection of financial models categorized for ease of use. Categories include Statistical & Time Series (ARIMA, GARCH, EWMA), Risk Management (VaR, Monte Carlo), Asset Pricing (CAPM, Black-Scholes), Volatility Models, and Credit Risk Models. Cards link to specific analysis pages like <code>finance-timeseries.html</code>.</p>
+            </div>
+            <div class="image-container">
+                <div class="image-placeholder" onclick="openModal(this)">
+                    <img src="media/image/showcase/financial_models_hub_1.png" alt="Financial Models Hub Screenshot">
+                </div>
+            </div>
+        </div>
+
+        <!-- Section for Time Series Analysis Page -->
+        <div class="feature-section">
+            <div class="feature-description">
+                <h2>Data Preview Sidebar</h2>
+                <p>A common feature across multiple pages (like <code>index.html</code>, <code>StatsTools.html</code>, <code>FinancialModels.html</code>), usually appearing on the right. It allows users to select a data file and view a preview, typically showing variable names and data types in a table format. This helps users understand their data before running analyses.</p>
+            </div>
+            <div class="image-container">
+                <div class="image-placeholder" onclick="openModal(this)">
+                    <img src="media/image/showcase/data_preview_sidebar_1.png" alt="Data Preview Sidebar Screenshot">
+                </div>
+            </div>
+        </div>
+
+        <!-- Section for Assistant Chatbot -->
+        <div class="feature-section">
+            <div class="feature-description">
+                <h2>Assistant Chatbot</h2>
+                <p>A floating assistant icon (present on pages like <code>StatsTools.html</code>, <code>FinancialModels.html</code>, <code>Workspace.html</code>) opens a chat window. The assistant helps users with statistical modeling, potentially offering guidance or running analyses based on chat input. It includes features like file selection for context, a mode switch (possibly changing the assistant's personality or capabilities), and selection of underlying AI models (Qwen, DeepSeek).</p>
+            </div>
+            <div class="image-container">
+                <div class="image-placeholder" onclick="openModal(this)">
+                    <img src="media/image/showcase/assistant_chatbot_1.png" alt="Assistant Chatbot Screenshot">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(element) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            const img = element.querySelector('img');
+            if (img) {
+                modal.style.display = "flex";
+                modalImg.src = img.src;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = "none";
+        }
+
+        // Close modal when clicking outside the image
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+
+</body>
+</html> 
