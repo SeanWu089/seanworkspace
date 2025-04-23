@@ -253,6 +253,129 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     
+    // 获取注册表单及相关元素
+    const signupForm = document.getElementById('signup-form');
+    const signupEmail = document.getElementById('signup-email');
+    const signupPassword = document.getElementById('signup-password');
+    const signupConfirmPassword = document.getElementById('signup-confirm-password');
+    const signupError = document.getElementById('signup-error');
+    const signupLoading = document.getElementById('signup-loading');
+
+    // 处理注册表单提交
+    if (signupForm) {
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // 显示加载状态
+            if (signupLoading) signupLoading.style.display = 'block';
+            if (signupError) signupError.textContent = '';
+            
+            // 验证密码
+            const password = signupPassword.value;
+            const confirmPassword = signupConfirmPassword.value;
+            if (password !== confirmPassword) {
+                if (signupError) signupError.textContent = 'Passwords do not match';
+                if (signupLoading) signupLoading.style.display = 'none';
+                return;
+            }
+            
+            try {
+                const email = signupEmail.value;
+                
+                // 使用Supabase进行注册
+                const { data, error } = await window.supabaseClient.auth.signUp({
+                    email,
+                    password
+                });
+                
+                if (error) throw error;
+                
+                console.log('Signup successful:', data);
+                
+                // 隐藏注册模态框，可以显示登录框或提示信息
+                if (signupModal) signupModal.style.display = 'none';
+                alert('Signup successful! Please check your email to verify your account.'); // Or show login modal
+                showLoginModal(); // Redirect to login after successful signup
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                if (signupError) signupError.textContent = error.message || 'Signup failed';
+            } finally {
+                if (signupLoading) signupLoading.style.display = 'none';
+            }
+        });
+    }
+
+    // Google注册按钮处理
+    const googleSignupBtn = document.getElementById('google-signup-btn');
+    if (googleSignupBtn) {
+        googleSignupBtn.addEventListener('click', async () => {
+            try {
+                const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin
+                    }
+                });
+                
+                if (error) throw error;
+                
+            } catch (error) {
+                console.error('Google signup error:', error);
+                if (signupError) signupError.textContent = error.message || 'Google signup failed';
+            }
+        });
+    }
+
+    // 更新时间和日期
+    const dateTimeElement = document.getElementById('auth-date-time');
+    if (dateTimeElement) {
+        function updateDateTime() {
+            const now = new Date();
+            const dateString = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            dateTimeElement.textContent = `${dateString} - ${timeString}`;
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+    }
+    
+    // 添加上传按钮的点击事件监听器
+    if (uploadBtn && fileInput) {
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click(); // 触发隐藏的文件输入元素的点击事件
+        });
+
+        fileInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                console.log('File selected:', file.name);
+                const { data: { user } } = await window.supabaseClient.auth.getUser();
+                await handleFileUpload(file, user);
+            }
+        });
+    } else {
+        console.error('Upload button or file input not found.');
+    }
+
+    // --- 添加Intro Demo关闭逻辑 ---
+    const introContainer = document.getElementById('intro-demo-container');
+    const closeIntroBtn = document.getElementById('close-intro-btn');
+  
+    if (introContainer && closeIntroBtn) {
+      // Check if user previously closed the intro
+      if (localStorage.getItem('introClosed') === 'true') {
+        introContainer.style.display = 'none';
+      } else {
+        closeIntroBtn.addEventListener('click', () => {
+          introContainer.style.display = 'none';
+          // Remember the choice
+          localStorage.setItem('introClosed', 'true');
+        });
+      }
+    }
+    // --- Intro Demo逻辑结束 ---
+    
     // 监听认证状态变化
     window.supabaseClient.auth.onAuthStateChange(async (event, session) => {
         console.log('Auth state changed:', event, session);
@@ -269,54 +392,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             await checkLoginStatus();
         }
     });
-
-    // 添加上传按钮的点击事件
-    if (uploadBtn && fileInput) {
-        uploadBtn.addEventListener('click', () => {
-            // 检查用户是否已登录
-            window.supabaseClient.auth.getUser().then(({ data: { user } }) => {
-                if (!user) {
-                    // 如果未登录，显示登录模态框
-                    showLoginModal();
-                    return;
-                }
-                // 触发文件选择
-                fileInput.click();
-            });
-        });
-
-        // 添加文件选择的change事件
-        fileInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            try {
-                const { data: { user } } = await window.supabaseClient.auth.getUser();
-                if (!user) {
-                    throw new Error('User not authenticated');
-                }
-
-                uploadBtn.disabled = true;
-                uploadBtn.textContent = 'Uploading...';
-
-                const result = await handleFileUpload(file, user);
-
-                if (result.success) {
-                    alert(result.message);
-                } else {
-                    alert(result.message);
-                }
-
-            } catch (error) {
-                console.error('Upload error:', error);
-                alert('Upload failed: ' + error.message);
-            } finally {
-                uploadBtn.disabled = false;
-                uploadBtn.textContent = 'WHY DONT WE START FROM HERE';
-                fileInput.value = '';
-            }
-        });
-    }
 });
 
 async function handleFileUpload(file, user) {

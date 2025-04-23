@@ -734,11 +734,74 @@ html, body {
 
 @keyframes steamBorder {
   0% {
-    background-position: 0% 0%;
+    box-shadow: 0 0 5px rgba(0, 183, 255, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(0, 183, 255, 1), 0 0 5px rgba(0, 183, 255, 0.8);
   }
   100% {
-    background-position: 400% 0%;
+    box-shadow: 0 0 5px rgba(0, 183, 255, 0.8);
   }
+}
+
+/* >>>> Intro Demo <<<< */
+#intro-demo-container {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 300px; /* Base width */
+  height: 390px; /* Height for 1:1.3 aspect ratio */
+  border: 2px solid #888888; /* Changed to gray */
+  background-color: white;
+  padding: 10px;
+  padding-top: 30px; /* Space for close button */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000; /* Ensure it's above other content */
+  overflow: hidden; /* Hide iframe parts sticking out */
+  transition: all 0.3s ease-in-out; /* Smooth transitions */
+}
+
+#intro-demo-container iframe {
+  width: 100%; /* Make iframe responsive within container */
+  height: 350px; /* Adjust height to maintain aspect ratio */
+  display: block; /* Remove extra space below iframe */
+}
+
+#close-intro-btn {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  font-weight: bold;
+  color: #555;
+  cursor: pointer;
+}
+
+#close-intro-btn:hover {
+  color: #000;
+}
+
+#intro-arrow-desc {
+  position: absolute;
+  top: calc(100% + 5px); /* Position below the container since it's now at the top */
+  left: 10px; /* Align with left side */
+  background-color: #888888; /* Match the gray color */
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}
+
+.intro-arrow {
+  margin-right: 5px;
+  font-size: 16px;
+  transform: rotate(45deg); /* Point towards the container from below */
 }
 
 
