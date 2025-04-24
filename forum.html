@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum - Discussion & Feedback</title>
+    <link rel="stylesheet" href="css/forum.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="nav-logo">
+                <img src="/media/images/sean.webp" alt="Sean Logo" class="logo-img">
+                <span class="logo-text">Sean's Forum</span>
+            </div>
+        </div>
+        <div class="nav-center">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search in forum...">
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="nav-btn">
+                <i class="fas fa-bell"></i>
+            </button>
+            <button class="nav-btn">
+                <i class="fas fa-envelope"></i>
+            </button>
+            <div class="user-profile">
+                <img src="/media/images/sean.webp" alt="Profile" class="profile-img">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </nav>
+
+    <div class="forum-container">
+        <div class="forum-main">
+            <!-- Community Header -->
+            <div class="community-header">
+                <div class="community-info">
+                    <h1>Community Forum</h1>
+                    <p class="community-description">A place for users to share feedback, suggestions, and discuss improvements.</p>
+                    <div class="community-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">324</span>
+                            <span class="stat-label">Total Posts</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">15</span>
+                            <span class="stat-label">Closed Posts</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="new-post-btn" onclick="openNewPostModal()">
+                    <i class="fas fa-plus"></i> New Post
+                </button>
+            </div>
+
+            <!-- Post Filters -->
+            <div class="post-filters">
+                <div class="filter-buttons">
+                    <button class="filter-btn active">
+                        <i class="fas fa-fire-alt"></i> Hot
+                    </button>
+                    <button class="filter-btn">
+                        <i class="fas fa-clock"></i> New
+                    </button>
+                    <button class="filter-btn">
+                        <i class="fas fa-trophy"></i> Top
+                    </button>
+                </div>
+                <div class="view-options">
+                    <button class="view-btn active">
+                        <i class="fas fa-list"></i>
+                    </button>
+                    <button class="view-btn">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="posts-container">
+                <!-- Posts will be dynamically inserted here -->
+            </div>
+
+            <!-- New Post Modal -->
+            <div id="newPostModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeNewPostModal()">&times;</span>
+                    <h2>Create New Post</h2>
+                    <form id="newPostForm" onsubmit="handleNewPost(event)">
+                        <div class="form-group">
+                            <label for="postTitle">Title</label>
+                            <input type="text" id="postTitle" required placeholder="What's your suggestion?">
+                        </div>
+                        <div class="form-group">
+                            <label for="postContent">Content</label>
+                            <textarea id="postContent" required placeholder="Describe your idea in detail..."></textarea>
+                        </div>
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="anonymousPost">
+                            Post anonymously
+                        </label>
+                        <button type="submit" class="submit-btn">Submit Post</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <aside class="forum-sidebar">
+            <div class="sidebar-section updates-list">
+                <h3>Latest Updates</h3>
+                <div class="updates-list">
+                    <div class="update-item">
+                        <div class="update-content">
+                            <span class="update-text">New forum feature launched</span>
+                            <span class="update-date">Apr 23, 2024</span>
+                        </div>
+                    </div>
+                    <div class="update-item">
+                        <div class="update-content">
+                            <span class="update-text">Performance improvements</span>
+                            <span class="update-date">Apr 20, 2024</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="sidebar-cta-btn">
+                    <i class="fas fa-bell"></i> Follow Updates
+                </button>
+            </div>
+
+            <div class="sidebar-section future-features">
+                <h3>Coming Soon</h3>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <i class="fas fa-palette"></i>
+                        <div class="feature-content">
+                            <span class="feature-text">Dark Mode</span>
+                            <span class="feature-status">In Development</span>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <div class="feature-content">
+                            <span class="feature-text">Mobile App</span>
+                            <span class="feature-status">Planning</span>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-comments"></i>
+                        <div class="feature-content">
+                            <span class="feature-text">Real-time Chat</span>
+                            <span class="feature-status">Coming Q3 2024</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script src="js/forum.js"></script>
+</body>
+</html> 
