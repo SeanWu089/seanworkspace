@@ -1,91 +1,3 @@
-// Sample posts data
-let posts = [
-    {
-        id: 1,
-        title: "Welcome to our Community Forum!",
-        content: "This is our first post in the community forum. Here, we can share ideas, discuss topics, and learn from each other.",
-        author: "Admin",
-        isAnonymous: false,
-        timestamp: new Date(2024, 2, 15, 10, 30),
-        votes: 15,
-        comments: [
-            {
-                author: "JohnDoe",
-                content: "Excited to be part of this community!",
-                timestamp: new Date(2024, 2, 15, 11, 0)
-            }
-        ]
-    },
-    {
-        id: 2,
-        title: "Community Guidelines",
-        content: "To maintain a positive community atmosphere, please follow these rules:\n1. Be respectful to others\n2. No spam or self-promotion\n3. Follow relevant laws and regulations",
-        author: "Admin",
-        isAnonymous: false,
-        timestamp: new Date(2024, 2, 15, 14, 20),
-        votes: 10,
-        comments: []
-    },
-    {
-        id: 3,
-        title: "Introducing Dark Mode Feature",
-        content: "We're excited to announce that dark mode is coming soon! This has been one of our most requested features. The development is in progress and we expect to launch it next month.",
-        author: "DevTeam",
-        isAnonymous: false,
-        timestamp: new Date(2024, 2, 16, 9, 15),
-        votes: 45,
-        comments: [
-            {
-                author: "TechEnthusiast",
-                content: "Finally! Can't wait to try it out. Will it be customizable?",
-                timestamp: new Date(2024, 2, 16, 10, 0)
-            },
-            {
-                author: "NightOwl",
-                content: "This is great news! Dark mode is easier on the eyes.",
-                timestamp: new Date(2024, 2, 16, 10, 30)
-            }
-        ]
-    },
-    {
-        id: 4,
-        title: "Performance Optimization Request",
-        content: "I've noticed some lag when loading large datasets. Here are some specific examples:\n1. Page load time > 3s on mobile\n2. Search results take too long\n\nAny plans to optimize these?",
-        author: "WebDev",
-        isAnonymous: false,
-        timestamp: new Date(2024, 2, 17, 15, 45),
-        votes: 32,
-        comments: [
-            {
-                author: "OptimizationPro",
-                content: "Have you tried clearing your cache? Also, which browser are you using?",
-                timestamp: new Date(2024, 2, 17, 16, 0)
-            }
-        ]
-    },
-    {
-        id: 5,
-        title: "Mobile App Development Progress",
-        content: "Just wanted to share an update on our mobile app development. We're currently in the final testing phase and expect to launch the beta version in two weeks!",
-        author: "ProjectManager",
-        isAnonymous: false,
-        timestamp: new Date(2024, 2, 18, 11, 20),
-        votes: 28,
-        comments: [
-            {
-                author: "MobileUser",
-                content: "Will it be available for both iOS and Android?",
-                timestamp: new Date(2024, 2, 18, 11, 45)
-            },
-            {
-                author: "BetaTester",
-                content: "How can we join the beta testing program?",
-                timestamp: new Date(2024, 2, 18, 12, 0)
-            }
-        ]
-    }
-];
-
 // DOM Elements
 const postsContainer = document.getElementById('posts-container');
 const newPostBtn = document.querySelector('.new-post-btn');
@@ -132,33 +44,6 @@ document.querySelector('.modal-content').addEventListener('click', function(even
     event.stopPropagation();
 });
 
-function handleNewPost(event) {
-    event.preventDefault();
-    
-    const title = document.getElementById('postTitle').value;
-    const content = document.getElementById('postContent').value;
-    const isAnonymous = document.getElementById('anonymousPost').checked;
-    
-    const newPost = {
-        id: posts.length + 1,
-        title,
-        content,
-        author: isAnonymous ? "Anonymous" : "Current User",
-        isAnonymous,
-        timestamp: new Date(),
-        votes: 0,
-        comments: []
-    };
-    
-    posts.unshift(newPost);
-    renderPosts();
-    closeNewPostModal();
-    
-    // Update total posts count
-    const totalPostsElement = document.querySelector('.stat-value');
-    totalPostsElement.textContent = posts.length;
-}
-
 // Format date for display
 function formatDate(date) {
     const now = new Date();
@@ -174,7 +59,7 @@ function formatDate(date) {
     } else if (days < 7) {
         return `${days}d ago`;
     } else {
-        return date.toLocaleDateString('en-US', {
+        return new Date(date).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
@@ -184,93 +69,253 @@ function formatDate(date) {
 
 // Create HTML for a single post
 function createPostElement(post) {
+    console.log('Creating post element for:', post);
     const postElement = document.createElement('div');
     postElement.className = 'post';
-    postElement.dataset.postId = post.id;
-
-    // Only show first 5 comments initially
-    const initialComments = post.comments.slice(0, 5);
-    const hasMoreComments = post.comments.length > 5;
-
-    const commentsHtml = initialComments.map(comment => `
-        <div class="comment">
-            <div class="comment-meta">
-                <span class="comment-author">${comment.author}</span>
-                <span class="comment-date">${formatDate(comment.timestamp)}</span>
-            </div>
-            <div class="comment-text">${comment.content}</div>
-        </div>
-    `).join('');
-
+    postElement.setAttribute('data-post-id', post.id);
+    
     postElement.innerHTML = `
         <div class="post-header">
             <div class="post-votes">
-                <button class="vote-btn upvote" onclick="handleVote(${post.id}, 1)">▲</button>
-                <span class="vote-count">${post.votes}</span>
-                <button class="vote-btn downvote" onclick="handleVote(${post.id}, -1)">▼</button>
+                <button class="vote-btn" onclick="handleVote('${post.id}', 'up')">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
+                <span class="vote-count">${post.upvotes || 0}</span>
+                <button class="vote-btn" onclick="handleVote('${post.id}', 'down')">
+                    <i class="fas fa-arrow-down"></i>
+                </button>
             </div>
-            <div class="post-content-wrapper">
+            <div class="post-info">
                 <h3 class="post-title">${post.title}</h3>
                 <div class="post-meta">
-                    <span>${post.isAnonymous ? 'Anonymous' : post.author}</span>
-                    <span>•</span>
-                    <span>${formatDate(post.timestamp)}</span>
-                </div>
-                <div class="post-text">${post.content}</div>
-                <div class="post-actions">
-                    <button class="action-btn" onclick="toggleComments(${post.id})">
-                        <i class="fas fa-comment"></i>
-                        Comments (${post.comments.length})
-                    </button>
-                    <button class="action-btn">
-                        <i class="fas fa-share"></i>
-                        Share
-                    </button>
-                </div>
-                <div class="comments-section" data-loaded-all="${!hasMoreComments}">
-                    ${commentsHtml}
-                    ${hasMoreComments ? `
-                        <button class="load-more-comments" onclick="loadMoreComments(${post.id})">
-                            Load More Comments (${post.comments.length - 5} more)
-                        </button>
-                    ` : ''}
+                    <span>Posted by ${post.anonymous ? 'Anonymous' : post.author_name}</span>
+                    <span>${formatDate(post.created_at)}</span>
+                    <span class="post-category">${post.category}</span>
                 </div>
             </div>
         </div>
     `;
-
     return postElement;
 }
 
+// Fetch posts from Supabase
+async function fetchPosts() {
+    try {
+        const { data: posts, error } = await window.supabaseClient
+            .from('posts')
+            .select(`
+                *,
+                comments (
+                    *
+                )
+            `)
+            .order('votes', { ascending: false })
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return posts;
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        return [];
+    }
+}
+
+// Update stats
+async function updateStats() {
+    try {
+        // 获取总帖子数
+        const { count: totalCount, error: totalError } = await window.supabaseClient
+            .from('posts')
+            .select('*', { count: 'exact' });
+
+        if (totalError) throw totalError;
+
+        // 获取已关闭帖子数
+        const { count: closedCount, error: closedError } = await window.supabaseClient
+            .from('posts')
+            .select('*', { count: 'exact' })
+            .eq('is_closed', true);
+
+        if (closedError) throw closedError;
+
+        // 更新显示
+        document.getElementById('total-posts').textContent = totalCount || 0;
+        document.getElementById('closed-posts').textContent = closedCount || 0;
+    } catch (error) {
+        console.error('Error updating stats:', error);
+    }
+}
+
 // Render all posts
-function renderPosts() {
+async function renderPosts() {
     const postsContainer = document.getElementById('posts-container');
-    if (!postsContainer) return;
+    if (!postsContainer) {
+        console.error('Posts container not found');
+        return;
+    }
 
-    // Sort posts by votes and timestamp
-    const sortedPosts = [...posts].sort((a, b) => {
-        if (b.votes !== a.votes) return b.votes - a.votes;
-        return b.timestamp - a.timestamp;
-    });
+    try {
+        console.log('Fetching posts from Supabase...');
+        
+        // 检查 supabaseClient 是否存在
+        if (!window.supabaseClient) {
+            throw new Error('Supabase client not initialized');
+        }
 
-    postsContainer.innerHTML = '';
-    sortedPosts.forEach(post => {
-        postsContainer.appendChild(createPostElement(post));
-    });
+        // 获取所有帖子
+        const { data: posts, error: postsError } = await window.supabaseClient
+            .from('posts')
+            .select('*')
+            .order('created_at', { ascending: false });
 
-    // Update total posts count
-    const totalPostsElement = document.querySelector('.stat-value');
-    if (totalPostsElement) {
-        totalPostsElement.textContent = posts.length;
+        console.log('Supabase response:', { posts, error: postsError });
+
+        if (postsError) {
+            throw postsError;
+        }
+
+        // 清空并重新渲染帖子
+        postsContainer.innerHTML = '';
+        if (posts && posts.length > 0) {
+            posts.forEach(post => {
+                const postElement = createPostElement(post);
+                postsContainer.appendChild(postElement);
+            });
+        } else {
+            console.log('No posts found in the response');
+            postsContainer.innerHTML = '<div class="no-posts">No posts yet</div>';
+        }
+
+        // 更新统计数据
+        const totalPosts = posts ? posts.length : 0;
+        const closedPosts = posts ? posts.filter(p => p.is_closed).length : 0;
+        
+        document.getElementById('total-posts').textContent = totalPosts;
+        document.getElementById('closed-posts').textContent = closedPosts;
+
+    } catch (error) {
+        console.error('Error rendering posts:', error);
+        postsContainer.innerHTML = `<div class="error-message">Failed to load posts: ${error.message}</div>`;
+    }
+}
+
+// Handle new post submission
+async function handleNewPost(event) {
+    event.preventDefault();
+    
+    try {
+        // 获取当前用户信息
+        const { data: { user }, error: userError } = await window.supabaseClient.auth.getUser();
+        if (userError) throw userError;
+        if (!user) {
+            alert('Please sign in to create a post');
+            return;
+        }
+
+        // 获取表单数据
+        const title = document.getElementById('postTitle').value;
+        const category = document.getElementById('postCategory').value;
+        const isAnonymous = document.getElementById('anonymousPost').checked;
+        
+        console.log('Creating new post with data:', {
+            title,
+            category,
+            isAnonymous,
+            userId: user.id
+        });
+
+        // 创建新帖子
+        const { data: post, error: postError } = await window.supabaseClient
+            .from('posts')
+            .insert([{
+                title: title,
+                author_id: user.id,
+                author_name: user.email, // 或者用户的显示名称
+                anonymous: isAnonymous,
+                upvotes: 0,
+                created_at: new Date().toISOString(),
+                category: category
+            }])
+            .select()
+            .single();
+
+        if (postError) throw postError;
+
+        console.log('Post created successfully:', post);
+
+        // 重新渲染帖子列表
+        await renderPosts();
+        closeNewPostModal();
+    } catch (error) {
+        console.error('Error creating post:', error);
+        alert('Failed to create post. Please try again.');
     }
 }
 
 // Handle voting
-function handleVote(postId, value) {
-    const post = posts.find(p => p.id === postId);
-    if (post) {
-        post.votes += value;
-        renderPosts();
+async function handleVote(postId, value) {
+    try {
+        const { data: post, error: fetchError } = await window.supabaseClient
+            .from('posts')
+            .select('upvotes')
+            .eq('id', postId)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        const newVotes = post.upvotes + (value === 'up' ? 1 : -1);
+
+        const { error: updateError } = await window.supabaseClient
+            .from('posts')
+            .update({ upvotes: newVotes })
+            .eq('id', postId);
+
+        if (updateError) throw updateError;
+
+        await renderPosts();
+    } catch (error) {
+        console.error('Error updating vote:', error);
+        alert('Failed to update vote. Please try again.');
+    }
+}
+
+// Add comment
+async function addComment(postId, content) {
+    try {
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+
+        // 检查帖子是否已关闭
+        const { data: post, error: postError } = await window.supabaseClient
+            .from('posts')
+            .select('is_closed')
+            .eq('id', postId)
+            .single();
+
+        if (postError) throw postError;
+        if (post.is_closed) {
+            alert('This post is closed and cannot receive new comments.');
+            return;
+        }
+
+        const { data: comment, error } = await window.supabaseClient
+            .from('comments')
+            .insert([{
+                post_id: postId,
+                content,
+                author: user.email,
+                user_id: user.id,
+                created_at: new Date().toISOString()
+            }])
+            .select();
+
+        if (error) throw error;
+
+        await renderPosts();
+        return comment;
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        throw error;
     }
 }
 
@@ -284,45 +329,83 @@ function toggleComments(postId) {
 }
 
 // Load more comments
-function loadMoreComments(postId) {
-    const post = posts.find(p => p.id === postId);
+async function loadMoreComments(postId) {
     const postElement = document.querySelector(`.post[data-post-id="${postId}"]`);
     const commentsSection = postElement.querySelector('.comments-section');
     const loadMoreBtn = commentsSection.querySelector('.load-more-comments');
     
-    if (!post || !commentsSection || commentsSection.dataset.loadedAll === 'true') return;
+    if (!commentsSection || commentsSection.dataset.loadedAll === 'true') return;
 
-    // Get current number of comments displayed
-    const currentComments = commentsSection.querySelectorAll('.comment').length;
-    
-    // Get next batch of comments (5 more)
-    const nextComments = post.comments.slice(currentComments, currentComments + 5);
-    
-    // Create and append new comments
-    const newCommentsHtml = nextComments.map(comment => `
-        <div class="comment">
-            <div class="comment-meta">
-                <span class="comment-author">${comment.author}</span>
-                <span class="comment-date">${formatDate(comment.timestamp)}</span>
+    try {
+        const currentComments = commentsSection.querySelectorAll('.comment').length;
+        
+        const { data: comments, error } = await window.supabaseClient
+            .from('comments')
+            .select('*')
+            .eq('post_id', postId)
+            .order('created_at', { ascending: true })
+            .range(currentComments, currentComments + 4);
+
+        if (error) throw error;
+
+        const newCommentsHtml = comments.map(comment => `
+            <div class="comment">
+                <div class="comment-meta">
+                    <span class="comment-author">${comment.author}</span>
+                    <span class="comment-date">${formatDate(comment.created_at)}</span>
+                </div>
+                <div class="comment-text">${comment.content}</div>
             </div>
-            <div class="comment-text">${comment.content}</div>
-        </div>
-    `).join('');
-    
-    // Insert new comments before the "Load More" button
-    loadMoreBtn.insertAdjacentHTML('beforebegin', newCommentsHtml);
-    
-    // Check if we've loaded all comments
-    const remainingComments = post.comments.length - (currentComments + nextComments.length);
-    if (remainingComments <= 0) {
-        loadMoreBtn.remove();
-        commentsSection.dataset.loadedAll = 'true';
-    } else {
-        loadMoreBtn.textContent = `Load More Comments (${remainingComments} more)`;
+        `).join('');
+
+        loadMoreBtn.insertAdjacentHTML('beforebegin', newCommentsHtml);
+
+        if (comments.length < 5) {
+            loadMoreBtn.remove();
+            commentsSection.dataset.loadedAll = 'true';
+        }
+    } catch (error) {
+        console.error('Error loading more comments:', error);
+        alert('Failed to load more comments. Please try again.');
+    }
+}
+
+// Toggle post status
+async function togglePostStatus(postId, currentStatus) {
+    try {
+        const { error } = await window.supabaseClient
+            .from('posts')
+            .update({ is_closed: !currentStatus })
+            .eq('id', postId);
+
+        if (error) throw error;
+        await renderPosts();
+    } catch (error) {
+        console.error('Error toggling post status:', error);
+        alert('Failed to update post status. Please try again.');
     }
 }
 
 // Initialize posts when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    renderPosts();
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Page loaded, initializing...');
+    try {
+        // 等待 Supabase 初始化
+        if (!window.supabaseInitialized) {
+            console.log('Waiting for Supabase initialization...');
+            await new Promise(resolve => {
+                const checkInit = setInterval(() => {
+                    if (window.supabaseInitialized) {
+                        clearInterval(checkInit);
+                        resolve();
+                    }
+                }, 100);
+            });
+        }
+        
+        console.log('Supabase initialized, rendering posts...');
+        await renderPosts();
+    } catch (error) {
+        console.error('Error during initialization:', error);
+    }
 }); 

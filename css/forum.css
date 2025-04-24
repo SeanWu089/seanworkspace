@@ -726,6 +726,58 @@ body {
     background-color: #005aa5;
 }
 
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background-color: var(--background-color);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 121, 211, 0.1);
+}
+
+.post-category {
+    background-color: var(--background-secondary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-left: 8px;
+}
+
+/* 为不同类别添加不同的颜色 */
+.post-category[data-category="Technique Issue"] {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.post-category[data-category="Feature Request"] {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.post-category[data-category="Bug Report"] {
+    background-color: #fce4ec;
+    color: #c2185b;
+}
+
+.post-category[data-category="Question"] {
+    background-color: #fff3e0;
+    color: #f57c00;
+}
+
+.post-category[data-category="Discussion"] {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
     .forum-container {
@@ -891,4 +943,84 @@ body {
 .load-more-comments:hover {
     background-color: var(--hover-color);
     color: var(--text-color);
+}
+
+.post[data-closed="true"] {
+    opacity: 0.8;
+    background-color: var(--background-secondary);
+    pointer-events: auto;
+}
+
+.post[data-closed="true"]::before {
+    content: "Closed";
+    display: inline-block;
+    background-color: var(--text-secondary);
+    color: var(--background-primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+}
+
+.toggle-status-btn {
+    padding: 4px 12px;
+    border-radius: 4px;
+    background-color: var(--background-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-status-btn:hover {
+    background-color: var(--background-hover);
+}
+
+.post[data-closed="true"] .toggle-status-btn {
+    background-color: var(--accent-color);
+    color: var(--background-primary);
+    border-color: var(--accent-color);
+}
+
+.post[data-closed="true"] .toggle-status-btn:hover {
+    opacity: 0.9;
+}
+
+.post[data-closed="true"] .vote-btn,
+.post[data-closed="true"] .add-comment {
+    display: none;
+}
+
+.post[data-closed="true"] .post-votes {
+    opacity: 0.7;
+}
+
+.add-comment {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.comment-input {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    resize: vertical;
+}
+
+.submit-comment {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.submit-comment:hover {
+    background-color: #005aa5;
 } 

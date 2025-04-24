@@ -6,6 +6,8 @@
     <title>Forum - Discussion & Feedback</title>
     <link rel="stylesheet" href="css/forum.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
 </head>
 <body>
     <!-- Top Navigation Bar -->
@@ -45,11 +47,11 @@
                     <p class="community-description">A place for users to share feedback, suggestions, and discuss improvements.</p>
                     <div class="community-stats">
                         <div class="stat-item">
-                            <span class="stat-value">324</span>
+                            <span class="stat-value" id="total-posts">0</span>
                             <span class="stat-label">Total Posts</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-value">15</span>
+                            <span class="stat-value" id="closed-posts">0</span>
                             <span class="stat-label">Closed Posts</span>
                         </div>
                     </div>
@@ -97,8 +99,15 @@
                             <input type="text" id="postTitle" required placeholder="What's your suggestion?">
                         </div>
                         <div class="form-group">
-                            <label for="postContent">Content</label>
-                            <textarea id="postContent" required placeholder="Describe your idea in detail..."></textarea>
+                            <label for="postCategory">Category</label>
+                            <select id="postCategory" required>
+                                <option value="">Select a category</option>
+                                <option value="Technique Issue">Technique Issue</option>
+                                <option value="Feature Request">Feature Request</option>
+                                <option value="Bug Report">Bug Report</option>
+                                <option value="Question">Question</option>
+                                <option value="Discussion">Discussion</option>
+                            </select>
                         </div>
                         <label class="checkbox-container">
                             <input type="checkbox" id="anonymousPost">
